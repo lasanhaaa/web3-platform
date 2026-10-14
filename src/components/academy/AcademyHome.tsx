@@ -7,14 +7,15 @@ import { S, useProgress, focus, allCount, routeCount, routeDone, routeOpen, zone
 import { whyNext } from '@/lib/learn';
 import { ZTile, SegBar } from '@/components/ui/bits';
 import { BadgeImg } from '@/components/badges/BadgeImg';
-import { useAcademyActs, img } from './parts';
+import { useAcademyActs, useHydrated, img } from './parts';
 import { StudyPlan } from './StudyPlan';
 import { DailyReview } from './DailyReview';
 
 export function AcademyHome() {
   useProgress();
   const a = useAcademyActs();
-  if (!useHydrated()) return <div className="page" />;
+  const hydrated = useHydrated();
+  if (!hydrated) return <div className="page" />;
   const f = focus(),
     all = allCount(),
     earned = Object.keys(S.earned).length,

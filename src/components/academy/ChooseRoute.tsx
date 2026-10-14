@@ -5,11 +5,13 @@ import { I, SPARK } from '@/lib/icons';
 import { Svg } from '@/lib/svg';
 import { useProgress, routeCount } from '@/lib/progress';
 import { ZTile } from '@/components/ui/bits';
-import { useAcademyActs, img, Orb } from './parts';
+import { useAcademyActs, useHydrated, img, Orb } from './parts';
 
 export function ChooseRoute() {
   useProgress();
   const a = useAcademyActs();
+  const hydrated = useHydrated();
+  if (!hydrated) return <div className="page" />;
   return (
     <div className="page">
       <button className="back" onClick={a.map}>

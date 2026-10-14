@@ -8,16 +8,18 @@ import { parseZL } from '@/lib/nav';
 import { S, useProgress, routeCount, zoneOpen, routeOpen, quizOpen, routeDone, isDone, nextStep, pct, fmtMin, lessonState } from '@/lib/progress';
 import { ZTile, SegBar } from '@/components/ui/bits';
 import { BadgeImg } from '@/components/badges/BadgeImg';
-import { useAcademyActs, img } from './parts';
+import { useAcademyActs, useHydrated, img } from './parts';
 
 export function RouteView() {
   useProgress();
   const a = useAcademyActs();
   const p = useParams<{ route: string; zone: string }>();
+  const hydrated = useHydrated();
   const rid = String(p.route),
     zi = parseZL(p.zone).z,
     r = R(rid);
   if (!r || !r.zones[zi]) notFound();
+  if (!hydrated) return <div className="page" />;
   const z = r.zones[zi],
     ri = ROUTES.indexOf(r),
     c = routeCount(rid),
