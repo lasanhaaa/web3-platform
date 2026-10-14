@@ -22,6 +22,10 @@ ANTHROPIC_API_KEY=... npm run dev
 
 Without a key, Wega shows "Sample mode" and answers free questions with the closest scripted answer.
 
+## Deploy
+
+The repo is connected to Vercel: every push to a branch gets a preview link, and `main` is production. Set `ANTHROPIC_API_KEY` (and optionally `WEGA_MODEL`) in the Vercel project's environment variables for Wega's live answers.
+
 ## Pages
 
 | URL | Screen |
