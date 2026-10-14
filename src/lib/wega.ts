@@ -177,3 +177,8 @@ export async function wgAsk(text: string) {
     busy(false);
   }
 }
+
+/** Prompt chips marked "live" in the prototype: a live model answers the label as free text, otherwise the scripted intent runs. */
+export function wgAskLive(intent: string, label: string) {
+  return wega.get().live === true ? wgAsk(label) : wgRun(intent, label);
+}
