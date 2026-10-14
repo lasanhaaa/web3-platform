@@ -1,0 +1,26 @@
+/* Layout: the Web3Universe app shell (Figma sidebar) with a calm, Apple-like content column.
+   Academy = Pflichtstart, then 3 routes; route = zones of lessons; each zone ends in a quiz that awards a badge; each route ends in a certificate.
+   Single dark theme, as in the product. */
+:root{
+  color-scheme:dark;
+  --bg:#040811; --surface:#0A0F1B; --surface-2:#0E1421; --surface-3:#141B2A;
+  --hair:rgba(255,255,255,.07); --hair-2:rgba(255,255,255,.12);
+  --text:#F5F7FA; --t2:rgba(235,241,250,.68); --t3:rgba(235,241,250,.50); --t4:rgba(235,241,250,.30);
+  --accent:#9ED3FF; --accent-deep:#1783FF; --good:#9EFFA2; --bad:#FF5A5F; --gold:#E2B65E;
+  --font:var(--font-geist-sans),'Geist',ui-sans-serif,system-ui,-apple-system,'Segoe UI',sans-serif;
+  --mono:var(--font-geist-mono),'Geist Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
+  --edge:inset 1px 1px 0 0 rgba(255,255,255,.08), inset -1px -1px 0 0 rgba(0,0,0,.12);
+  --r-xl:22px; --r-lg:16px; --r-md:12px; --r-sm:8px;
+  --ease:cubic-bezier(.2,.8,.2,1);
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:15px;line-height:1.47;letter-spacing:-.011em;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:pointer;text-align:inherit}
+button:focus-visible,select:focus-visible,input:focus-visible,a:focus-visible,[tabindex]:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:8px}
+h1,h2,h3{margin:0;font-weight:600;text-wrap:balance;letter-spacing:-.03em}
+p{margin:0}
+.mono{font-family:var(--mono);text-transform:uppercase;letter-spacing:.08em;font-size:11px;font-weight:500}
+.tnum{font-variant-numeric:tabular-nums}
+.muted{color:var(--t2)}.quiet{color:var(--t3)}
+

@@ -1,0 +1,134 @@
+/* ---------- Wega, the AI copilot (Figma "Ask wega": launcher, 374px panel, prompt chips, chat) ---------- */
+.btn.sm{height:32px;padding:0 12px;font-size:14px;border-radius:8px}
+.chip.warn{background:rgba(226,182,94,.1);color:var(--gold)}
+.chip.sm{height:24px;padding:2px 6px;font-size:12px}
+.wg-orb{position:relative;width:40px;height:40px;flex:none;display:grid;place-items:center}
+.wg-orb .ring{position:absolute;inset:-3px;border-radius:50%;background:conic-gradient(from 0deg,#9ED3FF,#1783FF,#9EFFA2,#E2B65E,#9ED3FF);filter:blur(5px);opacity:0;transition:opacity .3s}
+.wg-av{position:relative;width:100%;height:100%;border-radius:50%;display:grid;place-items:center;color:#fff;background:radial-gradient(circle at 30% 25%,rgba(255,255,255,.35),transparent 45%),linear-gradient(-44deg,#9ED3FF 7%,#1783FF 67%,#00040F 140%);box-shadow:inset 1px 1px 0 rgba(255,255,255,.35),inset -1px -1px 0 rgba(0,0,0,.2)}
+.wg-av svg{width:45%;height:45%}
+.thinking .wg-orb .ring,.wg-orb.thinking .ring{opacity:.95;animation:wgspin 1.2s linear infinite}
+@keyframes wgspin{to{transform:rotate(360deg)}}
+.wg-fab{position:fixed;right:24px;bottom:calc(24px + env(safe-area-inset-bottom,0px));z-index:40;display:flex;align-items:center;gap:10px;height:48px;padding:4px 18px 4px 4px;border-radius:37px;color:#fff;font-weight:500;font-size:16px;letter-spacing:-.03em;background:linear-gradient(180deg,rgba(158,211,255,.16),rgba(23,131,255,.06)),rgba(9,13,22,.86);box-shadow:inset 0 0 0 1px rgba(158,211,255,.9),0 8px 32px rgba(0,0,0,.45),0 0 24px rgba(23,131,255,.22);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);transition:transform .3s var(--ease),opacity .3s,bottom .3s var(--ease)}
+.wg-fab:hover{transform:translateY(-2px)}
+body.wg-open .wg-fab{opacity:0;pointer-events:none;transform:translateY(12px)}
+body[data-screen=quiz] .wg-fab{bottom:calc(108px + env(safe-area-inset-bottom,0px))}
+.wg-tip{position:absolute;right:0;bottom:calc(100% + 12px);white-space:nowrap;padding:8px 12px;border-radius:8px;background:#151A26;box-shadow:var(--fx-modal);font-size:14px;color:#fff;opacity:0;transform:translateY(6px);transition:.25s;pointer-events:none}
+.wg-tip::after{content:"";position:absolute;right:22px;top:100%;border:6px solid transparent;border-top-color:#151A26}
+.wg-fab.ready .wg-tip{opacity:1;transform:none}
+.wg-fab.ready .wg-orb::after{content:"";position:absolute;right:-1px;top:-1px;width:10px;height:10px;border-radius:50%;background:var(--good);box-shadow:0 0 0 2px #0B0F19}
+
+.wg-panel{position:fixed;top:12px;right:12px;bottom:12px;width:374px;max-width:calc(100vw - 24px);z-index:50;display:flex;flex-direction:column;border-radius:8px;background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,.03)),rgba(10,14,23,.95);box-shadow:var(--fx-modal);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);transform:translateX(calc(100% + 24px));visibility:hidden;transition:transform .35s var(--ease),visibility 0s .35s}
+body.wg-open .wg-panel{transform:none;visibility:visible;transition:transform .35s var(--ease)}
+.wg-scrim{display:none}
+@media (min-width:1280px){body.wg-open .app{padding-right:398px}}
+.wg-head{display:flex;align-items:center;gap:10px;padding:14px 10px 10px 16px}
+.wg-head .wg-orb{width:32px;height:32px}
+.wg-head b{display:block;font-weight:500;font-size:16px;letter-spacing:-.03em;line-height:1.25}
+.wg-head small{display:block;font-size:12px;color:var(--t3)}
+.wg-head .sp{flex:1}
+.wg-ib{width:32px;height:32px;flex:none;border-radius:6px;display:grid;place-items:center;color:var(--t2)}
+.wg-ib:hover{background:rgba(255,255,255,.08);color:#fff}
+.wg-ib svg{width:16px;height:16px}
+.wg-ctx{padding:0 16px 8px;display:flex;min-width:0}
+.wg-ctx .chip{max-width:100%;height:24px;padding:2px 6px;font-size:12px;color:var(--accent);background:rgba(158,211,255,.08)}
+.wg-ctx .chip span{overflow:hidden;text-overflow:ellipsis;min-width:0}
+.wg-body{flex:1;overflow-y:auto;padding:8px 16px 16px;display:flex;flex-direction:column;gap:18px;scrollbar-width:thin;overscroll-behavior:contain}
+.wg-hello{margin-top:auto;display:flex;flex-direction:column;gap:12px}
+.wg-hello .wg-orb{width:48px;height:48px}
+.wg-hello h3{font-size:24px;font-weight:500;letter-spacing:-.03em;line-height:1.3}
+.wg-hello p{color:var(--t2);font-size:14px}
+.wg-chips{display:flex;flex-direction:column;gap:8px}
+.wg-chip{display:flex;align-items:center;gap:10px;min-height:40px;padding:8px 12px;border-radius:8px;background:rgba(255,255,255,.05);box-shadow:var(--fx-card);font-size:14px;color:#fff;text-align:left;line-height:1.35}
+.wg-chip:hover{background:rgba(255,255,255,.09)}
+.wg-chip svg{width:14px;height:14px;color:var(--accent);flex:none}
+.wg-lbl{font:500 12px/1.5 var(--mono);text-transform:uppercase;color:rgba(255,255,255,.4)}
+.wg-m{display:flex;flex-direction:column;gap:6px;min-width:0}
+.wg-m.u{align-items:flex-end}
+.wg-bub{max-width:88%;padding:10px 14px;border-radius:22px 0 22px 22px;background:rgba(255,255,255,.08);box-shadow:var(--fx-card);font-size:15px;line-height:1.45;overflow-wrap:anywhere}
+.wg-txt{font-size:15px;line-height:1.55;color:rgba(255,255,255,.88);display:flex;flex-direction:column;gap:8px;overflow-wrap:anywhere}
+.wg-txt b{color:#fff;font-weight:600}
+.wg-txt ul,.wg-txt ol{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:4px}
+.wg-txt code{font-family:var(--mono);font-size:13px;background:rgba(255,255,255,.08);padding:1px 4px;border-radius:4px}
+.wg-txt .err{color:var(--t3);font-size:13px}
+.wg-dots{display:inline-flex;gap:4px;padding:6px 0}
+.wg-dots i{width:6px;height:6px;border-radius:50%;background:var(--t3);animation:wgdot 1s infinite}
+.wg-dots i:nth-child(2){animation-delay:.15s}.wg-dots i:nth-child(3){animation-delay:.3s}
+@keyframes wgdot{0%,80%,100%{opacity:.25;transform:none}40%{opacity:1;transform:translateY(-3px)}}
+.wg-meta{display:flex;gap:2px;align-items:center}
+.wg-meta button{width:28px;height:28px;border-radius:6px;display:grid;place-items:center;color:var(--t3)}
+.wg-meta button:hover{background:rgba(255,255,255,.08);color:#fff}
+.wg-meta button.on{color:var(--accent)}
+.wg-meta svg{width:14px;height:14px}
+.wg-meta .src{margin-left:auto;font:500 11px/1 var(--mono);text-transform:uppercase;color:var(--t4)}
+.wg-follow{display:flex;flex-wrap:wrap;gap:6px}
+.wg-follow .wg-chip,.wg-sugg .wg-chip{min-height:32px;padding:6px 10px;font-size:13px}
+.wg-card{border-radius:8px;background:rgba(255,255,255,.04);box-shadow:var(--fx-card);padding:14px;display:flex;flex-direction:column;gap:10px}
+.wg-card .k{font:500 12px/1.5 var(--mono);text-transform:uppercase;color:rgba(255,255,255,.4)}
+.wg-big{font-size:32px;font-weight:500;letter-spacing:-.03em;line-height:1.2;font-variant-numeric:tabular-nums}
+.wg-rows{display:flex;flex-direction:column}
+.wg-row{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:8px 0;font-size:14px;border-top:1px solid rgba(255,255,255,.06)}
+.wg-row:first-child{border-top:0;padding-top:0}
+.wg-row>span{color:var(--t2);min-width:0}
+.wg-row b{font-weight:500;font-variant-numeric:tabular-nums;text-align:right}
+.wg-row b.no,.sim-out b.no{color:var(--bad)}.wg-row b.ok,.sim-out b.ok{color:var(--good)}.wg-row b.warn,.sim-out b.warn{color:var(--gold)}
+.wg-acts{display:flex;flex-wrap:wrap;gap:8px}
+.wg-gauge{position:relative;height:6px;background:linear-gradient(90deg,#FF6161 0 12.5%,#E2B65E 12.5% 37.5%,#9EFFA2 37.5%)}
+.wg-gauge i{position:absolute;top:-4px;width:3px;height:14px;margin-left:-1px;background:#fff;box-shadow:0 0 0 2px rgba(10,14,23,.9)}
+.wg-gauge i.ghost{background:rgba(255,255,255,.45)}
+.wg-scale{display:flex;justify-content:space-between;font:500 11px/1 var(--mono);color:var(--t4)}
+.wg-split{display:flex;height:8px;gap:2px}
+.wg-split span{display:block;height:100%}
+.wg-legend{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:13px;color:var(--t2)}
+.wg-legend i{display:inline-block;width:8px;height:8px;margin-right:6px;border-radius:2px}
+.wg-q{display:flex;flex-direction:column;gap:8px}
+.wg-q>b{font-weight:500;font-size:15px;line-height:1.45}
+.wg-q>small{font-size:13px;color:var(--t3)}
+.wg-opt{display:flex;gap:10px;align-items:center;min-height:40px;padding:8px 10px;border-radius:8px;background:rgba(255,255,255,.05);box-shadow:var(--fx-card);font-size:14px;text-align:left;line-height:1.35}
+.wg-opt span{width:24px;height:24px;flex:none;border-radius:6px;display:grid;place-items:center;font:500 12px var(--mono);background:rgba(255,255,255,.06)}
+.wg-opt:hover:not(:disabled){background:rgba(255,255,255,.09)}
+.wg-opt.right{box-shadow:var(--sel-green);background:rgba(158,255,162,.06)}
+.wg-opt.wrong{box-shadow:var(--sel-red);background:rgba(255,97,97,.06)}
+.wg-opt:disabled{cursor:default}
+.wg-div{display:flex;align-items:center;gap:8px;color:var(--t4);font:500 11px/1.3 var(--mono);text-transform:uppercase;text-align:center}
+.wg-div::before,.wg-div::after{content:"";flex:1;min-width:16px;border-top:1px solid rgba(255,255,255,.08)}
+.wg-sugg{display:flex;gap:6px;overflow-x:auto;padding:0 12px 8px;scrollbar-width:none}
+.wg-sugg::-webkit-scrollbar{display:none}
+.wg-sugg{-webkit-mask-image:linear-gradient(90deg,#000 82%,transparent);mask-image:linear-gradient(90deg,#000 82%,transparent)}
+.rcard .pic .rec{position:absolute;left:16px;top:16px;z-index:1;background:rgba(10,20,34,.85);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+body[data-screen=lesson] .wg-fab{display:none}
+.wg-sugg .wg-chip{flex:none;white-space:nowrap}
+.wg-comp{margin:0 12px;padding:10px 8px 8px 14px;border-radius:8px;background:rgba(255,255,255,.05);box-shadow:var(--fx-card);display:flex;flex-direction:column;gap:6px}
+.wg-comp:focus-within{box-shadow:var(--sel-blue)}
+.wg-comp textarea{width:100%;resize:none;border:0;outline:0;background:none;color:#fff;font:inherit;font-size:15px;line-height:1.45;max-height:120px;min-height:22px;padding:0}
+.wg-comp textarea::placeholder{color:var(--t3)}
+.wg-tools{display:flex;align-items:center;gap:2px;margin-left:-6px}
+.wg-tools .wg-ib{width:30px;height:30px}
+.wg-mode{margin-left:auto;margin-right:8px;font:500 11px/1 var(--mono);text-transform:uppercase;color:var(--t4);white-space:nowrap}
+.wg-mode.live{color:var(--good)}
+.wg-send{width:32px;height:32px;flex:none;border-radius:50%;display:grid;place-items:center;background:#fff;color:#000}
+.wg-send svg{width:16px;height:16px}
+.wg-send.stop{background:rgba(255,255,255,.14);color:#fff}
+.wg-send:disabled{opacity:.3;cursor:default}
+.wg-note{padding:8px 16px 12px;font-size:12px;color:var(--t4);text-align:center}
+.wg-link{color:var(--accent)!important;display:inline-flex;align-items:center;gap:6px;font-size:14px;margin-top:6px}
+.wg-link svg{width:14px;height:14px}
+.wg-why{display:flex;gap:8px;align-items:flex-start;font-size:14px;color:var(--t2);line-height:1.45}
+.wg-why svg{width:14px;height:14px;flex:none;margin-top:3px;color:var(--accent)}
+.wg-why b{color:#fff;font-weight:500}
+.wg-rec{display:flex;gap:16px;align-items:flex-start;padding:20px;margin-top:28px}
+.wg-rec h3{font-size:18px;font-weight:500;letter-spacing:-.03em;line-height:1.4}
+.wg-rec p{color:var(--t2);font-size:14px;margin-top:4px;max-width:70ch}
+.wg-rec .wg-acts{margin-top:12px}
+
+/* ---------- What-if simulator ---------- */
+.sim-top{display:flex;justify-content:space-between;align-items:baseline;gap:12px}
+.sim-top b{font-size:24px;font-weight:500;letter-spacing:-.03em;font-variant-numeric:tabular-nums}
+.sim-scale{display:flex;justify-content:space-between;font:500 12px/1 var(--mono);color:var(--t4)}
+.sim-out{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.sim-out div{padding:12px;border-radius:6px;background:rgba(255,255,255,.03);box-shadow:var(--fx-card);min-width:0}
+.sim-out span{display:block;font:500 12px/1.5 var(--mono);text-transform:uppercase;color:rgba(255,255,255,.4)}
+.sim-out b{font-size:24px;font-weight:500;letter-spacing:-.03em;line-height:1.4;font-variant-numeric:tabular-nums}
+.sim-msg{font-size:14px;color:var(--t2)}
+.chk2{display:flex;gap:8px;align-items:center;font-size:14px;color:var(--t2);cursor:pointer}
+.chk2 input{accent-color:#9ED3FF;width:16px;height:16px}
+
