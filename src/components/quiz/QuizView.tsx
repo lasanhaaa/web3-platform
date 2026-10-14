@@ -1,11 +1,11 @@
 'use client';
-import { useEffect, useState } from 'react';
+import { useEffect, useLayoutEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { R } from '@/lib/curriculum';
 import { Q } from '@/lib/quiz-bank';
 import { I, SPARK } from '@/lib/icons';
 import { Svg } from '@/lib/svg';
-import { S, useProgress, restoreDemo, quizOpen, lessonOpen, passZone, commit as commitP } from '@/lib/progress'; // TEMP-QDBG commit
+import { S, useProgress, restoreDemo, quizOpen, lessonOpen, passZone } from '@/lib/progress';
 import { useGo, parseZL, hrefRoute } from '@/lib/nav';
 import { toast } from '@/lib/toast';
 import { wgRun, wgAskLive } from '@/lib/wega';
@@ -27,37 +27,34 @@ export function QuizView() {
   const r = String(params.route);
   const { z } = parseZL(params.zone);
   const router = useRouter();
-  const [ready, setReady] = useState(false);
+  /* 'init' renders the intro (the same on the server and while hydrating, whatever demo state the browser restores);
+     'ready' renders the running quiz; 'blocked' renders nothing while redirecting. */
+  const [phase, setPhase] = useState<'init' | 'ready' | 'blocked'>('init');
   const valid = !!(R(r) && R(r).zones[z] && Q[r + '.' + z]);
 
-  // A fresh quiz whenever the page opens for a zone (or the demo state changes under it).
-  useEffect(() => {
+  // A fresh quiz whenever the page opens for a zone (or the demo state changes under it). Before paint, so a locked quiz never shows.
+  useLayoutEffect(() => {
     restoreDemo();
     if (!valid) return;
     if (!canQuiz(r, z)) {
+      setPhase('blocked');
       toast('Finish all lessons in this zone first.');
       router.replace(hrefRoute(r, z));
       return;
     }
     startQuizState(r, z);
-    setReady(true);
+    setPhase('ready');
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [r, z, valid, S.demo]);
-  // TEMP-QDBG
-  useEffect(() => {
-    (window as any).__qdbg = { S, commit: commitP, push: router.push };
-  }, [router]);
   // The "lost" life animation only plays on the render right after the answer (prototype: render() clears QZ.lost).
   useEffect(() => {
     const q = getQZ();
     if (q) q.lost = false;
   });
 
-  if (!valid) return null;
+  if (!valid || phase === 'blocked') return null;
   const cur = st.QZ;
-  const QZ = ready && cur && cur.r === r && cur.z === z ? cur : canQuiz(r, z) ? freshQuiz(r, z) : null;
-  if (!QZ) return null;
-  return <Quiz QZ={QZ} />;
+  return <Quiz QZ={phase === 'ready' && cur && cur.r === r && cur.z === z ? cur : freshQuiz(r, z)} />;
 }
 
 function TopBar({ QZ }: { QZ: QuizState }) {

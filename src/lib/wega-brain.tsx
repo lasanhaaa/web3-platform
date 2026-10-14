@@ -9,7 +9,7 @@ import { PF, hfAt, liqAt, netAt, num, usd, pctS, hfCls, APPR, WATCH, ALERT_SUGG 
 import { S, allCount, focus, routeCount, nextStep, isDone, pct, fmtMin, lessonOpen, quizOpen, chooseRoute, type Step } from './progress';
 import { stepTitle, stepCrumb, whyNext, portFor } from './learn';
 import { CAT, bState } from './badges';
-import { getQZ } from './quiz-state';
+import { getQZ, startQuizState } from './quiz-state';
 import { hsim } from './hsim';
 import { seekLesson } from './player';
 import { hrefLesson, hrefQuiz, hrefRoute, hrefMap } from './nav';
@@ -212,6 +212,8 @@ export function StepBtn({ f, label, cls = 'btn primary sm' }: { f: Step; label?:
   const go = () => {
     if (f.quiz) {
       if (!quizOpen(f.r, f.z) && !S.passed.has(f.r + '.' + f.z)) return toast('Finish all lessons in this zone first.');
+      /* a fresh quiz first: from the fail screen the URL doesn't change, so the page wouldn't restart it */
+      startQuizState(f.r, f.z);
       return router.push(hrefQuiz(f.r, f.z));
     }
     if (!lessonOpen(f.r, f.z, f.l!)) return toast('This lesson is still locked.');

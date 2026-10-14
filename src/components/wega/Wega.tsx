@@ -10,13 +10,15 @@ import { rewardOpen } from '@/lib/reward';
 import { toast } from '@/lib/toast';
 import { I, SPARK, WI } from '@/lib/icons';
 import { Svg } from '@/lib/svg';
+import { zoneExists, lessonExists } from '@/lib/params';
 
 /* Wega, the AI copilot: floating button + side panel on every page (prototype wgMount/wgSync/wgPush). */
 
 /** Which screen the URL is, in the prototype's terms. The Strategies modal adds its strategy id itself. */
 function pageFromPath(path: string, prev: WegaPage): WegaPage {
   const m = path.match(/^\/academy\/([^/]+)\/(\d+)(?:\/(\d+|quiz))?\/?$/);
-  if (m) {
+  /* an unknown zone or lesson shows the 404 page; Wega treats it as the Academy home */
+  if (m && (m[3] && m[3] !== 'quiz' ? lessonExists(m[1], m[2], m[3]) : zoneExists(m[1], m[2]))) {
     const r = m[1],
       z = +m[2] - 1;
     if (m[3] === 'quiz') return { screen: 'quiz', r, z };
