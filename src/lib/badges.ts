@@ -9,7 +9,8 @@ export const BID = { 'academy.0': 'academy-start', 'r1.0': 'defi-grundlagen-1', 
 export const PATH = { academy: 'academy', r1: 'defi-grundlagen', r2: 'defi-strategien', r3: 'perppilot' };
 export const PCOLOR = { academy: '#4ade80', r1: '#3d8bff', r2: '#ffc93c', r3: '#2ee6c8' };
 const hex2rgb = (h) => [1, 3, 5].map((i) => parseInt(h.slice(i, i + 2), 16)).join(' ');
-export const still = (id) => `/renders/${id}.png`;
+/** the certificates are dark, grainy sheets: WebP keeps them small */
+export const still = (id) => `/renders/${id}.${id.endsWith('-card') ? 'webp' : 'png'}`;
 /** one entry per badge, as in badgeweb3's catalogue: the levels of each path, then its gold coin and platinum card */
 export const CAT = ROUTES.map((r) => {
   const c = PCOLOR[r.id],

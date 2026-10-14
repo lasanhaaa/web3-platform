@@ -4,7 +4,7 @@
    Earned items open in the 3D viewer; the others take you to the zone that earns them. */
 import type { CSSProperties } from 'react';
 import { CAT, still } from '@/lib/badges';
-import { S, useProgress, routeOpen, zoneOpen, isDone, today } from '@/lib/progress';
+import { S, useProgress, routeOpen, zoneOpen, isDone } from '@/lib/progress';
 import { openViewer } from '@/lib/reward';
 import { useGo } from '@/lib/nav';
 import { useHydrated } from '@/lib/hydrated';
@@ -27,7 +27,7 @@ function status(it: Item, c: Cat): Status {
   }
   const n = r.zones.length,
     d = r.zones.filter((_: any, i: number) => S.passed.has(it.rid + '.' + i)).length;
-  if (d === n) return { state: 'earned', label: it.card ? `Issued ${S.earned[it.rid + '.' + (n - 1)] || today()}` : 'Completed' };
+  if (d === n) return { state: 'earned', label: it.card ? 'Issued' : 'Completed' };
   if (!routeOpen(it.rid)) return { state: 'locked', label: 'Opens after the Academy' };
   return { state: 'progress', label: `${d} of ${n} badges`, pct: (d / n) * 100 };
 }
