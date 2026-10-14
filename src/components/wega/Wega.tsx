@@ -1,6 +1,6 @@
 'use client';
 import { useEffect, useRef, useState, type ReactNode } from 'react';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { wega, setWegaPage, wgAsk, wgClose, wgNew, wgProbe, wgRun, wgStop, wgToggle, type Chip, type Msg, type WegaPage } from '@/lib/wega';
 import { chipsFor, ctxLabel, helloLead } from '@/lib/wega-brain';
 import { useProgress } from '@/lib/progress';
@@ -12,7 +12,9 @@ import { I, SPARK, WI } from '@/lib/icons';
 import { Svg } from '@/lib/svg';
 import { zoneExists, lessonExists } from '@/lib/params';
 
-/* Wega, the AI copilot: floating button + side panel on every page (prototype wgMount/wgSync/wgPush). */
+/* Wega, the AI copilot: floating button + side panel on every page (prototype wgMount/wgSync/wgPush).
+   The header's "Open in Wega" goes to the Wega page with the topic of the page you're on. */
+const OPEN_IN = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4h6v6M20 4l-8 8M18 14v4a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4"/></svg>';
 
 /** Which screen the URL is, in the prototype's terms. The Strategies modal adds its strategy id itself. */
 function pageFromPath(path: string, prev: WegaPage): WegaPage {
@@ -61,7 +63,7 @@ function inline(s: string, k: string): ReactNode[] {
     ),
   );
 }
-function MdText({ text }: { text: string }) {
+export function MdText({ text }: { text: string }) {
   const out: ReactNode[] = [];
   let list: { tag: 'ul' | 'ol'; items: ReactNode[] } | null = null;
   const flush = () => {
@@ -223,6 +225,7 @@ export function WegaRoot() {
   quiz.use();
   player.use();
   const path = usePathname() || '/';
+  const router = useRouter();
   const body = useRef<HTMLDivElement>(null);
   const fab = useRef<HTMLButtonElement>(null);
 
@@ -271,6 +274,17 @@ export function WegaRoot() {
             <small>Your AI copilot</small>
           </div>
           <span className="sp" />
+          <button
+            className="wg-ib"
+            onClick={() => {
+              wgClose();
+              router.push(`/wega?c=${W.page.screen === 'strategies' ? 'strategies' : 'learn'}`);
+            }}
+            aria-label="Open in Wega"
+            title="Open in Wega"
+          >
+            <Svg src={OPEN_IN} />
+          </button>
           <button className="wg-ib" onClick={wgNew} aria-label="New chat" title="New chat">
             <Svg src={WI.plus} />
           </button>

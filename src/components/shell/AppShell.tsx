@@ -11,6 +11,7 @@ type Item = { label: string; icon: keyof typeof NAV_ICONS; href?: string; on?: (
 const NAV: (Item | '-')[] = [
   { label: 'Overview', icon: 'overview' },
   { label: 'My Portfolio', icon: 'portfolio' },
+  { label: 'Wega', icon: 'wega', href: '/wega', on: (p) => p.startsWith('/wega') },
   '-',
   { label: 'Academy', icon: 'academy', href: '/academy', on: (p) => p.startsWith('/academy') },
   { label: 'Badges & Certificates', icon: 'badges', href: '/badges', on: (p) => p.startsWith('/badges'), count: true },
@@ -151,6 +152,7 @@ export default function AppShell({ children }: { children: ReactNode }) {
               <Link href="/academy" className={p.startsWith('/academy') ? 'on' : undefined}>Academy</Link>
               <Link href="/badges" className={p.startsWith('/badges') ? 'on' : undefined}>Badges</Link>
               <Link href="/strategies" className={p.startsWith('/strategies') ? 'on' : undefined}>Strategies</Link>
+              <Link href="/wega" className={p.startsWith('/wega') ? 'on' : undefined}>Wega</Link>
             </nav>
             <DemoSelect compact />
           </div>

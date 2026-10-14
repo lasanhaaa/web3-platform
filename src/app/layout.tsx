@@ -19,6 +19,7 @@ import '@/styles/13-next.css';
 import '@/styles/14-course.css';
 import '@/styles/15-academy-home.css';
 import '@/styles/16-badges-page.css';
+import '@/styles/17-wega-page.css';
 
 const geistSans = Geist({ variable: '--font-geist-sans', subsets: ['latin'], weight: ['400', '500', '600'] });
 const geistMono = Geist_Mono({ variable: '--font-geist-mono', subsets: ['latin'], weight: ['400', '500'] });
