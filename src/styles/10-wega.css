@@ -8,7 +8,7 @@
 .wg-av svg{width:45%;height:45%}
 .thinking .wg-orb .ring,.wg-orb.thinking .ring{opacity:.95;animation:wgspin 1.2s linear infinite}
 @keyframes wgspin{to{transform:rotate(360deg)}}
-.wg-fab{position:fixed;right:24px;bottom:calc(24px + env(safe-area-inset-bottom,0px));z-index:40;display:flex;align-items:center;gap:10px;height:48px;padding:4px 18px 4px 4px;border-radius:37px;color:#fff;font-weight:500;font-size:16px;letter-spacing:-.03em;background:linear-gradient(180deg,rgba(158,211,255,.16),rgba(23,131,255,.06)),rgba(9,13,22,.86);box-shadow:inset 0 0 0 1px rgba(158,211,255,.9),0 8px 32px rgba(0,0,0,.45),0 0 24px rgba(23,131,255,.22);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);transition:transform .3s var(--ease),opacity .3s,bottom .3s var(--ease)}
+.wg-fab{position:fixed;right:24px;bottom:calc(24px + env(safe-area-inset-bottom,0px));z-index:40;display:flex;align-items:center;gap:10px;height:48px;padding:4px 18px 4px 4px;border-radius:37px;color:#fff;font-weight:500;font-size:16px;letter-spacing:-.03em;background:linear-gradient(180deg,rgba(158,211,255,.16),rgba(23,131,255,.06)),rgba(9,13,22,.86);box-shadow:inset 0 0 0 1px rgba(158,211,255,.9),0 8px 32px rgba(0,0,0,.45),0 0 24px rgba(23,131,255,.22);backdrop-filter:blur(14px);transition:transform .3s var(--ease),opacity .3s,bottom .3s var(--ease)}
 .wg-fab:hover{transform:translateY(-2px)}
 body.wg-open .wg-fab{opacity:0;pointer-events:none;transform:translateY(12px)}
 body[data-screen=quiz] .wg-fab{bottom:calc(108px + env(safe-area-inset-bottom,0px))}
@@ -17,7 +17,7 @@ body[data-screen=quiz] .wg-fab{bottom:calc(108px + env(safe-area-inset-bottom,0p
 .wg-fab.ready .wg-tip{opacity:1;transform:none}
 .wg-fab.ready .wg-orb::after{content:"";position:absolute;right:-1px;top:-1px;width:10px;height:10px;border-radius:50%;background:var(--good);box-shadow:0 0 0 2px #0B0F19}
 
-.wg-panel{position:fixed;top:12px;right:12px;bottom:12px;width:374px;max-width:calc(100vw - 24px);z-index:50;display:flex;flex-direction:column;border-radius:8px;background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,.03)),rgba(10,14,23,.95);box-shadow:var(--fx-modal);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);transform:translateX(calc(100% + 24px));visibility:hidden;transition:transform .35s var(--ease),visibility 0s .35s}
+.wg-panel{position:fixed;top:12px;right:12px;bottom:12px;width:374px;max-width:calc(100vw - 24px);z-index:50;display:flex;flex-direction:column;border-radius:8px;background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,.03)),rgba(10,14,23,.95);box-shadow:var(--fx-modal);backdrop-filter:blur(24px);transform:translateX(calc(100% + 24px));visibility:hidden;transition:transform .35s var(--ease),visibility 0s .35s}
 body.wg-open .wg-panel{transform:none;visibility:visible;transition:transform .35s var(--ease)}
 .wg-scrim{display:none}
 @media (min-width:1280px){body.wg-open .app{padding-right:398px}}
@@ -94,7 +94,7 @@ body.wg-open .wg-panel{transform:none;visibility:visible;transition:transform .3
 .wg-sugg{display:flex;gap:6px;overflow-x:auto;padding:0 12px 8px;scrollbar-width:none}
 .wg-sugg::-webkit-scrollbar{display:none}
 .wg-sugg{-webkit-mask-image:linear-gradient(90deg,#000 82%,transparent);mask-image:linear-gradient(90deg,#000 82%,transparent)}
-.rcard .pic .rec{position:absolute;left:16px;top:16px;z-index:1;background:rgba(10,20,34,.85);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+.rcard .pic .rec{position:absolute;left:16px;top:16px;z-index:1;background:rgba(10,20,34,.85);backdrop-filter:blur(8px)}
 body[data-screen=lesson] .wg-fab{display:none}
 .wg-sugg .wg-chip{flex:none;white-space:nowrap}
 .wg-comp{margin:0 12px;padding:10px 8px 8px 14px;border-radius:8px;background:rgba(255,255,255,.05);box-shadow:var(--fx-card);display:flex;flex-direction:column;gap:6px}

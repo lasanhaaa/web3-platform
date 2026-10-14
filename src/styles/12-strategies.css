@@ -56,7 +56,7 @@
 
 /* protocol icon tiles (Figma "hyper-foundation": glass tile, inner shadow, -11px overlap) */
 .pts{display:flex;align-items:center}
-.pt{--s:42px;width:var(--s);height:var(--s);flex:none;border-radius:6px;display:grid;place-items:center;background:linear-gradient(-27deg,rgba(255,255,255,.2),rgba(255,255,255,0) 72%),rgba(255,255,255,.05);box-shadow:inset 1px 1px 0 rgba(255,255,255,.1);backdrop-filter:blur(4.75px);-webkit-backdrop-filter:blur(4.75px)}
+.pt{--s:42px;width:var(--s);height:var(--s);flex:none;border-radius:6px;display:grid;place-items:center;background:linear-gradient(-27deg,rgba(255,255,255,.2),rgba(255,255,255,0) 72%),rgba(255,255,255,.05);box-shadow:inset 1px 1px 0 rgba(255,255,255,.1);backdrop-filter:blur(4.75px)}
 .pt+.pt{margin-left:calc(var(--s) * -.26)}
 .pt svg,.pt img{width:80%;height:80%;display:block}
 .pt.n{font:500 calc(var(--s) * .38)/1 var(--font);color:rgba(255,255,255,.8)}
@@ -76,7 +76,7 @@
 .st-clear svg{width:14px;height:14px}
 .st-sort{margin-left:auto}
 .st-sort .st-ddb{min-width:224px;justify-content:space-between}
-.st-menu{position:absolute;top:calc(100% + 8px);left:0;z-index:20;min-width:100%;width:max-content;max-width:min(326px,calc(100vw - 32px));padding:8px;border-radius:8px;background:rgba(21,26,38,.97);box-shadow:var(--fx-modal);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);animation:fade .18s var(--ease) both}
+.st-menu{position:absolute;top:calc(100% + 8px);left:0;z-index:20;min-width:100%;width:max-content;max-width:min(326px,calc(100vw - 32px));padding:8px;border-radius:8px;background:rgba(21,26,38,.97);box-shadow:var(--fx-modal);backdrop-filter:blur(20px);animation:fade .18s var(--ease) both}
 .st-sort .st-menu{left:auto;right:0}
 .st-menu button{display:flex;align-items:center;justify-content:space-between;gap:24px;width:100%;min-height:48px;padding:8px;border-radius:6px;font-size:16px;letter-spacing:-.02em;color:#fff;text-align:left}
 .st-menu button:hover{background:rgba(255,255,255,.05)}
@@ -91,7 +91,7 @@
 
 /* cards (Figma "Strategies card" 374 x 297) */
 .st-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(300px,100%),1fr));gap:32px 24px;margin-top:28px}
-.st-card{--dc:#FE963C;position:relative;display:flex;flex-direction:column;min-width:0;text-align:left;border-radius:6px;background:linear-gradient(to top right,var(--dg),rgba(0,0,0,0) 78%),rgba(255,255,255,.03);box-shadow:inset 1px 1px 0 rgba(255,255,255,.1);backdrop-filter:blur(9.5px);-webkit-backdrop-filter:blur(9.5px);transition:background-color .2s,transform .3s var(--ease)}
+.st-card{--dc:#FE963C;position:relative;display:flex;flex-direction:column;min-width:0;text-align:left;border-radius:6px;background:linear-gradient(to top right,var(--dg),rgba(0,0,0,0) 78%),rgba(255,255,255,.03);box-shadow:inset 1px 1px 0 rgba(255,255,255,.1);backdrop-filter:blur(9.5px);transition:background-color .2s,transform .3s var(--ease)}
 .st-card:hover{background-color:rgba(255,255,255,.055);transform:translateY(-2px)}
 .st-c-top{position:relative;display:flex;flex-direction:column;gap:18px;padding:24px 24px 32px}
 .st-c-id{display:flex;flex-direction:column;gap:14px;padding-right:118px;min-width:0}
@@ -122,7 +122,7 @@
 .st-empty b{display:block;color:#fff;font-weight:500;margin-bottom:6px}
 
 /* modal (Figma "strategies / modal", 760 wide, single scroll) */
-.st-ov{position:fixed;inset:0;z-index:35;overflow-y:auto;overscroll-behavior:contain;padding:48px 16px calc(48px + env(safe-area-inset-bottom,0px));background:rgba(2,4,9,.74);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);animation:fade .25s var(--ease) both}
+.st-ov{position:fixed;inset:0;z-index:35;overflow-y:auto;overscroll-behavior:contain;padding:48px 16px calc(48px + env(safe-area-inset-bottom,0px));background:rgba(2,4,9,.74);backdrop-filter:blur(6px);animation:fade .25s var(--ease) both}
 body.st-lock{overflow:hidden}
 @media (min-width:1280px){body.wg-open .st-ov{right:398px}}
 .st-m{--dc:#FE963C;position:relative;width:760px;max-width:100%;margin:0 auto;border-radius:8px;background:radial-gradient(90% 520px at 100% 0%,var(--dg),rgba(0,0,0,0) 70%),linear-gradient(rgba(255,255,255,.05),rgba(255,255,255,.05)),#040811;box-shadow:inset 1px 1px 0 rgba(255,255,255,.1),0 12px 80.8px -9px rgba(0,0,0,.53)}

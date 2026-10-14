@@ -78,7 +78,9 @@ export function SimBlock() {
         />{' '}
         Repay 1,500 USDC to Aave
       </label>
-      <SimOut />
+      <div>
+        <SimOut />
+      </div>
     </div>
   );
 }

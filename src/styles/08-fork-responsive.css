@@ -16,7 +16,7 @@
 @media (max-width:860px){
   .app{grid-template-columns:minmax(0,1fr)}
   .side{display:none}
-  .topbar{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 16px;border-bottom:1px solid var(--hair);position:sticky;top:0;z-index:6;background:rgba(4,8,17,.9);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
+  .topbar{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 16px;border-bottom:1px solid var(--hair);position:sticky;top:0;z-index:6;background:rgba(4,8,17,.9);backdrop-filter:blur(12px)}
   .topbar .brand{padding:0}
   .topbar nav{display:flex;gap:6px}
   .topbar nav :is(button,a){font-size:12.5px;padding:6px 10px;border-radius:999px;color:var(--t2)}

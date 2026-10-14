@@ -1,5 +1,5 @@
 'use client';
-import { useEffect, type MouseEvent } from 'react';
+import { useEffect, useSyncExternalStore, type MouseEvent } from 'react';
 import { useParams } from 'next/navigation';
 import { ROUTES, R, key, pad, dur, chaptersFor, chIdx, glossFor } from '@/lib/curriculum';
 import { Q } from '@/lib/quiz-bank';
@@ -28,6 +28,12 @@ import {
 } from '@/lib/player';
 import { SimBlock } from '@/components/wega/Sim';
 
+/* false during the server render and hydration, true after. The server always renders the seeded 'mid' state, while
+   AppShell restores the saved demo state in an effect that can run before this page hydrates (it streams in its own
+   boundary). The lesson therefore renders on the client only, as the prototype did, so no saved state fails hydration. */
+const noSub = () => () => {};
+const useHydrated = () => useSyncExternalStore(noSub, () => true, () => false);
+
 const cx = (...c: (string | false | null | undefined)[]) => c.filter(Boolean).join(' ') || undefined;
 
 /* The quick check's question: a choice question from this zone's quiz bank. */
@@ -51,17 +57,23 @@ export function LessonView() {
   const v = useProgress();
   const P = player.use();
   const go = useGo();
+  const hydrated = useHydrated();
+  const k = key(rid, zi, li),
+    ok = !!R(rid)?.zones[zi]?.lessons[li];
+
+  useEffect(() => {
+    if (!ok) return;
+    openLesson(rid, zi, li, k);
+    return () => closeLesson(k);
+  }, [rid, zi, li, k, ok]);
+  /* the prototype could only open existing lessons: an unknown lesson URL renders nothing */
+  if (!hydrated || !ok) return null;
+
   const r = R(rid),
     z = r.zones[zi],
     s = z.lessons[li],
     ri = ROUTES.indexOf(r),
-    k = key(rid, zi, li),
     m = dur(ri, zi, li);
-
-  useEffect(() => {
-    openLesson(rid, zi, li, k);
-    return () => closeLesson(k);
-  }, [rid, zi, li, k]);
 
   const here = P.k === k,
     playing = here && P.playing,
@@ -113,9 +125,7 @@ export function LessonView() {
           {z.name}
         </button>
         <div className="ttl">
-          <span className="mono">
-            Lesson {li + 1} of {z.lessons.length}
-          </span>
+          <span className="mono">{`Lesson ${li + 1} of ${z.lessons.length}`}</span>
           {rid === 'academy' ? 'Academy' : r.name}
         </div>
         <div className="right">
@@ -130,7 +140,6 @@ export function LessonView() {
       <div className="l-grid">
         <div>
           <div className="player" id="player">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src="/assets/video.webp" alt="Lesson video preview" />
             {showBig && (
               <button className="bigplay" aria-label="Play" onClick={onPlay}>
@@ -139,13 +148,8 @@ export function LessonView() {
             )}
             <div className="p-ui">
               <span className="mono">
-                Lesson {li + 1} · {z.name}
-                {pr > 0 && (
-                  <>
-                    {' · '}
-                    <span className="pch">{ch[ci].t}</span>
-                  </>
-                )}
+                {`Lesson ${li + 1} · ${z.name}${pr > 0 ? ' · ' : ''}`}
+                {pr > 0 && <span className="pch">{ch[ci].t}</span>}
               </span>
               <h2>{s.t}</h2>
               <div className="scrub" onClick={onScrub}>
@@ -156,9 +160,7 @@ export function LessonView() {
                 <i id="scrubKnob" style={{ left: `${pr * 100}%` }} />
               </div>
               <div className="ctrls">
-                <span className="time tnum" id="ptime">
-                  {tt(sec)} / {tt(m * 60)}
-                </span>
+                <span className="time tnum" id="ptime">{`${tt(sec)} / ${tt(m * 60)}`}</span>
                 <div className="mid">
                   <button aria-label="Back 15 seconds" onClick={() => seekBy(-0.1)}>
                     <Svg src={I.rw} />
@@ -215,10 +217,7 @@ export function LessonView() {
           <div className="l-info">
             <div>
               <h1>{s.t}</h1>
-              <p>
-                {s.d ? s.d + '. ' : ''}Lesson {li + 1} of {z.lessons.length} in the {z.name} zone
-                {rid === 'academy' ? '' : `, ${r.label} ${r.name}`}.
-              </p>
+              <p>{`${s.d ? s.d + '. ' : ''}Lesson ${li + 1} of ${z.lessons.length} in the ${z.name} zone${rid === 'academy' ? '' : `, ${r.label} ${r.name}`}.`}</p>
             </div>
             <div className="actions">
               {isDone(rid, zi, li) ? (
@@ -261,9 +260,7 @@ export function LessonView() {
         <aside className="card l-list">
           <h3>
             <span>{z.name}</span>
-            <span className="tnum">
-              {z.lessons.length - left}/{z.lessons.length}
-            </span>
+            <span className="tnum">{`${z.lessons.length - left}/${z.lessons.length}`}</span>
           </h3>
           {z.lessons.map((st: any, i: number) => {
             const ss = lessonState(rid, zi, i);
@@ -272,7 +269,7 @@ export function LessonView() {
                 <span className="ri">{ss === 'done' && i !== li ? <Svg src={I.check} /> : ss === 'lock' ? <Svg src={I.lock} /> : pad(i + 1)}</span>
                 <span className="t">
                   <b>{st.t}</b>
-                  <small>{dur(ri, zi, i)} min</small>
+                  <small>{`${dur(ri, zi, i)} min`}</small>
                 </span>
               </button>
             );
@@ -285,7 +282,7 @@ export function LessonView() {
               <Svg src={quizIco} />
             </span>
             <span className="t">
-              <b>Quiz: {z.name}</b>
+              <b>{`Quiz: ${z.name}`}</b>
               <small>5 questions · Badge</small>
             </span>
           </button>
@@ -325,12 +322,13 @@ function QuickCheck({ rid, zi, li, k }: { rid: string; zi: number; li: number; k
       {done ? (
         <>
           <p className={cx('qc-f', ok ? 'ok' : 'no')}>
-            <b>{ok ? 'Correct.' : 'Not quite.'}</b> {q.why}
+            <b>{ok ? 'Correct.' : 'Not quite.'}</b>
+            {` ${q.why}`}
           </p>
           <div className="wg-acts">
             {!ok && (
               <button className="btn ghost sm" onClick={() => lseek(back.a, true)}>
-                Rewatch “{back.t}” from {tt(back.sec)}
+                {`Rewatch “${back.t}” from ${tt(back.sec)}`}
               </button>
             )}
             <button className="btn primary sm" onClick={qcContinue}>
@@ -433,7 +431,8 @@ function Notes({ rid, zi, li, k }: { rid: string; zi: number; li: number; k: str
             </div>
             {on != null && (
               <p className="lw-def">
-                <b>{terms[on][0]}:</b> {terms[on][1]}
+                <b>{`${terms[on][0]}:`}</b>
+                {` ${terms[on][1]}`}
               </p>
             )}
           </div>
