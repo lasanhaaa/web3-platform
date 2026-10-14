@@ -4,7 +4,7 @@ import { ROUTES, R, key, dur } from './curriculum';
 
 /* Learning progress for the prototype. One in-memory store (seeded from the demo state picker),
    read by components through useProgress(). In the product this comes from the API. */
-export type DemoKind = 'fresh' | 'academyQuiz' | 'mid' | 'almost';
+export type DemoKind = 'fresh' | 'academyQuiz' | 'mid' | 'almost' | 'r1done';
 export type Step = { r: string; z: number; l?: number; quiz?: boolean };
 
 export const S = {
@@ -69,6 +69,12 @@ export function seed(kind: DemoKind) {
     R('r1').zones[2].lessons.forEach((_: any, li: number) => S.done.add(key('r1', 2, li)));
     S.chosen = 'r1';
   }
+  if (kind === 'r1done') {
+    all('academy', 1, ['Sep 28, 2026']);
+    all('r1', 3, ['Oct 6, 2026', 'Oct 10, 2026', 'Oct 13, 2026']);
+    [0, 1].forEach((li) => S.done.add(key('r2', 0, li)));
+    S.chosen = 'r2';
+  }
 }
 seed('mid');
 
@@ -86,7 +92,7 @@ export function restoreDemo() {
   try {
     k = localStorage.getItem(DEMO_KEY);
   } catch {}
-  if (k && ['fresh', 'academyQuiz', 'mid', 'almost'].includes(k) && k !== S.demo) {
+  if (k && ['fresh', 'academyQuiz', 'mid', 'almost', 'r1done'].includes(k) && k !== S.demo) {
     seed(k as DemoKind);
     commit();
   }

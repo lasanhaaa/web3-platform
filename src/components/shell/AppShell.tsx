@@ -48,6 +48,7 @@ function DemoSelect({ compact }: { compact?: boolean }) {
     ['academyQuiz', 'Academy done, quiz open', 'Academy quiz'],
     ['mid', 'Midway through Route 1', 'Route 1'],
     ['almost', 'Route 1: last quiz open', 'Last quiz'],
+    ['r1done', 'Route 1 finished', 'Route 1 done'],
   ];
   return (
     <select
