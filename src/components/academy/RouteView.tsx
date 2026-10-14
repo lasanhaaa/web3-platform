@@ -1,15 +1,36 @@
 'use client';
-/* Route / course view (prototype vRoute): header, zone tabs, the zone's lessons, quiz and certificate rows, progress aside. */
+/* Course view (Figma "Learn", node 2640:43289): the route's zones as one timeline down the page,
+   each zone with its lessons and quiz, and a sticky progress card on the right.
+   /academy/[route]/[zone] shows the whole route and scrolls to that zone. */
+import { useEffect, useRef } from 'react';
 import { useParams } from 'next/navigation';
-import { ROUTES, R, key, pad, dur, gen } from '@/lib/curriculum';
-import { I } from '@/lib/icons';
-import { Svg } from '@/lib/svg';
+import { ROUTES, R, key, pad, dur } from '@/lib/curriculum';
 import { parseZL } from '@/lib/nav';
-import { S, useProgress, routeCount, zoneOpen, routeOpen, quizOpen, routeDone, isDone, nextStep, pct, fmtMin, lessonState } from '@/lib/progress';
-import { ZTile, SegBar } from '@/components/ui/bits';
-import { BadgeImg } from '@/components/badges/BadgeImg';
+import { S, useProgress, routeCount, zoneOpen, routeOpen, quizOpen, routeDone, isDone, nextStep, pct, lessonState } from '@/lib/progress';
 import { useHydrated } from '@/lib/hydrated';
+import { toast } from '@/lib/toast';
 import { useAcademyActs, img } from './parts';
+
+const A = '/assets/learn/';
+/* eslint-disable @next/next/no-img-element */
+const Ico = ({ src, s }: { src: string; s: number }) => <img src={A + src} width={s} height={s} alt="" />;
+
+/** Lesson time left, from the player's saved progress (0..1). */
+const minsLeft = (m: number, pr: number) => Math.max(1, Math.round(m * (1 - pr)));
+
+function Ring({ v }: { v: number }) {
+  const r = 44.75,
+    c = 2 * Math.PI * r;
+  return (
+    <div className="cv-ring">
+      <svg viewBox="0 0 100 100" aria-hidden>
+        <circle cx="50" cy="50" r={r} className="t" />
+        <circle cx="50" cy="50" r={r} className="v" strokeDasharray={c} strokeDashoffset={c * (1 - v / 100)} />
+      </svg>
+      <b className="tnum">{v}%</b>
+    </div>
+  );
+}
 
 export function RouteView() {
   useProgress();
@@ -19,222 +40,194 @@ export function RouteView() {
   const rid = String(p.route),
     zi = parseZL(p.zone).z,
     r = R(rid);
-  if (!hydrated) return <div className="page" />;
-  const z = r.zones[zi],
-    ri = ROUTES.indexOf(r),
+  const zoneEls = useRef<(HTMLElement | null)[]>([]);
+
+  /* the URL's zone: scroll to it (zone 1 is the top of the page) */
+  useEffect(() => {
+    if (hydrated && zi > 0) zoneEls.current[zi]?.scrollIntoView({ block: 'start' });
+  }, [hydrated, rid, zi]);
+
+  if (!hydrated) return <div className="page cv" />;
+  const ri = ROUTES.indexOf(r),
     c = routeCount(rid),
-    zo = zoneOpen(rid, zi),
-    isAc = rid === 'academy';
+    isAc = rid === 'academy',
+    badges = r.zones.filter((_: any, i: number) => S.passed.has(rid + '.' + i)).length;
 
-  const tabs = isAc ? null : (
-    <div className="tabs" role="tablist">
-      {r.zones.map((zz: any, i: number) => {
-        const o = zoneOpen(rid, i),
-          d = zz.lessons.filter((_: any, l: number) => isDone(rid, i, l)).length;
-        return (
-          <button key={i} className={`tab ${i === zi ? 'on' : ''}`} role="tab" aria-selected={i === zi} onClick={() => a.route(rid, i)}>
-            <ZTile n={i + 1} s={28} locked={!o} ico={S.passed.has(rid + '.' + i) ? <Svg src={I.check} /> : !o ? <Svg src={I.lock} /> : null} />
-            <span>
-              <b>{zz.name}</b>
-              <small className="tnum">
-                Zone {pad(i + 1)} · {d}/{zz.lessons.length}
-              </small>
-            </span>
-          </button>
-        );
-      })}
-    </div>
-  );
+  const zones = r.zones.map((z: any, zj: number) => {
+    const open = zoneOpen(rid, zj),
+      bk = rid + '.' + zj,
+      passed = S.passed.has(bk),
+      qo = quizOpen(rid, zj),
+      done = z.lessons.filter((_: any, i: number) => isDone(rid, zj, i)).length,
+      prev = zj > 0 ? 'Zone ' + pad(zj) : 'the Academy';
 
-  const rows = z.lessons.map((s: any, i: number) => {
-    const st = lessonState(rid, zi, i),
-      k = key(rid, zi, i),
-      m = dur(ri, zi, i),
-      pr = S.prog[k] || 0;
-    const meta = st === 'done' ? 'Done' : pr > 0 && st !== 'lock' ? `${Math.max(1, Math.round(m * (1 - pr)))} min left` : `${m} min`;
-    return (
-      <button key={i} className={`row ${st}`} disabled={st === 'lock'} onClick={() => a.lesson(rid, zi, i)}>
-        <span className="ri">{st === 'done' ? <Svg src={I.check} /> : st === 'lock' ? <Svg src={I.lock} /> : st === 'now' ? <Svg src={I.play} /> : pad(i + 1)}</span>
-        <span className="tx">
-          <b>{s.t}</b>
-          <small>
-            {s.d ? s.d + ' · ' : ''}
-            {meta}
-          </small>
-        </span>
-        {st === 'now' && <span className="chip acc">{pr > 0 ? 'Continue' : 'Up next'}</span>}
-        {st !== 'lock' && (
-          <span className="go">
-            <Svg src={I.chev} />
+    const lessons = z.lessons.map((s: any, i: number) => {
+      const st = lessonState(rid, zj, i),
+        m = dur(ri, zj, i),
+        pr = S.prog[key(rid, zj, i)] || 0;
+      return (
+        <button key={i} className={`cv-row ${st}`} onClick={() => a.lesson(rid, zj, i)} aria-disabled={st === 'lock'}>
+          <span className="cv-mk">
+            {st === 'done' ? (
+              <Ico src="done.svg" s={40} />
+            ) : st === 'now' ? (
+              <>
+                <i className="cv-mk-bg" />
+                <Ico src="progress.svg" s={42} />
+              </>
+            ) : st === 'lock' ? (
+              <Ico src="locked.svg" s={40} />
+            ) : (
+              <span className="cv-mk-n tnum">{pad(i + 1)}</span>
+            )}
           </span>
-        )}
+          <span className="cv-tx">
+            <b>{s.t}</b>
+            <small className="tnum">{st === 'now' && pr > 0 ? `${minsLeft(m, pr)} min left` : `${m} min`}</small>
+          </span>
+          <Ico src="chevron.svg" s={24} />
+        </button>
+      );
+    });
+
+    const quizOk = passed || qo;
+    const quiz = (
+      <button className={`cv-row quiz${quizOk ? '' : ' lock'}`} onClick={() => (passed ? a.badge(bk) : a.quiz(rid, zj))} aria-disabled={!quizOk}>
+        <span className="cv-mk">
+          <span className={`cv-qt${quizOk ? '' : ' lock'}`}>{quizOk ? <Ico src="star.svg" s={18} /> : <Ico src="lock.svg" s={17} />}</span>
+        </span>
+        <span className="cv-tx">
+          <b>Zone quiz</b>
+          <small>{passed ? `Passed ${S.earned[bk] || ''} · View your ${z.name} badge` : `5 questions, earns the ${z.name} badge`}</small>
+        </span>
+        <Ico src="chevron.svg" s={24} />
       </button>
+    );
+
+    const last = zj === r.zones.length - 1 && !isAc,
+      rDone = routeDone(rid);
+    const cert = last ? (
+      <button className={`cv-row quiz${rDone ? '' : ' lock'}`} onClick={() => (rDone ? a.cert(rid) : toast('Pass every zone quiz on this route to earn the certificate.'))} aria-disabled={!rDone}>
+        <span className="cv-mk">
+          <span className={`cv-qt${rDone ? '' : ' lock'}`}>{rDone ? <Ico src="star.svg" s={18} /> : <Ico src="lock.svg" s={17} />}</span>
+        </span>
+        <span className="cv-tx">
+          <b>{r.name} certificate</b>
+          <small>{rDone ? 'Earned · view and share it' : 'After the last zone quiz'}</small>
+        </span>
+        <Ico src="chevron.svg" s={24} />
+      </button>
+    ) : null;
+
+    return (
+      <section key={zj} className={`cv-zone${open ? '' : ' lock'}`} ref={(el) => void (zoneEls.current[zj] = el)}>
+        <div className="cv-div">
+          <i />
+          <span>
+            <em>ZONE {pad(zj + 1)}</em>
+            {passed ? 'Completed' : open ? (done ? 'In progress' : 'Up next') : 'Locked'}
+          </span>
+          <i />
+        </div>
+        <div className="cv-zh">
+          <div className="cv-zh-l">
+            <span className="cv-zt tnum">{pad(zj + 1)}</span>
+            <div>
+              <h2>{z.name}</h2>
+              <small className="tnum">
+                {done} of {z.lessons.length} lessons
+              </small>
+            </div>
+          </div>
+          {!open && (
+            <button className="cv-unlock" onClick={() => (zj > 0 ? a.route(rid, zj - 1) : a.route('academy'))}>
+              <Ico src="lock-head.svg" s={17} />
+              <span>Unlocks after {prev}</span>
+              <Ico src="chevron.svg" s={24} />
+            </button>
+          )}
+        </div>
+        <div className="cv-rows">
+          {lessons}
+          {quiz}
+          {cert}
+        </div>
+      </section>
     );
   });
 
-  const passed = S.passed.has(rid + '.' + zi),
-    qo = quizOpen(rid, zi),
-    left = z.lessons.filter((_: any, i: number) => !isDone(rid, zi, i)).length,
-    bk = rid + '.' + zi;
-  const quizRow = (
-    <button className={`row quiz ${passed ? 'done' : qo ? '' : 'lock'}`} disabled={!(passed || qo)} onClick={() => (passed ? a.badge(bk) : a.quiz(rid, zi))}>
-      <span className="ri">
-        <Svg src={passed ? I.check : qo ? I.star : I.lock} />
-      </span>
-      <span className="tx">
-        <b>Quiz: {z.name}</b>
-        <small>
-          {passed ? `Passed ${S.earned[bk]} · View badge` : qo ? '5 questions · 4 correct to pass' : `${left} ${left === 1 ? 'lesson' : 'lessons'} left until the quiz`}
-        </small>
-      </span>
-      <span className="mini-badge">
-        <BadgeImg k={bk} locked={!passed} />
-      </span>
-    </button>
-  );
-
-  const last = zi === r.zones.length - 1 && !isAc,
-    rDone = routeDone(rid);
-  const certRow = last ? (
-    <button className={`row ${rDone ? '' : 'lock'}`} disabled={!rDone} onClick={() => a.cert(rid)}>
-      <span className="ri" style={rDone ? { background: 'var(--gold)', color: '#2a1d05', boxShadow: 'none' } : undefined}>
-        <Svg src={I.star} />
-      </span>
-      <span className="tx">
-        <b>{r.name} certificate</b>
-        <small>{rDone ? 'Earned · view and share' : 'After the last quiz on this route'}</small>
-      </span>
-    </button>
-  ) : null;
-
-  const prev = zi > 0 ? r.zones[zi - 1].name : 'Academy';
-  const banner = zo ? null : (
-    <div className="lock-banner">
-      <p>
-        <Svg src={I.lock} />
-        This zone unlocks once you pass the {prev} quiz.
-      </p>
-      <button className="btn ghost" onClick={() => a.route(zi > 0 ? rid : 'academy', zi > 0 ? zi - 1 : 0)}>
-        Go to {prev}
-      </button>
-    </div>
-  );
-
-  const f = nextStep(rid),
-    pc = pct(c.d, c.t),
-    circ = 2 * Math.PI * 38;
-  const nm = f ? (f.quiz ? `Quiz: ${r.zones[f.z].name}` : r.zones[f.z].lessons[f.l!].t) : '';
-  const aside = (
-    <aside className="aside">
-      <div className="card pcard">
-        <div className="ring-wrap">
-          <div className="ring">
-            <svg viewBox="0 0 88 88">
-              <circle cx="44" cy="44" r="38" fill="none" stroke="rgba(255,255,255,.08)" strokeWidth="6" />
-              <circle cx="44" cy="44" r="38" fill="none" stroke="#9ED3FF" strokeWidth="6" strokeLinecap="round" strokeDasharray={circ} strokeDashoffset={circ * (1 - pc / 100)} />
-            </svg>
-            <b className="tnum">{pc}%</b>
-          </div>
-          <div>
-            <div className="kv">
-              <b className="tnum">
-                {c.d} of {c.t}
-              </b>
-              <span className="mono">Lessons</span>
-            </div>
-            <div className="kv">
-              <b className="tnum">
-                {r.zones.filter((_: any, i: number) => S.passed.has(rid + '.' + i)).length} of {r.zones.length}
-              </b>
-              <span className="mono">Badges</span>
-            </div>
-          </div>
-        </div>
-        {f ? (
-          <>
-            <button className="btn primary" onClick={() => (f.quiz ? a.quiz(rid, f.z) : a.lesson(rid, f.z, f.l!))}>
-              {f.quiz ? 'Start quiz' : 'Continue learning'}
-            </button>
-            <p className="next-txt">{nm}</p>
-          </>
-        ) : routeOpen(rid) ? (
-          <p className="next-txt">Course completed.</p>
-        ) : (
-          <p className="next-txt">Unlocks with the Academy quiz.</p>
-        )}
-      </div>
-      <div className="card bcard">
-        <h3>Badges in this course</h3>
-        <div className="bgrid">
-          {r.zones.map((zz: any, i: number) => {
-            const k = rid + '.' + i,
-              g = S.passed.has(k);
-            return (
-              <button key={k} onClick={() => a.badge(k)}>
-                <span className="bwrap">
-                  <BadgeImg k={k} locked={!g} />
-                </span>
-                <span>{zz.name}</span>
-              </button>
-            );
-          })}
-        </div>
-      </div>
-    </aside>
-  );
+  const f = nextStep(rid);
+  let cta: { label: string; go: () => void } | null = null,
+    note = '';
+  if (f) {
+    if (f.quiz) {
+      cta = { label: 'Start quiz', go: () => a.quiz(rid, f.z) };
+      note = `Zone quiz: ${r.zones[f.z].name}`;
+    } else {
+      const pr = S.prog[key(rid, f.z, f.l!)] || 0,
+        m = dur(ri, f.z, f.l!);
+      cta = { label: pr > 0 ? 'Continue lesson' : 'Start lesson', go: () => a.lesson(rid, f.z, f.l!) };
+      note = `${r.zones[f.z].lessons[f.l!].t}, ${pr > 0 ? minsLeft(m, pr) + ' min left' : m + ' min'}`;
+    }
+  } else if (!routeOpen(rid)) {
+    cta = { label: 'Go to the Academy', go: () => a.route('academy') };
+    note = 'This route opens once you pass the Academy quiz.';
+  } else if (isAc) {
+    cta = { label: 'Choose your route', go: a.fork };
+    note = 'Academy completed.';
+  } else {
+    cta = { label: 'View certificate', go: () => a.cert(rid) };
+    note = 'Course completed.';
+  }
 
   return (
-    <div className="page">
-      <button className="back" onClick={a.map}>
-        <i>
-          <Svg src={I.left} />
-        </i>
-        Academy
-      </button>
-      <section className="card r-head fade">
-        <div className="r-head-body">
-          <span className="mono quiet">
-            {isAc ? 'Required start' : r.label}
-            {r.by ? ' · Based on ' + gen(r.by) + ' call outline' : ''}
-          </span>
+    <div className="page cv">
+      <div className="cv-art" aria-hidden>
+        <img src={img(r.img)} alt="" />
+      </div>
+      <div className="cv-grid">
+        <header className="cv-head">
+          <button className="cv-back" onClick={a.map}>
+            <span className="cv-back-i">
+              <img src={A + 'back.svg'} alt="" />
+            </span>
+            Go back
+          </button>
           <h1>{r.name}</h1>
-          <p className="muted" style={{ fontSize: 16 }}>
-            {r.tagline}
-          </p>
-          <div style={{ marginTop: 8 }}>
-            <SegBar rid={rid} />
-          </div>
-          <span className="quiet tnum" style={{ fontSize: 13 }}>
-            {c.d} of {c.t} lessons · {r.zones.length} {r.zones.length === 1 ? 'zone' : 'zones'} · {isAc ? 'then choose a route' : 'certificate at the end'}
-          </span>
-        </div>
-        <div className="pic">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={img(r.img)} alt="" />
-        </div>
-      </section>
-      {tabs}
-      <div className="r-grid">
-        <div>
-          <div className="z-head">
-            <ZTile n={zi + 1} s={56} locked={!zo} ico={isAc ? 'A' : ''} />
-            <div>
-              <span className="mono quiet">{isAc ? 'Required start' : 'Zone ' + pad(zi + 1) + ' of ' + pad(r.zones.length)}</span>
-              <h2>{z.name}</h2>
-              <p className="tnum">
-                {z.lessons.filter((_: any, i: number) => isDone(rid, zi, i)).length} of {z.lessons.length} lessons · about{' '}
-                {fmtMin(z.lessons.reduce((acc: number, _: any, i: number) => acc + dur(ri, zi, i), 0))}
-              </p>
+          <p>{r.tagline}</p>
+        </header>
+        <aside className="cv-side">
+          <div className="cv-card">
+            <div className="cv-stats">
+              <Ring v={pct(c.d, c.t)} />
+              <div>
+                <p>
+                  <b className="tnum">
+                    {c.d} of {c.t}
+                  </b>
+                  <small>Lessons done</small>
+                </p>
+                <p>
+                  <b className="tnum">
+                    {badges} of {r.zones.length}
+                  </b>
+                  <small>Badges earned</small>
+                </p>
+              </div>
             </div>
+            {cta && (
+              <button className="cv-cta" onClick={cta.go}>
+                {cta.label}
+                <img src={A + 'chevron.svg'} width={20} height={20} alt="" />
+              </button>
+            )}
+            <p className="cv-note">{note}</p>
           </div>
-          {banner}
-          <div className="card list">
-            {rows}
-            {quizRow}
-            {certRow}
-          </div>
+        </aside>
+        <div className="cv-tl">
+          <i className="cv-line" aria-hidden />
+          {zones}
         </div>
-        {aside}
       </div>
     </div>
   );
