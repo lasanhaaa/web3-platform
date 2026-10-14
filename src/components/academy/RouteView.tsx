@@ -1,6 +1,6 @@
 'use client';
 /* Route / course view (prototype vRoute): header, zone tabs, the zone's lessons, quiz and certificate rows, progress aside. */
-import { notFound, useParams } from 'next/navigation';
+import { useParams } from 'next/navigation';
 import { ROUTES, R, key, pad, dur, gen } from '@/lib/curriculum';
 import { I } from '@/lib/icons';
 import { Svg } from '@/lib/svg';
@@ -8,7 +8,8 @@ import { parseZL } from '@/lib/nav';
 import { S, useProgress, routeCount, zoneOpen, routeOpen, quizOpen, routeDone, isDone, nextStep, pct, fmtMin, lessonState } from '@/lib/progress';
 import { ZTile, SegBar } from '@/components/ui/bits';
 import { BadgeImg } from '@/components/badges/BadgeImg';
-import { useAcademyActs, useHydrated, img } from './parts';
+import { useHydrated } from '@/lib/hydrated';
+import { useAcademyActs, img } from './parts';
 
 export function RouteView() {
   useProgress();
@@ -18,7 +19,6 @@ export function RouteView() {
   const rid = String(p.route),
     zi = parseZL(p.zone).z,
     r = R(rid);
-  if (!r || !r.zones[zi]) notFound();
   if (!hydrated) return <div className="page" />;
   const z = r.zones[zi],
     ri = ROUTES.indexOf(r),

@@ -5,7 +5,8 @@ import { I, SPARK } from '@/lib/icons';
 import { Svg } from '@/lib/svg';
 import { useProgress, routeCount } from '@/lib/progress';
 import { ZTile } from '@/components/ui/bits';
-import { useAcademyActs, useHydrated, img, Orb } from './parts';
+import { useHydrated } from '@/lib/hydrated';
+import { useAcademyActs, img, Orb } from './parts';
 
 export function ChooseRoute() {
   useProgress();

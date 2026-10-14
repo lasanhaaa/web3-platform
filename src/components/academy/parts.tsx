@@ -1,10 +1,11 @@
 'use client';
 /* Shared bits of the Academy screens: the prototype's click actions (data-act) as one hook,
-   the step button (stepBtn), Wega's orb and a hydration-safe clock. */
+   the step button (stepBtn), Wega's orb and a hydration-safe clock.
+   The screens render from progress only after hydration (useHydrated from '@/lib/hydrated'), like the prototype did. */
 import { useSyncExternalStore } from 'react';
 import { R } from '@/lib/curriculum';
-import { BID, PATH } from '@/lib/badges';
-import { openViewer } from '@/lib/reward';
+import { BID } from '@/lib/badges';
+import { openViewer, openCert, copyLink } from '@/lib/reward';
 import { useGo } from '@/lib/nav';
 import { S, lessonOpen, quizOpen, chooseRoute, type Step } from '@/lib/progress';
 import { toast } from '@/lib/toast';
@@ -16,7 +17,6 @@ import { Svg } from '@/lib/svg';
 export const img = (src: string) => '/' + String(src).replace(/^\/+/, '');
 
 const bid = (k: string) => (BID as Record<string, string>)[k];
-const pathOf = (r: string) => (PATH as Record<string, string>)[r];
 
 /** The prototype's click handler actions used on the Academy screens. */
 export function useAcademyActs() {
@@ -44,15 +44,11 @@ export function useAcademyActs() {
       toast(R(r).name + ' started');
       go({ screen: 'route', r, z: 0 });
     },
-    cert: (r: string) => openViewer(pathOf(r) + '-card', onLocked),
+    /** openViewer(PATH[r]+'-card') */
+    cert: (r: string) => openCert(r, onLocked),
     badge: (k?: string, id?: string) => openViewer(id || bid(k || ''), onLocked),
-    copy: () => {
-      const t = 'https://web3universe.academy/a/W3U-0427';
-      (navigator.clipboard ? navigator.clipboard.writeText(t) : Promise.reject()).then(
-        () => toast('Link copied'),
-        () => toast(t),
-      );
-    },
+    /** clipboard, toast 'Link copied' (or the URL when copying fails) */
+    copy: copyLink,
     wgsoon: (w?: string) => toast(`${w || 'This'} is coming soon.`),
     wgask: (i: string, t: string) => wgRun(i, t),
   };
@@ -81,18 +77,6 @@ export function Orb({ cls = '' }: { cls?: string }) {
 }
 
 const never = () => () => {};
-
-/* false during the server render and hydration, true after.
-   The progress store is seeded 'mid' on the server, but AppShell restores the viewer's saved demo state in an effect,
-   which can run before this page hydrates (the page streams in its own boundary). The screens below therefore render
-   their content on the client only, like the prototype did; otherwise any saved state other than 'mid' fails hydration. */
-export function useHydrated() {
-  return useSyncExternalStore(
-    never,
-    () => true,
-    () => false,
-  );
-}
 
 /* The current time, read on the client only (prerendering may not read the clock).
    null during the server render and hydration, then the time the page first rendered on the client. */

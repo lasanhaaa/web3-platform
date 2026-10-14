@@ -7,7 +7,8 @@ import { S, useProgress, focus, allCount, routeCount, routeDone, routeOpen, zone
 import { whyNext } from '@/lib/learn';
 import { ZTile, SegBar } from '@/components/ui/bits';
 import { BadgeImg } from '@/components/badges/BadgeImg';
-import { useAcademyActs, useHydrated, img } from './parts';
+import { useHydrated } from '@/lib/hydrated';
+import { useAcademyActs, img } from './parts';
 import { StudyPlan } from './StudyPlan';
 import { DailyReview } from './DailyReview';
 
