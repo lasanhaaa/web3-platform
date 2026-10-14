@@ -192,7 +192,7 @@ export function LessonView() {
                   <h3>Lesson complete</h3>
                   <p className="wg-why">
                     <Svg src={SPARK} />
-                    <span>Wega saved 4 notes from this lesson. Its terms join your daily review.</span>
+                    <span>Wega saved 4 notes from this lesson.</span>
                   </p>
                   <p className="muted">{isLast ? `You’ve finished every lesson in ${z.name}. The quiz is now open.` : `Up next: ${nxt.t}`}</p>
                   <div className="actions">

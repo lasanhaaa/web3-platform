@@ -1,0 +1,75 @@
+/* ---------- Academy home (Figma "Learn" 2580:67834): one large card for the current course, then the other courses ---------- */
+.page.ah{max-width:1490px;padding-top:95px}
+.ah-head{display:flex;flex-direction:column;gap:4px;margin-bottom:26px}
+.ah-head h1{font-size:24px;font-weight:500;line-height:1.4;letter-spacing:-.03em}
+.ah-head p{font-size:14px;line-height:1.5;color:rgba(255,255,255,.5)}
+.ah-list{display:flex;flex-direction:column;gap:32px}
+
+.ah-card{position:relative;overflow:hidden;border-radius:8px;isolation:isolate;
+  background:linear-gradient(9.58deg,#091020 36.5%,#091020 44.91%,#1456A1 116.16%,#9ED3FF 161.54%);
+  box-shadow:inset 1px 1px 0 rgba(255,255,255,.1),inset -1px -1px 0 rgba(0,0,0,.1);transition:box-shadow .2s}
+.ah-card.ah-hero{background:linear-gradient(17.75deg,#091020 36.5%,#091020 44.91%,#1456A1 116.16%,#9ED3FF 161.54%)}
+.ah-card::before{content:'';position:absolute;inset:0;z-index:-1;background:url(/assets/learn/grain.png) 0 0/128px;pointer-events:none}
+.ah-card:hover{box-shadow:inset 1px 1px 0 rgba(158,211,255,.28),inset -1px -1px 0 rgba(0,0,0,.1)}
+.ah-hit{position:absolute;inset:0;z-index:1;border-radius:inherit}
+.ah-hit:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
+
+/* chess art on the right, fading out to the left */
+.ah-art{position:absolute;inset:0 0 0 auto;width:clamp(0px,calc(100% - 540px),880px);pointer-events:none;-webkit-mask-image:linear-gradient(to right,transparent,#000 38%);mask-image:linear-gradient(to right,transparent,#000 38%)}
+.ah-art img{position:absolute;left:0;bottom:-6%;width:100%;height:auto;max-width:none;mix-blend-mode:plus-lighter;transition:transform .6s var(--ease)}
+.ah-card.ah-row .ah-art{width:min(36%,460px)}
+.ah-card.ah-row .ah-art img{top:50%;bottom:auto;transform:translateY(-56%)}
+.ah-card:hover .ah-art img{transform:scale(1.02)}
+.ah-card.ah-row:hover .ah-art img{transform:translateY(-56%) scale(1.02)}
+
+.ah-in{position:relative;z-index:2;pointer-events:none;display:flex;flex-direction:column}
+.ah-card.ah-hero .ah-in{width:min(578px,100%);gap:49px;padding:58px}
+.ah-card.ah-hero .ah-in{box-sizing:content-box}
+.ah-card.ah-row .ah-in{width:min(868px,calc(100% - 300px));gap:24px;padding:44px}
+.ah-top{display:flex;flex-direction:column;align-items:flex-start;justify-content:space-between}
+.ah-card.ah-hero .ah-top{min-height:190px;gap:16px}
+.ah-card.ah-row .ah-top{flex-direction:row;align-items:center;gap:24px}
+.ah-tt{display:flex;flex-direction:column;line-height:1.4;min-width:0}
+.ah-card.ah-hero .ah-tt{gap:8px}
+.ah-card.ah-row .ah-tt{gap:4px}
+.ah-tt h2{font-size:28px;font-weight:600;letter-spacing:-.03em}
+.ah-tt h3{font-size:24px;font-weight:500;letter-spacing:-.03em}
+.ah-tt p{font-size:16px;letter-spacing:-.03em;color:rgba(255,255,255,.43)}
+.ah-cta{pointer-events:auto;position:relative;z-index:3}
+
+.ah-stats{display:flex;align-items:center;gap:24px;flex:none;line-height:1.4;white-space:nowrap}
+.ah-stats span{font-size:14px;letter-spacing:-.03em;color:rgba(255,255,255,.43)}
+.ah-stats i{width:1px;height:12px;background:rgba(255,255,255,.3)}
+.ah-stats b{font-size:18px;font-weight:500;letter-spacing:-.03em}
+.ah-locked{display:flex;align-items:center;gap:8px}
+
+/* zone bars, each ending in its badge */
+.ah-track{display:flex;align-items:center;gap:8px;width:100%}
+.ah-card.ah-row .ah-track{gap:14px}
+.ah-bar{flex:1;display:flex;height:6px;min-width:12px}
+.ah-card.ah-row .ah-bar{height:8px}
+.ah-bar .f{flex:0 0 0;background:rgba(158,211,255,.32);box-shadow:inset 0 -2px 0 rgba(158,211,255,.13)}
+.ah-card.ah-row .ah-bar .f{background:rgba(158,211,255,.27)}
+.ah-bar .e{flex:1;background:rgba(255,255,255,.1);box-shadow:inset 0 -1px 0 rgba(255,255,255,.5)}
+.ah-mk{width:32px;height:32px;flex:none;display:grid;place-items:center;border-radius:6px}
+.ah-card.ah-hero .ah-mk{box-shadow:0 12px 80.8px -9px rgba(0,0,0,.53)}
+.ah-mk.lock{background:linear-gradient(135deg,rgba(255,255,255,.07),rgba(255,255,255,0) 65%),rgba(255,255,255,.08);box-shadow:inset 1px 1px 0 rgba(255,255,255,.1)}
+.ah-card.ah-hero .ah-mk.lock{box-shadow:inset 1px 1px 0 rgba(255,255,255,.1),0 12px 80.8px -9px rgba(0,0,0,.53)}
+
+@media (max-width:1100px){
+  .ah-card.ah-hero .ah-in{padding:44px}
+  .ah-card.ah-row .ah-in{width:calc(100% - 220px);padding:36px}
+  .ah-card.ah-row .ah-top{flex-direction:column;align-items:flex-start;gap:12px}
+}
+@media (max-width:700px){
+  .page.ah{padding-top:32px}
+  .ah-list{gap:16px}
+  .ah-art,.ah-card.ah-row .ah-art{width:70%;opacity:.35}
+  .ah-card.ah-hero .ah-in{padding:24px;gap:32px;box-sizing:border-box}
+  .ah-card.ah-hero .ah-top{min-height:0;gap:20px}
+  .ah-card.ah-row .ah-in{width:100%;padding:24px}
+  .ah-tt h2{font-size:24px}
+  .ah-tt h3{font-size:20px}
+  .ah-tt p{font-size:14px}
+  .ah-card.ah-row .ah-track{gap:8px}
+}
