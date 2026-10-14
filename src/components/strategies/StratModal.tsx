@@ -7,6 +7,7 @@ import { num, usd } from '@/lib/portfolio';
 import { hrefLesson } from '@/lib/nav';
 import { setWegaSid, wgRun } from '@/lib/wega';
 import { riskForYou } from '@/lib/wega-strategies';
+import { useHydrated } from '@/lib/hydrated';
 import { toast } from '@/lib/toast';
 import { I } from '@/lib/icons';
 import { Svg, Md } from '@/lib/svg';
@@ -272,10 +273,12 @@ export function StratModal() {
   const s = strat(q.get('s'));
   const box = useRef<HTMLDivElement>(null);
   const close = () => router.push('/strategies', { scroll: false });
+  /* the "For you" parts render from learning progress, so the modal opens after hydration */
+  const hydrated = useHydrated();
 
   useEffect(() => {
     setWegaSid(s?.id ?? null);
-    if (!s) return;
+    if (!s || !hydrated) return;
     document.body.classList.add('st-lock');
     box.current?.focus({ preventScroll: true });
     const onKey = (e: KeyboardEvent) => {
@@ -287,9 +290,9 @@ export function StratModal() {
       document.removeEventListener('keydown', onKey);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [s?.id]);
+  }, [s?.id, hydrated]);
   useEffect(() => () => setWegaSid(null), []);
-  if (!s) return null;
+  if (!s || !hydrated) return null;
   const closed = s.status === 'Closed';
   const v = valueOf(s, 'all');
   return (

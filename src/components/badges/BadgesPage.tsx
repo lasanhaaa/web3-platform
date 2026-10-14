@@ -6,7 +6,7 @@ import { B_GRID, B_PATHS } from '@/lib/icons';
 import { Svg } from '@/lib/svg';
 import { BadgeGrid } from './BadgeGrid';
 import { BadgePaths } from './BadgePaths';
-import { pressKey } from './util';
+import { pressKey, useHydrated } from './util';
 
 /** prototype: let BVIEW='grid' (module level, so it survives leaving the page) */
 const BVIEW = createStore({ v: 'grid' as 'grid' | 'paths' });
@@ -14,6 +14,7 @@ const BVIEW = createStore({ v: 'grid' as 'grid' | 'paths' });
 export function BadgesPage() {
   useProgress();
   const v = BVIEW.use().v === 'paths' ? 'paths' : 'grid';
+  const hydrated = useHydrated();
   const set = (nv: 'grid' | 'paths') => BVIEW.set({ v: nv });
   return (
     <div className="page bc fade" key={v}>
@@ -37,7 +38,7 @@ export function BadgesPage() {
           </nav>
         </div>
       </div>
-      {v === 'grid' ? <BadgeGrid /> : <BadgePaths />}
+      {hydrated && (v === 'grid' ? <BadgeGrid /> : <BadgePaths />)}
     </div>
   );
 }

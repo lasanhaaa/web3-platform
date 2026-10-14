@@ -5,13 +5,16 @@ import { usd } from '@/lib/portfolio';
 import { hrefStrategies } from '@/lib/nav';
 import { I } from '@/lib/icons';
 import { Svg } from '@/lib/svg';
+import { useHydrated } from '@/lib/hydrated';
 import { DiffMeter, Pts, Spark, diffStyle } from './bits';
 
 const pct2 = (n: number) => `${n > 0 ? '+' : n < 0 ? '−' : ''}${Math.abs(n).toFixed(2)}%`;
 
 /** Readiness label Wega adds to the card footer: lessons still missing for this strategy. */
 function Fit({ s }: { s: Strat }) {
+  const hydrated = useHydrated();
   if (s.status === 'Closed') return <span className="st-fit mute">Closed</span>;
+  if (!hydrated) return <span className="st-fit" aria-hidden />;
   const r = readiness(s);
   if (!r.missing.length)
     return (

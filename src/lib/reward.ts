@@ -63,9 +63,10 @@ function reward(): Reward | null {
   return REW;
 }
 
+let listening = false;
 function listen() {
-  if (typeof window === 'undefined' || (listen as { on?: boolean }).on) return;
-  (listen as { on?: boolean }).on = true;
+  if (listening || typeof window === 'undefined') return;
+  listening = true;
   document.addEventListener('keydown', (e) => {
     if (e.key !== 'Escape' || !REW_MODE) return;
     escGuard = true;
