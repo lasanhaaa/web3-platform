@@ -44,7 +44,7 @@
 @container (max-width:560px){.st-row{grid-template-columns:minmax(0,1fr) 48px 96px;padding:0 10px}.st-row .nm{gap:10px;font-size:14px}.st-row .pc,.st-row .vl{font-size:12.5px}}
 
 .st-donut{position:relative;width:100%;max-width:312px;aspect-ratio:1;justify-self:end;margin-top:-8px}
-.st-donut svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
+.st-donut>svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
 .st-donut .seg{transition:opacity .25s,transform .35s var(--ease);transform-origin:160px 160px;cursor:pointer}
 .st-donut.hov .seg{opacity:.16}
 .st-donut.hov .seg.hl{opacity:1;transform:scale(1.05)}
@@ -259,3 +259,6 @@ body.st-lock{overflow:hidden}
   .st-m-stats{grid-template-columns:repeat(2,minmax(0,1fr))}
   .st-m-stats>div:last-child{grid-column:1/-1}
 }
+.st-m:focus{outline:none}
+.st-sim-n{font-size:13px;line-height:1.5;color:var(--t3)}
+@media (max-width:860px){.st-strip .sp{order:1}.st-strip .x{order:2}.st-strip .btn.text{order:4}}

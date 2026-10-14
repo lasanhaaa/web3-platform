@@ -2,8 +2,10 @@
    without a key the route answers 501 and the client falls back to its scripted answers. */
 export async function POST(req: Request) {
   const key = process.env.ANTHROPIC_API_KEY;
+  const { system, messages, probe } = (await req.json()) as { system: string; messages: { role: string; content: string }[]; probe?: boolean };
+  // The panel asks once on load whether live answers are on, to label its mode.
+  if (probe) return Response.json({ live: !!key });
   if (!key) return new Response('Live answers are not configured.', { status: 501 });
-  const { system, messages } = (await req.json()) as { system: string; messages: { role: string; content: string }[] };
   const upstream = await fetch('https://api.anthropic.com/v1/messages', {
     method: 'POST',
     headers: { 'content-type': 'application/json', 'x-api-key': key, 'anthropic-version': '2023-06-01' },

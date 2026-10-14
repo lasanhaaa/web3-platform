@@ -37,7 +37,9 @@ export const wega = createStore({
   ctxKey: '',
   /** null = no live model configured (scripted answers only) */
   live: undefined as boolean | undefined,
-  prac: null as null | { list: any[]; i: number; ok: number },
+  prac: null as null | { list: any[]; i: number },
+  /** practice question counter (Wega's "Give me a practice question") */
+  lq: 0,
 });
 let seq = 0;
 let ctl: AbortController | null = null;
@@ -61,6 +63,24 @@ export function setWegaPage(p: WegaPage) {
   if (k !== prev) {
     W.ctxKey = k;
     if (prev && W.open && W.msgs.length && W.msgs.at(-1)?.kind !== 'div') W.msgs.push({ id: ++seq, kind: 'div', text: label });
+  }
+  wega.commit();
+}
+
+/** The Strategies modal tells Wega which strategy is open (null when it closes). */
+export function setWegaSid(sid: string | null) {
+  const W = wega.get();
+  if (W.page.screen !== 'strategies' || (W.page.sid ?? null) === sid) return;
+  setWegaPage({ ...W.page, sid });
+}
+/** Asks the server once whether live answers are configured, so the composer can show its mode. */
+export async function wgProbe() {
+  if (wega.get().live !== undefined) return;
+  try {
+    const res = await fetch('/api/wega', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ probe: true }) });
+    wega.get().live = res.ok && (await res.json()).live === true;
+  } catch {
+    wega.get().live = false;
   }
   wega.commit();
 }
