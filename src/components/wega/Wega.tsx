@@ -33,7 +33,7 @@ function pageFromPath(path: string, prev: WegaPage): WegaPage {
   return { screen: 'map' };
 }
 
-const Orb = ({ thinking }: { thinking?: boolean }) => (
+export const Orb = ({ thinking }: { thinking?: boolean }) => (
   <span className={`wg-orb${thinking ? ' thinking' : ''}`}>
     <i className="ring" />
     <span className="wg-av">
@@ -42,7 +42,7 @@ const Orb = ({ thinking }: { thinking?: boolean }) => (
   </span>
 );
 
-function ChipBtn({ c }: { c: Chip }) {
+export function ChipBtn({ c }: { c: Chip }) {
   return (
     <button className="wg-chip" onClick={() => wgRun(c[1], c[0])}>
       <Svg src={SPARK} />
@@ -118,7 +118,7 @@ function Meta({ m }: { m: Msg }) {
   );
 }
 
-function Message({ m }: { m: Msg }) {
+export function Message({ m }: { m: Msg }) {
   if (m.kind === 'div') return <div className="wg-div">{m.text}</div>;
   if (m.role === 'user')
     return (
@@ -157,7 +157,8 @@ function Message({ m }: { m: Msg }) {
   );
 }
 
-function Composer() {
+/** The input: in the panel, or inline in a page (the lesson's "Ask Wega" card, without the mode label). */
+export function Composer({ inline, placeholder = 'Ask Wega anything …' }: { inline?: boolean; placeholder?: string }) {
   const W = wega.use();
   const ref = useRef<HTMLTextAreaElement>(null);
   const [val, setVal] = useState('');
@@ -169,11 +170,11 @@ function Composer() {
   };
   useEffect(grow, [val]);
   useEffect(() => {
-    if (W.open && matchMedia('(hover: hover) and (pointer: fine)').matches) {
+    if (!inline && W.open && matchMedia('(hover: hover) and (pointer: fine)').matches) {
       const id = setTimeout(() => ref.current?.focus({ preventScroll: true }), 200);
       return () => clearTimeout(id);
     }
-  }, [W.open]);
+  }, [W.open, inline]);
   const submit = (e: React.FormEvent) => {
     e.preventDefault();
     if (W.busy) return wgStop();
@@ -187,7 +188,7 @@ function Composer() {
       <textarea
         ref={ref}
         rows={1}
-        placeholder="Ask Wega anything …"
+        placeholder={placeholder}
         aria-label="Question for Wega"
         value={val}
         onChange={(e) => setVal(e.target.value)}
@@ -205,12 +206,16 @@ function Composer() {
         <button type="button" className="wg-ib" onClick={() => toast('Voice input is coming soon.')} aria-label="Voice input">
           <Svg src={WI.mic} />
         </button>
-        <span
-          className={`wg-mode${W.live ? ' live' : ''}`}
-          title={W.live ? 'Claude answers free questions live.' : W.live === false ? 'Free questions get sample answers.' : undefined}
-        >
-          {W.live ? 'Live · Claude' : W.live === false ? 'Sample mode' : ''}
-        </span>
+        {inline ? (
+          <span className="sp" />
+        ) : (
+          <span
+            className={`wg-mode${W.live ? ' live' : ''}`}
+            title={W.live ? 'Claude answers free questions live.' : W.live === false ? 'Free questions get sample answers.' : undefined}
+          >
+            {W.live ? 'Live · Claude' : W.live === false ? 'Sample mode' : ''}
+          </span>
+        )}
         <button type="submit" className={`wg-send${W.busy ? ' stop' : ''}`} aria-label={W.busy ? 'Stop' : 'Send'}>
           <Svg src={W.busy ? WI.stop : WI.send} />
         </button>

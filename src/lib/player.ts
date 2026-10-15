@@ -18,8 +18,6 @@ export const player = createStore({
   /** quick check per lesson key: open while paused at 50%, done after answering or skipping */
   qc: {} as Record<string, 'open' | 'done'>,
   qcsel: {} as Record<string, number>,
-  /** LTERM: the open term chip per zone key ('r1.1' → index), toggled in the Wega notes */
-  term: {} as Record<string, number | null>,
   /** The prototype removes the big play button when play is pressed and only brings it back on the
       next full render(). bigK/bigV remember the lesson and the progress version at that moment. */
   bigK: null as string | null,
@@ -149,12 +147,6 @@ export function qcContinue() {
   if (!P.k) return;
   P.qc[P.k] = 'done';
   if (!timer && !P.ended) startTimer();
-  render();
-}
-/** data-act="lterm" */
-export function toggleTerm(zk: string, j: number) {
-  const T = player.get().term;
-  T[zk] = T[zk] === j ? null : j;
   render();
 }
 /** Clicking the lesson that is already open: the prototype's go() stops the video and leaves the end card. */

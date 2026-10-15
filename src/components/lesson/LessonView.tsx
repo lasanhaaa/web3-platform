@@ -1,17 +1,15 @@
 'use client';
 import { useEffect, useSyncExternalStore, type MouseEvent } from 'react';
 import { useParams } from 'next/navigation';
-import { ROUTES, R, key, pad, dur, chaptersFor, chIdx, glossFor } from '@/lib/curriculum';
+import { ROUTES, R, key, pad, dur, chaptersFor, chIdx } from '@/lib/curriculum';
 import { Q } from '@/lib/quiz-bank';
-import { APPR } from '@/lib/portfolio';
-import { portFor } from '@/lib/learn';
 import { S, useProgress, isDone, lessonOpen, quizOpen, lessonState } from '@/lib/progress';
 import { useGo, parseZL } from '@/lib/nav';
 import { toast } from '@/lib/toast';
 import { tt } from '@/lib/format';
 import { I, SPARK } from '@/lib/icons';
-import { Svg, Md } from '@/lib/svg';
-import { wega, wgRun, wgToggle, wgClose } from '@/lib/wega';
+import { Svg } from '@/lib/svg';
+import { wega, wgRun, wgClose } from '@/lib/wega';
 import {
   player,
   openLesson,
@@ -22,11 +20,10 @@ import {
   markLessonDone,
   qcAnswer,
   qcContinue,
-  toggleTerm,
   reopenLesson,
   seekLesson,
 } from '@/lib/player';
-import { SimBlock } from '@/components/wega/Sim';
+import { LessonChat, focusLessonChat } from './LessonChat';
 
 /* false during the server render and hydration, true after. The server always renders the seeded 'mid' state, while
    AppShell restores the saved demo state in an effect that can run before this page hydrates (it streams in its own
@@ -41,7 +38,7 @@ function qcQ(rid: string, zi: number, li: number) {
   const pool = (Q[rid + '.' + zi] || Q['academy.0']).filter((q: any) => q.t === 'choice');
   return pool[li % pool.length];
 }
-/* data-act="lseek": chapter buttons in the notes and "Rewatch" in the quick check */
+/* data-act="lseek": "Rewatch" in the quick check */
 function lseek(p: number, fromQc?: boolean) {
   if (!seekLesson(p, fromQc)) return toast('Open the lesson to jump to this part.');
   if (window.innerWidth < 1280 && wega.get().open) wgClose();
@@ -85,7 +82,8 @@ export function LessonView() {
   const ch = chaptersFor(rid, zi, li),
     ci = chIdx(ch, pr);
   const passed = S.passed.has(rid + '.' + zi),
-    qOpen = quizOpen(rid, zi);
+    qOpen = quizOpen(rid, zi),
+    done = isDone(rid, zi, li);
   const showBig = !playing && !ended && !(P.bigK === k && P.bigV === v);
 
   /* data-act="lesson" / "quiz" / "route" */
@@ -129,7 +127,7 @@ export function LessonView() {
           {rid === 'academy' ? 'Academy' : r.name}
         </div>
         <div className="right">
-          <button className="btn wega" onClick={() => wgToggle()}>
+          <button className="btn wega" onClick={focusLessonChat}>
             <span style={{ color: 'var(--accent)', display: 'inline-flex' }}>
               <Svg src={I.spark} />
             </span>
@@ -190,10 +188,6 @@ export function LessonView() {
                     <Svg src={I.check} />
                   </span>
                   <h3>Lesson complete</h3>
-                  <p className="wg-why">
-                    <Svg src={SPARK} />
-                    <span>Wega saved 4 notes from this lesson.</span>
-                  </p>
                   <p className="muted">{isLast ? `You’ve finished every lesson in ${z.name}. The quiz is now open.` : `Up next: ${nxt.t}`}</p>
                   <div className="actions">
                     {isLast ? (
@@ -219,43 +213,34 @@ export function LessonView() {
               <h1>{s.t}</h1>
               <p>{`${s.d ? s.d + '. ' : ''}Lesson ${li + 1} of ${z.lessons.length} in the ${z.name} zone${rid === 'academy' ? '' : `, ${r.label} ${r.name}`}.`}</p>
             </div>
+            {/* one next step: mark it done, then the next lesson, or the quiz once every lesson is done */}
             <div className="actions">
-              {isDone(rid, zi, li) ? (
-                <span className="chip good" style={{ height: 40, padding: '0 14px' }}>
+              {done && (
+                <span className="l-done">
                   <Svg src={I.check} />
                   Done
                 </span>
-              ) : (
-                <button className="btn ghost" onClick={markLessonDone}>
+              )}
+              {!done ? (
+                <button className="btn primary" onClick={markLessonDone}>
                   Mark as done
                 </button>
-              )}
-              {isLast ? (
-                <button className="btn primary" disabled={!qOpen} onClick={toQuiz}>
-                  Go to quiz
+              ) : qOpen && !passed && (isLast || left === 0) ? (
+                <button className="btn primary" onClick={toQuiz}>
+                  Start the quiz
+                </button>
+              ) : !isLast ? (
+                <button className="btn primary" onClick={() => toLesson(li + 1)}>
+                  Next lesson
                 </button>
               ) : (
-                <button className="btn primary" disabled={!isDone(rid, zi, li)} onClick={() => toLesson(li + 1)}>
-                  Next lesson
+                <button className="btn primary" onClick={toRoute}>
+                  Back to course
                 </button>
               )}
             </div>
           </div>
-          <div className="l-note">
-            <span className={cx('sq', passed ? 'done' : qOpen && 'open')}>
-              <Svg src={quizIco} />
-            </span>
-            <span>
-              {passed
-                ? `You passed the ${z.name} quiz.`
-                : left === 0
-                  ? `All lessons done. The ${z.name} quiz is waiting.`
-                  : `${left} ${left === 1 ? 'lesson' : 'lessons'} left until the ${z.name} quiz. Passing it earns the badge and unlocks ${
-                      zi < r.zones.length - 1 ? `the ${r.zones[zi + 1].name} zone` : rid === 'academy' ? 'the three routes' : `the ${r.name} certificate`
-                    }.`}
-            </span>
-          </div>
-          <Notes rid={rid} zi={zi} li={li} k={k} />
+          <LessonChat rid={rid} zi={zi} li={li} k={k} />
         </div>
         <aside className="card l-list">
           <h3>
@@ -283,7 +268,7 @@ export function LessonView() {
             </span>
             <span className="t">
               <b>{`Quiz: ${z.name}`}</b>
-              <small>5 questions · Badge</small>
+              <small>{passed ? 'Passed · badge earned' : qOpen ? 'Ready · 5 questions' : `Opens after ${left} more ${left === 1 ? 'lesson' : 'lessons'}`}</small>
             </span>
           </button>
         </aside>
@@ -347,122 +332,6 @@ function QuickCheck({ rid, zi, li, k }: { rid: string; zi: number; li: number; k
           </button>
         </div>
       )}
-    </section>
-  );
-}
-
-/* ===== Wega notes: chapters written as you watch, terms, explain it differently, in your wallet ===== */
-function Notes({ rid, zi, li, k }: { rid: string; zi: number; li: number; k: string }) {
-  const P = player.use();
-  const ch = chaptersFor(rid, zi, li),
-    pr = S.prog[k] || 0,
-    ci = chIdx(ch, pr),
-    started = pr > 0,
-    terms = glossFor(rid, zi),
-    zk = rid + '.' + zi,
-    on = P.term[zk];
-  const mine =
-    rid === 'r1' && zi === 2 ? (
-      <SimBlock />
-    ) : rid === 'r1' && zi === 0 ? (
-      <div className="wg-rows lw-appr">
-        {APPR.map((a: any) => (
-          <div className="wg-row" key={a[0]}>
-            <span>
-              <b>{a[0]}</b>
-              {a[1]}
-            </span>
-            <b className={a[2] ? 'ok' : 'warn'}>{a[2] ? 'Verified' : 'Check'}</b>
-          </div>
-        ))}
-      </div>
-    ) : null;
-  const mineQ =
-    rid === 'r1' && zi === 2
-      ? ['How safe is my Aave loan?', 'hf']
-      : rid === 'r1' && zi === 0
-        ? ['Which approvals are risky?', 'approvals']
-        : ['What does this mean for my portfolio?', 'l_port'];
-  return (
-    <section className="card lw fade" id="lw">
-      <div className="lw-h">
-        <h3>
-          <Svg src={SPARK} />
-          Wega notes
-        </h3>
-        <span className="mono">Written as you watch</span>
-        <span className="sp" />
-        <button className="btn ghost sm" onClick={() => toast('Saved to your notes')}>
-          Save to my notes
-        </button>
-      </div>
-      <div className="lw-grid">
-        <ol className="lw-ch">
-          {ch.map((c: any, i: number) => {
-            const seen = started && i <= ci,
-              now = started && i === ci;
-            return (
-              <li key={i} className={cx(seen && 'seen', now && 'now')}>
-                <button aria-label={`Jump to ${c.t}, ${tt(c.sec)}`} onClick={() => lseek(c.a)}>
-                  <span className="mono">{tt(c.sec)}</span>
-                  <b>{c.t}</b>
-                  {now && <span className="chip sm acc">Now</span>}
-                </button>
-                <p>
-                  {seen ? (
-                    c.n
-                  ) : (
-                    <span className="lw-soon">{!started && !i ? 'Wega starts writing when you press play.' : `Wega adds this note at ${tt(c.sec)}`}</span>
-                  )}
-                </p>
-              </li>
-            );
-          })}
-        </ol>
-        <div className="lw-side">
-          <div className="lw-blk">
-            <span className="mono">Terms in this lesson</span>
-            <div className="lw-terms">
-              {terms.map((g: any, j: number) => (
-                <button key={j} className={cx('chip', on === j && 'acc')} aria-pressed={on === j} onClick={() => toggleTerm(zk, j)}>
-                  {g[0]}
-                </button>
-              ))}
-            </div>
-            {on != null && (
-              <p className="lw-def">
-                <b>{`${terms[on][0]}:`}</b>
-                {` ${terms[on][1]}`}
-              </p>
-            )}
-          </div>
-          <div className="lw-blk">
-            <span className="mono">Explain it differently</span>
-            <div className="wg-acts">
-              <button className="btn ghost sm" onClick={() => wgRun('l_simple', 'Explain it more simply')}>
-                Simpler
-              </button>
-              <button className="btn ghost sm" onClick={() => wgRun('l_example', 'Explain it with an example')}>
-                With an example
-              </button>
-              <button className="btn ghost sm" onClick={() => wgRun('l_port', 'Explain it with my numbers')}>
-                With my numbers
-              </button>
-            </div>
-          </div>
-          <div className="lw-blk lw-mine">
-            <span className="mono">In your wallet</span>
-            <Md as="p" text={portFor(rid, zi)} />
-            {mine}
-            <div className="wg-acts">
-              <button className="btn ghost sm" onClick={() => wgRun(mineQ[1], mineQ[0])}>
-                <Svg src={SPARK} />
-                {mineQ[0]}
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
     </section>
   );
 }

@@ -42,7 +42,7 @@ h1,h2,h3{font-weight:500;letter-spacing:-.03em;line-height:1.4}
 .pic::after{background:linear-gradient(180deg,rgba(17,20,29,0) 50%,var(--fade,var(--fill)) 100%)}
 .tab{border:0;border-radius:8px;background:rgba(255,255,255,.03);box-shadow:var(--fx-card)}
 .tab.on{background:rgba(255,255,255,.08);box-shadow:var(--sel-blue)}
-.lock-banner,.l-note{border:0;border-radius:8px;background:rgba(255,255,255,.03);box-shadow:var(--fx-card)}
+.lock-banner{border:0;border-radius:8px;background:rgba(255,255,255,.03);box-shadow:var(--fx-card)}
 .li{border-radius:6px}
 .li.on{background:rgba(255,255,255,.08);box-shadow:var(--fx-card)}
 .bgrid button{border-radius:6px}

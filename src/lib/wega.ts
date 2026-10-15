@@ -40,6 +40,10 @@ export const wega = createStore({
   prac: null as null | { list: any[]; i: number },
   /** practice question counter (Wega's "Give me a practice question") */
   lq: 0,
+  /** a page shows the conversation inline (the lesson's "Ask Wega" card): the panel stays closed */
+  inline: false,
+  /** the inline conversation shows the messages after this id */
+  inlineFrom: 0,
 });
 let seq = 0;
 let ctl: AbortController | null = null;
@@ -85,6 +89,17 @@ export async function wgProbe() {
   wega.commit();
 }
 
+/** The lesson page shows Wega's conversation in the page itself: a fresh conversation, and the panel stays closed. */
+export function wgInline(on: boolean) {
+  const W = wega.get();
+  W.inline = on;
+  if (on) {
+    W.open = false;
+    W.inlineFrom = seq;
+  }
+  wega.commit();
+}
+
 export function wgOpen() {
   const W = wega.get();
   W.open = true;
@@ -116,7 +131,7 @@ function fill(m: Msg, a: Partial<Answer>) {
 function busy(on: boolean) {
   const W = wega.get();
   W.busy = on;
-  if (!on && !W.open) W.ready = true;
+  if (!on && !W.open && !W.inline) W.ready = true;
   wega.commit();
 }
 export function wgStop() {
@@ -130,7 +145,7 @@ export function wgPushUser(text: string) {
 
 /** Run a scripted intent (prompt chip or a button somewhere on the page). */
 export function wgRun(intent: string, label?: string, extra?: unknown) {
-  if (!wega.get().open) wgOpen();
+  if (!wega.get().open && !wega.get().inline) wgOpen();
   if (wega.get().busy) wgStop();
   if (label) push({ role: 'user', text: label });
   const m = push({ role: 'wega', pending: true });
@@ -143,7 +158,7 @@ export function wgRun(intent: string, label?: string, extra?: unknown) {
 
 /** Free text: live through /api/wega when a model key is configured, otherwise the keyword router. */
 export async function wgAsk(text: string) {
-  if (!wega.get().open) wgOpen();
+  if (!wega.get().open && !wega.get().inline) wgOpen();
   push({ role: 'user', text });
   const m = push({ role: 'wega', pending: true });
   busy(true);
