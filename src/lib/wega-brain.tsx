@@ -4,12 +4,12 @@
 import { useState, type ReactNode } from 'react';
 import { useRouter } from 'next/navigation';
 import { ROUTES, R, key, dur, pad, LSUM as LSUM_, glossFor, chaptersFor, chIdx, ANALOGY as ANALOGY_, ZTIPS as ZTIPS_, zkey } from './curriculum';
-import { Q, SIM } from './quiz-bank';
+import { Q, SIM, rightText } from './quiz-bank';
 import { PF, hfAt, liqAt, netAt, num, usd, pctS, hfCls, APPR, WATCH, ALERT_SUGG } from './portfolio';
 import { S, allCount, focus, routeCount, nextStep, isDone, pct, fmtMin, lessonOpen, quizOpen, chooseRoute, type Step } from './progress';
 import { stepTitle, stepCrumb, whyNext, portFor } from './learn';
 import { CAT, bState } from './badges';
-import { getQZ, startQuizState } from './quiz-state';
+import { getQZ, quizQs, startQuizState } from './quiz-state';
 import { hsim } from './hsim';
 import { seekLesson } from './player';
 import { hrefLesson, hrefQuiz, hrefRoute, hrefMap } from './nav';
@@ -133,11 +133,11 @@ export function rulesPrompt(): string {
     cur = `Lesson “${s.t}”${s.d ? ' (' + s.d + ')' : ''}, zone “${z.name}”, ${r.id === 'academy' ? 'Academy' : 'route ' + r.name}. Video at ${tt(pos.sec)} of ${tt(pos.m * 60)}. Content per the outline: ${(LSUM[s.t] || []).join(' ')}`;
   }
   if (p.screen === 'quiz' && QZ && QZ.i >= 0 && !QZ.stage) {
-    const q = Q[QZ.r + '.' + QZ.z][QZ.i];
+    const q = quizQs(QZ)[QZ.i];
     cur =
       `Quiz “${R(QZ.r).zones[QZ.z].name}”, question ${QZ.i + 1}: “${q.q}”${q.opts ? ' Options: ' + q.opts.join(' | ') : ''}. ` +
       (QZ.locked
-        ? `Already answered${q.opts && QZ.sel != null ? `; the user chose “${q.opts[QZ.sel]}”${QZ.sel === q.a ? ' (correct)' : `, the correct answer is “${q.opts[q.a]}”`}` : ''}. Explanation from the course: ` + q.why
+        ? `Already answered${q.opts && QZ.sel != null ? `; the user chose “${q.opts[QZ.sel]}”${QZ.sel === q.a ? ' (correct)' : `, the correct answer is “${q.opts[q.a]}”`}` : ''}. Correct answer: ${rightText(q)}. Explanation from the course: ` + q.why
         : 'The question is still open: do NOT reveal the correct answer, give a hint at most.');
   }
   if (p.screen === 'strategies') cur = stratRules(p);
@@ -372,7 +372,7 @@ const Why = ({ children }: { children: ReactNode }) => (
 /* ---- scripted intents ---- */
 function curQ() {
   const QZ = getQZ();
-  return QZ && QZ.i >= 0 ? Q[QZ.r + '.' + QZ.z][QZ.i] : null;
+  return QZ && QZ.i >= 0 ? quizQs(QZ)[QZ.i] : null;
 }
 export function answer(i: string, x?: any): Answer {
   const p = page(),
@@ -796,6 +796,11 @@ Rewatch the lessons of this zone, or practice with me right away.`,
       }
       if (q.t === 'chart') return { text: 'Look only at the dashed line, that’s the current price. Only a range that contains that line earns fees.' };
       if (q.t === 'order') return { text: `The first step is **“${q.items[0]}”**. Then ask yourself: what has to happen before a contract may move your tokens?` };
+      if (q.t === 'match') return { text: `Start with the one you’re surest of. **${q.pairs[0][0]}** goes with “${q.pairs[0][1]}”. A wrong pair just shakes, it doesn’t cost a life.` };
+      if (q.t === 'fill') return { text: `The first gap is **“${q.a[0]}”**. Read the whole sentence out loud with it and the second word follows.` };
+      if (q.t === 'scam') return { text: 'Ask two things: does it want your seed phrase, a key or unlimited access? And did you start this yourself? If it asks for secrets or came out of nowhere, be suspicious.' };
+      if (q.t === 'predict')
+        return { text: 'Leverage multiplies the move: 5x leverage turns a 10% move into 50% of your deposit. A long wins when the price rises, a short when it falls. If the loss reaches your whole deposit, you’re liquidated.' };
       return { text: 'Look at the low in the chart. Your liquidation has to sit below it, and the closing price has to be inside your range. Less leverage pushes the liquidation down.' };
     }
     case 'q_explain': {
@@ -803,11 +808,14 @@ Rewatch the lessons of this zone, or practice with me right away.`,
       if (!q || !QZ) return answer('q_rules');
       if (!QZ.locked) return answer('q_hint');
       let right = '';
-      if (q.t === 'choice' || q.t === 'flow') right = `The correct answer is **“${q.opts[q.a]}”**.${QZ.sel != null && QZ.sel !== q.a ? ` You chose “${q.opts[QZ.sel]}”.` : ''}`;
+      if (q.t === 'choice' || q.t === 'flow' || q.t === 'predict' || q.t === 'scam')
+        right = `The correct answer is **“${q.opts[q.a]}”**.${QZ.sel != null && QZ.sel !== q.a ? ` You chose “${q.opts[QZ.sel]}”.` : ''}`;
+      else if (q.t === 'fill') right = `The sentence reads: **${rightText(q)}**`;
+      else if (q.t === 'match') right = 'The pairs:\n' + q.pairs.map((p: string[]) => `- **${p[0]}**: ${p[1]}`).join('\n');
       else if (q.t === 'chart') right = `The correct answer is **position ${'ABCD'[q.a]}**.`;
       else if (q.t === 'order') right = 'The correct order:\n' + q.items.map((t: string, k: number) => `${k + 1}. ${t}`).join('\n');
       else right = `With at most 5x leverage and a range of at least ±${Math.ceil((Math.abs(SIM.at(-1)! - SIM[0]) / SIM[0]) * 100)}%, the position survives the 7 days.`;
-      const hay = (q.q + ' ' + (q.opts || q.items || []).join(' ') + ' ' + q.why).toLowerCase(),
+      const hay = (q.q + ' ' + (q.opts || q.items || q.bank || (q.pairs || []).flat()).join(' ') + ' ' + q.why).toLowerCase(),
         terms = glossFor(QZ.r, QZ.z).filter((g: string[]) => hay.includes(g[0].toLowerCase().split(' ')[0]));
       return {
         text: `${right}\n\n${q.why}${terms.length ? '\n\nWorth remembering:\n' + terms.map((g: string[]) => `- **${g[0]}**: ${g[1]}`).join('\n') : ''}`,
