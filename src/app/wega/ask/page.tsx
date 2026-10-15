@@ -1,11 +1,6 @@
-import { Suspense } from 'react';
-import { Ask } from '@/components/wega-page/Ask';
+import { ToChat } from '@/components/wega-page/Legacy';
 
-/* Reads its question from the URL (?k= a ready prompt, ?q= a typed question, ?p= a passage), so it renders inside Suspense. */
+/* An old link to one of Wega's answers: opens the same question in the chat. */
 export default function Page() {
-  return (
-    <Suspense fallback={<div className="page wp wp-res" />}>
-      <Ask />
-    </Suspense>
-  );
+  return <ToChat />;
 }

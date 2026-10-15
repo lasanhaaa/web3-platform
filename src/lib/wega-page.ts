@@ -1,6 +1,6 @@
 'use client';
-/* The Wega page (ideas doc "Wega page: Decade references and ideas"): a greeting, one input, five category chips
-   with ready prompts, and answers shown as result pages. All portfolio numbers are the prototype's sample data
+/* The Wega page (ideas doc "Wega page: Decade references and ideas"): a greeting, one input, five topic chips
+   with ready prompts, and answers shown in a conversation (src/lib/wega-chat.ts). All portfolio numbers are the prototype's sample data
    (the same portfolio as Wega's panel: src/lib/portfolio.ts). */
 import { createStore } from './store';
 import { PF, hfAt, liqAt } from './portfolio';
@@ -231,7 +231,7 @@ export function textAnswer(k: string): TextAnswer | null {
         cat: 'strategies',
         q: 'Which strategy fits me as a beginner?',
         a:
-          'These three fit best right now. Wega ranks them by what you’ve already learned and how hard they are:\n' +
+          'These three fit best right now. I rank them by what you’ve already learned and how hard they are:\n' +
           top
             .map((s) => {
               const r = readiness(s);
@@ -278,7 +278,7 @@ export function textAnswer(k: string): TextAnswer | null {
       return {
         cat: 'simulations',
         q: 'I got a bonus, where does it fit?',
-        a: `Tell me the amount and I’ll show where it would land. Today your money sits in three layers: **${L[0].pct}%** Safe, **${L[1].pct}%** Moderate and **${L[2].pct}%** Volatile.\n\n- Kept in stablecoins, a bonus grows the Safe layer.\n- Put into ETH, it grows the Volatile layer.\n- Spread across strategies, each one stays under its max weight in the model portfolio.\n\nYou decide. Wega only shows how the mix would change.`,
+        a: `Tell me the amount and I’ll show where it would land. Today your money sits in three layers: **${L[0].pct}%** Safe, **${L[1].pct}%** Moderate and **${L[2].pct}%** Volatile.\n\n- Kept in stablecoins, a bonus grows the Safe layer.\n- Put into ETH, it grows the Volatile layer.\n- Spread across strategies, each one stays under its max weight in the model portfolio.\n\nYou decide. I only show how the mix would change.`,
         next: { label: 'See my risk mix', href: '/wega/risk-mix' },
         follow: ['/wega/idle-cost', '/wega/scenario?s=eth30'],
       };
@@ -307,7 +307,7 @@ export function textAnswer(k: string): TextAnswer | null {
       return {
         cat: 'learn',
         q: 'Quiz me on my current zone',
-        a: `Your current zone is **${z.name}** (${stepCrumb(f)}). Its quiz has 5 questions and earns the zone’s badge.\n\n${open ? 'All lessons are done, so the quiz is open.' : `It opens when all lessons are done: **${done} of ${z.lessons.length}** so far. Until then, Wega can ask you practice questions inside each lesson.`}`,
+        a: `Your current zone is **${z.name}** (${stepCrumb(f)}). Its quiz has 5 questions and earns the zone’s badge.\n\n${open ? 'All lessons are done, so the quiz is open.' : `It opens when all lessons are done: **${done} of ${z.lessons.length}** so far. Until then, I can ask you practice questions inside each lesson.`}`,
         next: open ? { label: 'Start the quiz', step: { r: f.r, z: f.z, quiz: true } } : { label: 'Continue lesson', step: f },
         follow: ['/wega/learning-path', '/wega/ask?k=il'],
       };
@@ -316,7 +316,7 @@ export function textAnswer(k: string): TextAnswer | null {
       return {
         cat: 'w3u',
         q: 'How do I use the platform?',
-        a: 'Web3 Universe has three parts that work together:\n- **Learn** in the Academy: short lessons, a quiz per zone and a badge for each.\n- **Follow** the model portfolio in Strategies: every position the team holds, with a step-by-step guide.\n- **Track** your own positions in My Portfolio, so Wega can check them for you.\n\nWega is on every page. Ask it about what you see, or come here for bigger questions.',
+        a: 'Web3 Universe has three parts that work together:\n- **Learn** in the Academy: short lessons, a quiz per zone and a badge for each.\n- **Follow** the model portfolio in Strategies: every position the team holds, with a step-by-step guide.\n- **Track** your own positions in My Portfolio, so I can check them for you.\n\nI’m on every page. Ask me about what you see, or come here for bigger questions.',
         next: { label: 'Go to the Academy', href: '/academy' },
         follow: ['/wega/ask?k=start', '/wega/ask?k=membership'],
       };
@@ -341,7 +341,7 @@ export function textAnswer(k: string): TextAnswer | null {
       return {
         cat: 'w3u',
         q: 'How is my data used?',
-        a: 'Wega only reads what’s on the platform: your snapshots in My Portfolio, your course progress and the page you’re on.\n\n- It can’t move money or sign anything. Every transaction is yours to sign.\n- It doesn’t see your seed phrase or private keys, and never asks for them.\n\nHow long questions are kept and which AI provider answers them will be set out in the privacy policy.',
+        a: 'I only read what’s on the platform: your snapshots in My Portfolio, your course progress and the page you’re on.\n\n- I can’t move money or sign anything. Every transaction is yours to sign.\n- I don’t see your seed phrase or private keys, and I’ll never ask for them.\n\nHow long questions are kept and which AI provider answers them will be set out in the privacy policy.',
         follow: ['/wega/ask?k=use', '/wega/ask?k=membership'],
       };
   }
@@ -370,9 +370,8 @@ export function routeQuestion(t: string): string | null {
   if (has(/my data|privacy/)) return '/wega/ask?k=data';
   return null;
 }
-export const askHref = (q: string, passage?: string) => `/wega/ask?q=${encodeURIComponent(q)}${passage ? '&p=' + encodeURIComponent(passage) : ''}`;
 
-/** Label of a prompt href, for follow-up chips and recent results. */
+/** Label of a prompt href: what the member "says" when they tap it. */
 export function promptLabel(href: string) {
   for (const c of CATS) for (const p of c.prompts) if (p.href === href) return p.label;
   return null;
@@ -385,21 +384,28 @@ export const CHECKS = [
   { id: 'appr', t: 'An old approval is still open', s: 'Unverified contract, unused for 214 days' },
 ];
 
-/* ---------- next live call (sample) ---------- */
-export const NEXT_CALL = { title: 'DeFi Fundamentals Q&A', host: 'Mara', when: 'Thu, Oct 16 · 6:00 PM' };
+/* ---------- follow-ups Wega suggests after each result ---------- */
+export const RESULT_FOLLOW: Record<string, string[]> = {
+  '/wega/portfolio-check': ['/wega/scenario?s=liq', '/wega/idle-cost', '/wega/risk-mix'],
+  '/wega/risk-mix': ['/wega/scenario?s=eth30', '/wega/allocation'],
+  '/wega/allocation': ['/wega/idle-cost', '/wega/ask?k=fit'],
+  '/wega/idle-cost': ['/wega/allocation', '/wega/scenario?s=liq'],
+  '/wega/scenario?s=liq': ['/wega/scenario?s=eth30', '/wega/idle-cost'],
+  '/wega/scenario?s=eth30': ['/wega/scenario?s=crash22', '/wega/risk-mix'],
+  '/wega/scenario?s=crash22': ['/wega/scenario?s=usdc', '/wega/risk-mix'],
+  '/wega/scenario?s=usdc': ['/wega/scenario?s=eth30', '/wega/idle-cost'],
+  '/wega/learning-path': ['/wega/ask?k=quiz', '/wega/ask?k=il'],
+};
 
-/* ---------- page state: hide values, recent results ---------- */
-type Recent = { href: string; title: string; cat: CatId };
-export const wp = createStore({ hide: false, recent: [] as Recent[], loaded: false });
-const LS_HIDE = 'w3u-wega-hide',
-  LS_RECENT = 'w3u-wega-recent';
+/* ---------- page state: hide values ---------- */
+export const wp = createStore({ hide: false, loaded: false });
+const LS_HIDE = 'w3u-wega-hide';
 export function wpLoad() {
   const W = wp.get();
   if (W.loaded) return;
   W.loaded = true;
   try {
     W.hide = localStorage.getItem(LS_HIDE) === '1';
-    W.recent = JSON.parse(localStorage.getItem(LS_RECENT) || '[]');
   } catch {}
   wp.commit();
 }
@@ -411,12 +417,3 @@ export function wpToggleHide() {
   } catch {}
   wp.commit();
 }
-export function wpRemember(r: Recent) {
-  const W = wp.get();
-  W.recent = [r, ...W.recent.filter((x) => x.href !== r.href)].slice(0, 3);
-  try {
-    localStorage.setItem(LS_RECENT, JSON.stringify(W.recent));
-  } catch {}
-  wp.commit();
-}
-

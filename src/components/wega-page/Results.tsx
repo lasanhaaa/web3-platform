@@ -1,9 +1,7 @@
 'use client';
-/* Wega's result pages (ideas doc, "Results Wega returns"): a short paragraph about the member's own numbers,
-   one visual, a checklist where it helps, and one next step. Sample data, see src/lib/wega-page.ts. */
-import { useEffect, useState, type CSSProperties, type ReactNode } from 'react';
-import Link from 'next/link';
-import { useSearchParams } from 'next/navigation';
+/* Wega's rich answers in the chat (ideas doc, "Results Wega returns"): a short paragraph about the member's own
+   numbers, one visual, a checklist where it helps, and one next step. Sample data, see src/lib/wega-page.ts. */
+import { useId, useState, type CSSProperties, type ReactNode } from 'react';
 import {
   HF,
   LIQ,
@@ -16,7 +14,6 @@ import {
   LOAN_APR,
   AAVE_APR,
   SCENS,
-  isScen,
   scen,
   layers,
   allocRows,
@@ -25,8 +22,6 @@ import {
   nextSteps,
   stepMin,
   wp,
-  wpRemember,
-  type CatId,
   type ScenId,
 } from '@/lib/wega-page';
 import { PF } from '@/lib/portfolio';
@@ -37,19 +32,15 @@ import { hrefLesson, hrefRoute } from '@/lib/nav';
 import { StepBtn } from '@/lib/wega-brain';
 import { useHydrated } from '@/lib/hydrated';
 import { toast } from '@/lib/toast';
-import { CHEV, Checklist, Icon, M, ResultFrame } from './parts';
+import { Answer, AskLink, CHEV, Checklist, Icon, M } from './parts';
 
 const usd0 = (n: number) => '$' + Math.round(n).toLocaleString('en-US');
 const pct0 = (n: number) => (n > 0 ? '+' : n < 0 ? '−' : '') + Math.abs(Math.round(n)) + '%';
 
-/** Adds the result to "Your recent results" on the start page. */
-function useRemember(href: string, title: string, cat: CatId) {
-  useEffect(() => wpRemember({ href, title, cat }), [href, title, cat]);
-}
 const NextLink = ({ href, children }: { href: string; children: ReactNode }) => (
-  <Link className="btn primary lg" href={href}>
+  <AskLink className="btn primary lg" href={href}>
     {children}
-  </Link>
+  </AskLink>
 );
 
 /* ---------- small visuals ---------- */
@@ -96,12 +87,10 @@ const Ticks = ({ pct }: { pct: number }) => (
 
 /* ---------- Portfolio check ---------- */
 export function PortfolioCheck() {
-  useRemember('/wega/portfolio-check', 'Check my portfolio', 'portfolio');
   const vol = layers()[2].pct,
     yearCost = idleCost(1).total;
   return (
-    <ResultFrame
-      cat="portfolio"
+    <Answer
       title="Portfolio check"
       lead={
         <p>
@@ -119,13 +108,13 @@ export function PortfolioCheck() {
       }
     >
       <section className="wp-tiles" aria-label="Summary">
-        <Link href="/wega/scenario?s=liq" className="wp-tile">
+        <AskLink href="/wega/scenario?s=liq" className="wp-tile">
           <span className="wp-tile-h">Liquidation safety</span>
           <b className="wp-tile-v warn tnum">{HF.toFixed(2)}</b>
           <HfGauge hf={HF} />
           <span className="wp-tile-c">Health Factor. Liquidation if ETH falls to {usd0(LIQ)}</span>
-        </Link>
-        <Link href="/wega/idle-cost" className="wp-tile">
+        </AskLink>
+        <AskLink href="/wega/idle-cost" className="wp-tile">
           <span className="wp-tile-h">Idle money</span>
           <b className="wp-tile-v">
             <M v={PF.usdc} />
@@ -134,13 +123,13 @@ export function PortfolioCheck() {
           <span className="wp-tile-c">
             costs about <M v={yearCost} /> a year
           </span>
-        </Link>
-        <Link href="/wega/risk-mix" className="wp-tile">
+        </AskLink>
+        <AskLink href="/wega/risk-mix" className="wp-tile">
           <span className="wp-tile-h">Risk mix</span>
           <b className="wp-tile-v tnum">{vol}%</b>
           <Ticks pct={vol} />
           <span className="wp-tile-c">of your money moves fully with prices</span>
-        </Link>
+        </AskLink>
       </section>
       <Checklist
         rows={[
@@ -159,22 +148,20 @@ export function PortfolioCheck() {
           { t: 'Snapshot up to date', s: `${SNAP_AGE} days old`, st: 'ok' },
         ]}
       />
-    </ResultFrame>
+    </Answer>
   );
 }
 
 /* ---------- Risk mix ---------- */
 export function RiskMix() {
-  useRemember('/wega/risk-mix', 'How risky is my mix?', 'portfolio');
   const L = layers();
   const [open, setOpen] = useState<string | null>(null);
   return (
-    <ResultFrame
-      cat="portfolio"
+    <Answer
       title="Your risk mix"
       lead={
         <p>
-          Wega sorts your money into three layers. <b>Safe</b> doesn’t move with crypto prices, <b>Moderate</b> moves about half as much, and <b>Volatile</b> moves fully. <b>{L[2].pct}%</b> of your money is volatile, and part of
+          I sort your money into three layers. <b>Safe</b> doesn’t move with crypto prices, <b>Moderate</b> moves about half as much, and <b>Volatile</b> moves fully. <b>{L[2].pct}%</b> of your money is volatile, and part of
           it is borrowed against on Aave, so it swings more than its size suggests.
         </p>
       }
@@ -230,18 +217,16 @@ export function RiskMix() {
           </span>
         </div>
       </section>
-    </ResultFrame>
+    </Answer>
   );
 }
 
 /* ---------- Allocation check ---------- */
 export function Allocation() {
-  useRemember('/wega/allocation', 'Compare me with the model portfolio', 'portfolio');
   const rows = allocRows();
   const at = (v: number) => Math.min(100, v) + '%';
   return (
-    <ResultFrame
-      cat="portfolio"
+    <Answer
       title="You and the model portfolio"
       lead={
         <p>
@@ -296,7 +281,7 @@ export function Allocation() {
           </span>
         </p>
       </section>
-    </ResultFrame>
+    </Answer>
   );
 }
 
@@ -351,12 +336,10 @@ function IdleChart() {
   );
 }
 export function IdleCost() {
-  useRemember('/wega/idle-cost', 'How much money is sitting idle?', 'portfolio');
   const save = IDLE_REPAY * LOAN_APR,
     earn = IDLE_REST * AAVE_APR;
   return (
-    <ResultFrame
-      cat="portfolio"
+    <Answer
       title="The cost of idle money"
       lead={
         <p>
@@ -378,7 +361,7 @@ export function IdleCost() {
     >
       <IdleChart />
       <Checklist
-        title="What Wega looked for"
+        title="What I looked for"
         rows={[
           {
             t: 'Stablecoins sitting idle',
@@ -402,19 +385,14 @@ export function IdleCost() {
           { t: 'Rewards left unclaimed', s: 'No reward programs in your snapshot', st: 'na' },
         ]}
       />
-    </ResultFrame>
+    </Answer>
   );
 }
 
 /* ---------- Scenario ---------- */
-export function Scenario() {
-  const q = useSearchParams();
-  const s: ScenId = isScen(q.get('s')) ? (q.get('s') as ScenId) : 'eth30';
-  return <ScenarioView key={s} s={s} />;
-}
-function ScenarioView({ s }: { s: ScenId }) {
+export function Scenario({ s }: { s: ScenId }) {
   const def = SCENS[s];
-  useRemember('/wega/scenario?s=' + s, def.title, def.cat);
+  const id = useId();
   const [v, setV] = useState(def.init);
   const eth = def.kind === 'eth',
     base = scen(0),
@@ -446,10 +424,10 @@ function ScenarioView({ s }: { s: ScenId }) {
       </p>
     );
   return (
-    <ResultFrame cat={def.cat} title={def.title} lead={lead} next={<NextLink href={hrefRoute('r1', 2)}>Learn how liquidation works</NextLink>}>
+    <Answer title={def.title} lead={lead} next={<NextLink href={hrefRoute('r1', 2)}>Learn how liquidation works</NextLink>}>
       <section className="wp-card wp-scen" aria-label="Scenario">
         <div className="wp-scen-top">
-          <label htmlFor="wp-slider" className="wp-card-h">
+          <label htmlFor={id} className="wp-card-h">
             {eth ? 'ETH price' : 'USDC price'}
           </label>
           <b className="tnum">
@@ -463,7 +441,7 @@ function ScenarioView({ s }: { s: ScenId }) {
           </b>
         </div>
         <input
-          id="wp-slider"
+          id={id}
           type="range"
           min={eth ? -80 : 80}
           max={eth ? 50 : 100}
@@ -520,24 +498,21 @@ function ScenarioView({ s }: { s: ScenId }) {
           },
         ]}
       />
-    </ResultFrame>
+    </Answer>
   );
 }
 
 /* ---------- Learning path ---------- */
 export function LearningPath() {
-  useRemember('/wega/learning-path', 'What should I learn next?', 'learn');
   useProgress();
   const hydrated = useHydrated();
-  if (!hydrated) return <div className="page wp wp-res" />;
+  if (!hydrated) return null;
   const f = focus(),
     all = allCount(),
     steps = nextSteps(3);
   return (
-    <ResultFrame
-      cat="learn"
+    <Answer
       title="What to learn next"
-      source={false}
       lead={
         f ? (
           <p>
@@ -565,6 +540,6 @@ export function LearningPath() {
           ))}
         </ol>
       )}
-    </ResultFrame>
+    </Answer>
   );
 }

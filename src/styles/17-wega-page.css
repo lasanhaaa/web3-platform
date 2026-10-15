@@ -1,15 +1,13 @@
-/* ---------- Wega page (ideas doc + Decade references): greeting, one input, topic chips, result pages ---------- */
+/* ---------- Wega page: a chat (felipe, Oct 15). Empty: greeting, one input, five topics. Then the conversation. ---------- */
 /* one Wega input on screen: the floating helper steps aside here */
 body.wp-on .wg-fab,body.wp-on .wg-scrim{display:none}
 
-.wp-eyebrow{display:inline-flex;align-items:center;gap:6px;font-family:var(--mono);font-size:12px;font-weight:500;line-height:1.5;text-transform:uppercase;letter-spacing:.04em;color:rgba(255,255,255,.45)}
-.wp-eyebrow svg{opacity:.8}
 .wp-ib{width:36px;height:36px;flex:none;display:grid;place-items:center;border-radius:8px;color:rgba(255,255,255,.5);transition:background .2s,color .2s}
 .wp-ib:hover{background:rgba(255,255,255,.06);color:#fff}
 .wp-ib svg{width:20px;height:20px}
 .wp-dots{display:inline-flex;align-items:center;gap:3px;white-space:nowrap}
 .wp-dots i{width:5px;height:5px;border-radius:50%;background:currentColor;opacity:.55}
-@keyframes wpIn{from{opacity:0;transform:translateY(-4px)}}
+@keyframes wpIn{from{opacity:0;transform:translateY(6px)}}
 
 /* ---------- start page ---------- */
 .page.wp-home{max-width:none;min-height:100dvh;display:flex;flex-direction:column;align-items:center;padding-block:32px 40px}
@@ -40,65 +38,62 @@ body.wp-on .wg-fab,body.wp-on .wg-scrim{display:none}
 .wp-chips :is(button,a):hover{background:rgba(255,255,255,.06);color:#fff}
 .wp-chips button.on{background:rgba(255,255,255,.1);box-shadow:var(--fx-card);color:#fff;font-weight:500}
 .wp-chips svg{width:18px;height:18px;opacity:.85}
-.wp-list{list-style:none;margin:0;padding:0;border-radius:8px;box-shadow:inset 0 0 0 1px rgba(255,255,255,.1);overflow:hidden}
-.wp-list li+li{border-top:1px solid rgba(255,255,255,.08)}
-.wp-list a{display:flex;align-items:center;gap:12px;min-height:56px;padding:12px 18px 12px 22px;font-size:16px;line-height:1.4;letter-spacing:-.02em;color:rgba(255,255,255,.88);transition:background .15s,color .15s}
-.wp-list a:hover{background:rgba(255,255,255,.04);color:#fff}
-.wp-list a span{flex:1;min-width:0}
-.wp-list a svg{flex:none;color:rgba(255,255,255,.4)}
-.wp-list a svg:first-child{color:rgba(255,255,255,.5)}
-.wp-prompts,.wp-recent{width:100%;max-width:700px;align-self:center}
-.wp-prompts{animation:wpIn .25s var(--ease)}
-.wp-recent{display:flex;flex-direction:column;gap:10px;margin-top:20px}
-.wp-recent .wp-eyebrow{padding-left:4px}
-
-/* next live call: our "Your advisor" card */
-.wp-call{display:flex;align-items:center;gap:14px;width:min(100%,440px);padding:10px 16px 10px 10px;border-radius:8px;background:rgba(255,255,255,.04);box-shadow:var(--fx-card);text-align:left;transition:background .2s}
-.wp-call:hover{background:rgba(255,255,255,.07)}
-.wp-call-ic{width:48px;height:48px;flex:none;display:grid;place-items:center;border-radius:6px;color:#fff;background:linear-gradient(-44deg,#9ED3FF 7%,#1783FF 67%,#00040F 140%);box-shadow:inset 1px 1px 0 rgba(255,255,255,.3)}
-.wp-call-t{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px;font-size:15px;letter-spacing:-.02em;color:#fff}
-.wp-call-t small{font-size:13px;color:rgba(255,255,255,.5)}
-.wp-call>svg{color:rgba(255,255,255,.4)}
-
-/* ---------- result pages ---------- */
-.page.wp-res{max-width:1080px;padding-block:28px 0}
-.wp-bar{display:flex;align-items:center;gap:6px;min-height:44px;margin-bottom:44px}
-.wp-back{width:40px;height:40px;display:grid;place-items:center;margin-left:-10px;border-radius:8px;color:rgba(255,255,255,.7)}
-.wp-back:hover{background:rgba(255,255,255,.06);color:#fff}
-.wp-src{margin-left:auto;padding-bottom:3px;border-bottom:1px solid rgba(255,255,255,.14);font-size:14px;color:rgba(255,255,255,.55)}
-.wp-rh{display:flex;align-items:flex-start;justify-content:space-between;gap:24px}
-.wp-rh>div{display:flex;flex-direction:column;gap:12px;min-width:0}
-.wp-rh h1{font-size:clamp(30px,3.6vw,44px);font-weight:500;line-height:1.1;letter-spacing:-.035em;text-wrap:balance}
-.wp-share{flex:none;height:40px;padding:0 16px;border-radius:8px;box-shadow:inset 0 0 0 1px rgba(255,255,255,.24);font-size:15px;font-weight:500;letter-spacing:-.02em;color:#fff;transition:background .2s}
-.wp-share:hover{background:rgba(255,255,255,.06)}
-.wp-lead{margin-top:24px;max-width:860px;font-size:18px;line-height:1.65;letter-spacing:-.012em;color:rgba(255,255,255,.62)}
-.wp-lead b{font-weight:500;color:#fff}
-.wp-lead p+p,.wp-lead p+ul,.wp-lead p+ol,.wp-lead ul+p,.wp-lead ol+p{margin-top:14px}
-.wp-lead ul,.wp-lead ol{margin:0;padding-left:22px;display:flex;flex-direction:column;gap:8px}
-.wp-lead li::marker{color:rgba(255,255,255,.35)}
-.wp-lead .wg-dots i{background:rgba(255,255,255,.5)}
+/* ---------- the conversation ---------- */
+.page.wp-chat{max-width:none;min-height:100dvh;display:flex;flex-direction:column;padding-block:0}
+.wp-chat-bar{position:sticky;top:0;z-index:6;display:flex;align-items:center;gap:6px;min-height:68px;padding:12px 0;background:linear-gradient(to bottom,var(--bg,#040811) 72%,rgba(4,8,17,0))}
+.wp-chat-t{display:inline-flex;align-items:center;gap:10px;margin-right:auto;font-size:16px;font-weight:500;letter-spacing:-.02em}
+.wp-src{height:36px;padding:0 10px;border-radius:8px;font-size:14px;color:rgba(255,255,255,.5);transition:background .2s,color .2s}
+.wp-src:hover{background:rgba(255,255,255,.06);color:#fff}
+.wp-new{display:inline-flex;align-items:center;gap:6px;height:36px;margin-left:6px;padding:0 14px 0 10px;border-radius:8px;background:rgba(255,255,255,.06);box-shadow:var(--fx-card);font-size:14px;font-weight:500;letter-spacing:-.02em;color:#fff;transition:background .2s}
+.wp-new:hover{background:rgba(255,255,255,.1)}
+.wp-thread{flex:1;width:100%;max-width:800px;margin:0 auto;padding:20px 0 40px;display:flex;flex-direction:column;gap:40px}
+.wp-msg{scroll-margin-top:88px;animation:wpIn .35s var(--ease)}
+/* the newest answer gets room below it, so the question can scroll to the top and the answer reads down from there */
+.wp-thread>.wp-msg.wega:last-child{min-height:calc(100dvh - 330px)}
+/* the member: a bubble on the right, the same shape as in the floating helper */
+.wp-msg.me{display:flex;justify-content:flex-end}
+.wp-bub{max-width:min(80%,560px);padding:12px 18px;border-radius:22px 4px 22px 22px;background:rgba(255,255,255,.08);box-shadow:var(--fx-card);font-size:16px;line-height:1.5;letter-spacing:-.01em;color:#fff;overflow-wrap:anywhere}
+.wp-bub .wp-quote{margin:2px 0 10px;font-size:14px;line-height:1.5}
+/* Wega: its orb and name, then the answer at full width */
+.wp-msg.wega{display:flex;flex-direction:column;align-items:flex-start;gap:14px}
+.wp-msg.wega>*{align-self:stretch}
+.wp-msg.wega>.wg-dots{align-self:flex-start;padding-left:2px}
+.wp-who{display:flex;align-items:center;gap:10px;font-size:14px;font-weight:500;letter-spacing:-.01em;color:rgba(255,255,255,.7)}
+.wp-ans{display:flex;flex-direction:column;gap:20px;min-width:0}
+.wp-text{max-width:720px;font-size:16px;line-height:1.65;letter-spacing:-.01em;color:rgba(255,255,255,.82)}
+.wp-text b{font-weight:600;color:#fff}
+.wp-text p+p,.wp-text p+ul,.wp-text p+ol,.wp-text ul+p,.wp-text ol+p{margin-top:12px}
+.wp-text ul,.wp-text ol{margin:0;padding-left:22px;display:flex;flex-direction:column;gap:6px}
+.wp-text li::marker{color:rgba(255,255,255,.35)}
+.wp-text .wg-dots i{background:rgba(255,255,255,.5)}
 /* selecting text to ask about it: Decade's gold highlight */
 .wp-prose ::selection{background:rgba(226,182,94,.55);color:#fff}
-.wp-quote{margin:0 0 18px;padding:2px 0 2px 16px;border-left:2px solid rgba(226,182,94,.7);color:rgba(255,255,255,.75)}
-.wp-mode{margin-top:14px;font-size:13px;color:rgba(255,255,255,.4)}
+.wp-quote{margin:0;padding:2px 0 2px 14px;border-left:2px solid rgba(226,182,94,.7);color:rgba(255,255,255,.7)}
+.wp-mode{margin-top:-8px;font-size:13px;color:rgba(255,255,255,.4)}
 .wp-err{margin-top:12px;font-size:14px;color:#FFC95F}
-.wp-res>:is(.wp-card,.wp-tiles,.wp-split,.wp-list,.wp-chips){margin-top:44px}
-.wp-res>.wp-split+.wp-card,.wp-res>.wp-card+.wp-card{margin-top:24px}
-.wp-res>.wp-follow{max-width:700px}
-.wp-res>.wp-chips.start{justify-content:flex-start}
+/* a topic's ready questions, offered as replies */
+.wp-quick{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px;max-width:520px}
+.wp-quick button{display:flex;align-items:center;gap:12px;width:100%;min-height:50px;padding:10px 14px 10px 18px;border-radius:8px;background:rgba(255,255,255,.05);box-shadow:var(--fx-card);text-align:left;font-size:15px;line-height:1.4;letter-spacing:-.02em;color:#fff;transition:background .15s}
+.wp-quick button:hover{background:rgba(255,255,255,.09)}
+.wp-quick span{flex:1;min-width:0}
+.wp-quick svg{flex:none;color:rgba(255,255,255,.4)}
+/* suggested follow-ups after the last answer */
+.wp-sugg{display:flex;flex-wrap:wrap;gap:8px;margin-top:4px}
+.wp-sugg button{min-height:36px;padding:7px 14px;border-radius:48px;box-shadow:inset 0 0 0 1px rgba(255,255,255,.16);text-align:left;font-size:14px;line-height:1.5;letter-spacing:-.01em;color:rgba(255,255,255,.8);transition:background .2s,color .2s}
+.wp-sugg button:hover{background:rgba(255,255,255,.06);color:#fff}
 
-.wp-card{padding:28px 32px;border-radius:8px;background:rgba(255,255,255,.03);box-shadow:var(--fx-card)}
+.wp-card{padding:24px 28px;border-radius:8px;background:rgba(255,255,255,.03);box-shadow:var(--fx-card)}
 .wp-card-h{font-size:16px;font-weight:500;line-height:1.5;letter-spacing:-.02em;color:rgba(255,255,255,.9)}
 
 /* three tiles with a tiny visual each (Decade "Portfolio analysis") */
 .wp-tiles{display:grid;grid-template-columns:repeat(3,minmax(0,1fr))}
-.wp-tile{display:flex;flex-direction:column;align-items:flex-start;gap:14px;min-width:0;padding:6px 32px;border-left:1px solid rgba(255,255,255,.1);color:inherit}
+.wp-tile{display:flex;flex-direction:column;align-items:flex-start;gap:14px;min-width:0;padding:6px 24px;border-left:1px solid rgba(255,255,255,.1);text-align:left;color:inherit}
 .wp-tile:first-child{padding-left:0;border-left:0}
 .wp-tile-h{font-size:16px;letter-spacing:-.02em;color:rgba(255,255,255,.85);transition:color .2s}
-a.wp-tile .wp-tile-h::after{content:"→";margin-left:8px;opacity:0;transition:opacity .2s}
-a.wp-tile:hover .wp-tile-h{color:#fff}
-a.wp-tile:hover .wp-tile-h::after{opacity:.6}
-.wp-tile-v{font-size:28px;font-weight:500;line-height:1.15;letter-spacing:-.03em;color:#fff}
+button.wp-tile .wp-tile-h::after{content:"→";margin-left:8px;opacity:0;transition:opacity .2s}
+button.wp-tile:hover .wp-tile-h{color:#fff}
+button.wp-tile:hover .wp-tile-h::after{opacity:.6}
+.wp-tile-v{font-size:26px;font-weight:500;line-height:1.15;letter-spacing:-.03em;color:#fff}
 .wp-tile-v.warn{color:#FFC95F}.wp-tile-v.bad{color:#FF6161}.wp-tile-v.ok{color:#8EFF99}
 .wp-tile-c{font-size:14px;line-height:1.45;color:rgba(255,255,255,.5)}
 .wp-delta{margin-top:-8px;font-size:14px;font-weight:500;color:rgba(255,255,255,.6)}
@@ -124,9 +119,9 @@ a.wp-tile:hover .wp-tile-h::after{opacity:.6}
 
 /* checklist (Decade "Criteria evaluated") */
 .wp-check{padding:26px 0 6px}
-.wp-check .wp-card-h{padding:0 32px 12px;font-weight:400;color:rgba(255,255,255,.55)}
+.wp-check .wp-card-h{padding:0 28px 12px;font-weight:400;color:rgba(255,255,255,.55)}
 .wp-check ul{list-style:none;margin:0;padding:0}
-.wp-check li{display:flex;align-items:center;justify-content:space-between;gap:16px;min-height:68px;padding:12px 32px;border-top:1px solid rgba(255,255,255,.07)}
+.wp-check li{display:flex;align-items:center;justify-content:space-between;gap:16px;min-height:64px;padding:12px 28px;border-top:1px solid rgba(255,255,255,.07)}
 .wp-check .t{display:flex;flex-direction:column;gap:3px;min-width:0;font-size:16px;letter-spacing:-.02em;color:#fff}
 .wp-check .t small{font-size:14px;letter-spacing:-.01em;color:rgba(255,255,255,.5)}
 .wp-check .st{flex:none;font-size:14px;font-weight:500}
@@ -136,7 +131,7 @@ a.wp-tile:hover .wp-tile-h::after{opacity:.6}
 .wp-check .is-na .t{color:rgba(255,255,255,.55)}
 
 /* risk mix: one split bar, then the layers as a table */
-.wp-split{display:flex;gap:6px;height:136px}
+.wp-split{display:flex;gap:6px;height:120px}
 .wp-split span{display:flex;flex-direction:column;justify-content:flex-end;gap:2px;flex-basis:0;min-width:88px;padding:16px 18px;border-radius:6px;font-size:14px;color:var(--lc);background:color-mix(in srgb,var(--lc) 20%,transparent);box-shadow:var(--fx-card)}
 .wp-split b{font-size:22px;font-weight:500;letter-spacing:-.02em;color:#fff}
 .is-safe{--lc:#8EFF99}.is-moderate{--lc:#FFC95F}.is-volatile{--lc:#FE963C}
@@ -205,7 +200,7 @@ button.wp-tr[aria-expanded=true] .nm svg{transform:rotate(90deg)}
 .wp-tiles.in-card{margin-top:18px;padding-top:28px;border-top:1px solid rgba(255,255,255,.07)}
 
 /* learning path */
-.wp-path{list-style:none;margin:0;padding:8px 32px;display:flex;flex-direction:column}
+.wp-path{list-style:none;margin:0;padding:8px 28px;display:flex;flex-direction:column}
 .wp-path li{display:flex;align-items:flex-start;gap:20px;padding:20px 0}
 .wp-path li+li{border-top:1px solid rgba(255,255,255,.07)}
 .wp-path .n{width:32px;height:32px;flex:none;display:grid;place-items:center;border-radius:50%;background:rgba(255,255,255,.06);box-shadow:var(--fx-card);font-size:14px;font-weight:500;color:rgba(255,255,255,.7)}
@@ -215,10 +210,11 @@ button.wp-tr[aria-expanded=true] .nm svg{transform:rotate(90deg)}
 .wp-path .t small{font-size:14px;color:rgba(255,255,255,.5)}
 .wp-tag{padding:2px 8px;border-radius:6px;background:rgba(158,211,255,.12);font-family:var(--mono);font-size:11px;font-weight:500;line-height:1.6;text-transform:uppercase;letter-spacing:.04em;color:#9ED3FF}
 
-/* one next step, "Something not right?", the docked follow-up */
-.wp-next{display:flex;flex-wrap:wrap;gap:12px;margin-top:40px}
-.wp-review{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-top:56px;padding:12px 12px 12px 24px;border-radius:8px;background:rgba(255,255,255,.04);box-shadow:var(--fx-card);font-size:15px;color:rgba(255,255,255,.7)}
-.wp-dock{position:sticky;bottom:0;z-index:5;margin-top:24px;padding:16px 0 calc(14px + env(safe-area-inset-bottom,0px));background:linear-gradient(to top,var(--bg,#040811) 72%,rgba(4,8,17,0))}
+/* one next step, pin, the docked input */
+.wp-next{display:flex;flex-wrap:wrap;align-items:center;gap:8px 14px}
+.wp-pin{display:inline-flex;align-items:center;gap:6px;height:36px;padding:0 10px;border-radius:8px;font-size:14px;color:rgba(255,255,255,.55);transition:background .2s,color .2s}
+.wp-pin:hover{background:rgba(255,255,255,.06);color:#fff}
+.wp-dock{position:sticky;bottom:0;z-index:5;width:100%;max-width:800px;margin:0 auto;padding:16px 0 calc(14px + env(safe-area-inset-bottom,0px));background:linear-gradient(to top,var(--bg,#040811) 72%,rgba(4,8,17,0))}
 .wp-box-dock{padding:14px 12px 8px 18px;background:#11151e}
 .wp-box-dock:focus-within{background:#122030}
 .wp-box-dock textarea{min-height:26px;font-size:16px}
@@ -234,17 +230,19 @@ button.wp-tr[aria-expanded=true] .nm svg{transform:rotate(90deg)}
 
 @media (max-width:860px){
   .page.wp-home{min-height:calc(100dvh - 120px);padding-block:20px 28px}
-  .page.wp-res{padding-top:16px}
-  .wp-bar{margin-bottom:28px}
+  .page.wp-chat{min-height:calc(100dvh - 65px)}
+  /* the app's top bar is sticky here, so the chat bar scrolls away */
+  .wp-chat-bar{position:static;min-height:56px;padding:8px 0 0}
+  .wp-msg{scroll-margin-top:104px}
 }
 @media (max-width:760px){
   .wp-mid{margin-top:36px;padding-bottom:36px;gap:16px}
   .wp-box textarea{font-size:17px}
   .wp-chips{justify-content:flex-start}
   .wp-chips :is(button,a){height:38px;padding:0 14px 0 12px;font-size:14px}
-  .wp-lead{font-size:17px}
-  .wp-rh{gap:16px}
-  .wp-share{height:36px;padding:0 12px;font-size:14px}
+  .wp-src{display:none}
+  .wp-thread{padding-top:12px;gap:32px}
+  .wp-bub{max-width:88%}
   .wp-card{padding:22px 18px}
   .wp-tiles{grid-template-columns:minmax(0,1fr)}
   .wp-tile,.wp-tile:first-child{padding:20px 0;border-left:0;border-top:1px solid rgba(255,255,255,.1)}
@@ -264,6 +262,4 @@ button.wp-tr[aria-expanded=true] .nm svg{transform:rotate(90deg)}
   .wp-arow .bar{grid-column:1/-1;grid-row:2;margin:6px 0 4px}
   .wp-plot{height:180px}
   .wp-path{padding:4px 18px}
-  .wp-review{flex-direction:column;align-items:flex-start;padding:16px 18px}
-  .wp-next .btn{flex:1 1 auto}
 }
