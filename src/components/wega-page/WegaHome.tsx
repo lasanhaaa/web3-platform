@@ -1,18 +1,25 @@
 'use client';
-/* The Wega page as a chat (felipe, Oct 15). Empty, it shows a greeting, one input and five topics. Once the member
-   asks anything, the page becomes the conversation: their messages on the right, Wega's answers under each one,
-   suggested follow-ups after the last answer and the input docked at the bottom. */
-import { useEffect, useRef } from 'react';
+/* The Wega page as a chat (felipe, Oct 15). Empty, it is the Wega hub: a greeting, one input, six topics and the
+   member's recent chats. Hovering a topic shows its ready questions; clicking one opens the chat with that question
+   answered (client feedback, Oct 15, like Decade). Once the member asks anything, the page becomes the conversation:
+   their messages on the right, Wega's answers under each one, follow-ups after the last answer, the input docked at
+   the bottom, and "Your chats" to go back to any past conversation. */
+import { useEffect, useRef, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { CATS, CHECKS, RESULT_FOLLOW, SNAP_DATE, cat as catOf, isCat, isScen, promptLabel, textAnswer, wp, wpToggleHide } from '@/lib/wega-page';
-import { chat, chatAsk, chatFree, chatLoad, chatNew, chatTopic, TOPIC, type ChatMsg } from '@/lib/wega-chat';
+import { CATS, CHECKS, RESULT_FOLLOW, SNAP_DATE, cat as catOf, isCat, isScen, promptLabel, textAnswer, wp, wpToggleHide, type CatId } from '@/lib/wega-page';
+import { chat, chatAsk, chatDelete, chatFree, chatLoad, chatNew, chatOpen, chatPanel, chatTopic, groups, when, TOPIC, type Chat, type ChatMsg } from '@/lib/wega-chat';
 import { useHydrated } from '@/lib/hydrated';
 import { toast } from '@/lib/toast';
 import { Allocation, IdleCost, LearningPath, PortfolioCheck, RiskMix, Scenario } from './Results';
+import { AssetAnswer } from './Asset';
+import { isSym } from '@/lib/prices';
 import { FreeReply, TextReply, freeFollow } from './Ask';
 import { CHEV, CatIcon, EYE, EYE_OFF, Icon, Orb, Passage, PromptBox, useWegaPageChrome } from './parts';
 
 const PLUS = 'M12 5v14M5 12h14';
+const CHATS = 'M21 12a8.5 8.5 0 0 1-12.4 7.6L3 21l1.4-5.4A8.5 8.5 0 1 1 21 12Z';
+const TRASH = 'M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3';
+const X = 'M6 6l12 12M18 6 6 18';
 
 export function WegaHome() {
   useWegaPageChrome();
@@ -20,7 +27,12 @@ export function WegaHome() {
   const C = chat.use();
   const hydrated = useHydrated();
   if (!hydrated || !C.loaded) return <div className="page wp wp-home" />;
-  return C.msgs.length || C.typing ? <Conversation /> : <Start />;
+  return (
+    <>
+      {C.msgs.length ? <Conversation key={C.cur || 'new'} /> : <Start />}
+      {C.panel && <ChatsPanel />}
+    </>
+  );
 }
 
 /* Arriving with a question (?c=topic from "Open in Wega", ?ask=… or ?q=… from an old link) starts a new chat with it. */
@@ -49,8 +61,10 @@ function useSeed() {
   }, [c, ask, text, p, router]);
 }
 
-/* ---------- empty page: greeting, input, topics ---------- */
+/* ---------- the hub: greeting, input, topics, recent chats ---------- */
 function Start() {
+  const C = chat.use();
+  const recent = C.list.slice(0, 3);
   return (
     <div className="page wp wp-home fade">
       <div className="wp-top">
@@ -68,16 +82,158 @@ function Start() {
           </h1>
         </div>
         <PromptBox variant="hero" autoFocus />
-        <div className="wp-chips" role="group" aria-label="Topics">
-          {CATS.map((x) => (
-            <button key={x.id} onClick={() => chatTopic(x.id)}>
-              <CatIcon id={x.id} />
-              {x.label}
-            </button>
-          ))}
-        </div>
+        <Topics />
+        {recent.length > 0 && (
+          <section className="wp-recent" aria-label="Recent chats">
+            <div className="wp-recent-h">
+              <h2>Recent chats</h2>
+              {C.list.length > 0 && (
+                <button className="wp-link" onClick={() => chatPanel(true)}>
+                  See all ({C.list.length})
+                </button>
+              )}
+            </div>
+            <ul>
+              {recent.map((c) => (
+                <li key={c.id}>
+                  <button onClick={() => chatOpen(c.id)}>
+                    <Icon d={CHATS} size={18} />
+                    <span className="t">{c.title || 'Chat with Wega'}</span>
+                    <span className="w">{when(c.at)}</span>
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </section>
+        )}
       </div>
     </div>
+  );
+}
+
+/** Topic chips: hovering one (or tapping it) opens its ready questions under the row; a question opens the chat. */
+function Topics() {
+  const [open, setOpen] = useState<{ id: CatId; pinned: boolean } | null>(null);
+  const timer = useRef<ReturnType<typeof setTimeout>>(undefined);
+  const box = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (!open) return;
+    const away = (e: PointerEvent) => !box.current?.contains(e.target as Node) && setOpen(null);
+    const key = (e: KeyboardEvent) => e.key === 'Escape' && setOpen(null);
+    document.addEventListener('pointerdown', away);
+    document.addEventListener('keydown', key);
+    return () => {
+      document.removeEventListener('pointerdown', away);
+      document.removeEventListener('keydown', key);
+    };
+  }, [open]);
+  const hover = (e: React.PointerEvent, id: CatId) => {
+    if (e.pointerType !== 'mouse') return;
+    clearTimeout(timer.current);
+    setOpen((o) => (o?.pinned ? o : { id, pinned: false }));
+  };
+  const leave = (e: React.PointerEvent) => {
+    if (e.pointerType !== 'mouse') return;
+    clearTimeout(timer.current);
+    timer.current = setTimeout(() => setOpen((o) => (o?.pinned ? o : null)), 220);
+  };
+  const c = open && catOf(open.id);
+  return (
+    <div className="wp-topics" ref={box} onPointerLeave={leave} onPointerEnter={() => clearTimeout(timer.current)}>
+      <div className="wp-chips" role="group" aria-label="Topics">
+        {CATS.map((x) => (
+          <button
+            key={x.id}
+            className={open?.id === x.id ? 'on' : undefined}
+            aria-expanded={open?.id === x.id}
+            aria-controls="wp-topic-pop"
+            onPointerEnter={(e) => hover(e, x.id)}
+            onClick={() => setOpen((o) => (o?.id === x.id && o.pinned ? null : { id: x.id, pinned: true }))}
+          >
+            <CatIcon id={x.id} />
+            {x.label}
+          </button>
+        ))}
+      </div>
+      {c && (
+        <ul className="wp-tpop" id="wp-topic-pop" aria-label={`${c.label} questions`}>
+          {c.prompts.map((p) => (
+            <li key={p.href}>
+              <button
+                onClick={() => {
+                  setOpen(null);
+                  chatAsk(p.href);
+                }}
+              >
+                <span>{p.label}</span>
+                <Icon d={CHEV} size={18} />
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+}
+
+/* ---------- "Your chats": every past conversation ---------- */
+function ChatsPanel() {
+  const C = chat.use();
+  const [ask, setAsk] = useState<string | null>(null);
+  useEffect(() => {
+    const key = (e: KeyboardEvent) => e.key === 'Escape' && chatPanel(false);
+    document.addEventListener('keydown', key);
+    return () => document.removeEventListener('keydown', key);
+  }, []);
+  return (
+    <>
+      <div className="wp-scrim" onClick={() => chatPanel(false)} aria-hidden />
+      <aside className="wp-chats" aria-label="Your chats">
+        <div className="wp-chats-h">
+          <h2>Your chats</h2>
+          <button className="wp-ib" onClick={() => chatPanel(false)} aria-label="Close">
+            <Icon d={X} />
+          </button>
+        </div>
+        <button className="wp-new wide" onClick={chatNew}>
+          <Icon d={PLUS} size={16} />
+          New chat
+        </button>
+        {C.list.length === 0 && <p className="wp-chats-empty">No chats yet. Ask Wega anything and it will appear here.</p>}
+        {groups(C.list).map((g) => (
+          <section key={g.label}>
+            <h3>{g.label}</h3>
+            <ul>
+              {g.items.map((c: Chat) => (
+                <li key={c.id} className={c.id === C.cur ? 'on' : undefined}>
+                  {ask === c.id ? (
+                    <div className="wp-del">
+                      <span>Delete this chat?</span>
+                      <button className="yes" onClick={() => chatDelete(c.id)}>
+                        Delete
+                      </button>
+                      <button onClick={() => setAsk(null)}>Cancel</button>
+                    </div>
+                  ) : (
+                    <>
+                      <button className="open" onClick={() => chatOpen(c.id)} aria-current={c.id === C.cur || undefined}>
+                        <span className="t">{c.title || 'Chat with Wega'}</span>
+                        <span className="w">
+                          {when(c.at)} · {Math.ceil(c.msgs.length / 2)} {c.msgs.length > 2 ? 'questions' : 'question'}
+                        </span>
+                      </button>
+                      <button className="wp-ib del" onClick={() => setAsk(c.id)} aria-label={`Delete “${c.title}”`}>
+                        <Icon d={TRASH} size={18} />
+                      </button>
+                    </>
+                  )}
+                </li>
+              ))}
+            </ul>
+          </section>
+        ))}
+      </aside>
+    </>
   );
 }
 
@@ -106,6 +262,10 @@ function Conversation() {
         <button className="wp-ib" onClick={wpToggleHide} aria-pressed={W.hide} aria-label={W.hide ? 'Show values' : 'Hide values'} title={W.hide ? 'Show values' : 'Hide values'}>
           <Icon d={W.hide ? EYE_OFF : EYE} />
         </button>
+        <button className="wp-chats-btn" onClick={() => chatPanel(true)}>
+          <Icon d={CHATS} size={18} />
+          Chats
+        </button>
         <button className="wp-new" onClick={chatNew}>
           <Icon d={PLUS} size={16} />
           New chat
@@ -114,7 +274,7 @@ function Conversation() {
 
       <div className="wp-thread" aria-live="polite">
         {C.msgs.map((m) => (m.who === 'me' ? <MeMsg key={m.id} m={m} /> : <WegaMsg key={m.id} m={m} last={m.id === lastId} />))}
-        {C.typing > 0 && (
+        {C.typing > 0 && C.typingIn === C.cur && (
           <div className="wp-msg wega">
             <div className="wp-who">
               <Orb size={24} thinking />
@@ -221,6 +381,11 @@ function AnswerFor({ href }: { href: string }) {
     }
     case '/wega/ask':
       return <TextReply k={sp.get('k') || ''} />;
+    case '/wega/asset': {
+      const a = sp.get('a'),
+        vs = sp.get('vs');
+      return isSym(a) ? <AssetAnswer a={a} vs={isSym(vs) && vs !== a ? vs : undefined} /> : null;
+    }
   }
   return null;
 }

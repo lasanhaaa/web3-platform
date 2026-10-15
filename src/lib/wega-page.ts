@@ -1,23 +1,26 @@
 'use client';
-/* The Wega page (ideas doc "Wega page: Decade references and ideas"): a greeting, one input, five topic chips
-   with ready prompts, and answers shown in a conversation (src/lib/wega-chat.ts). All portfolio numbers are the prototype's sample data
-   (the same portfolio as Wega's panel: src/lib/portfolio.ts). */
+/* The Wega page (ideas doc "Wega page: Decade references and ideas"): a greeting, one input, six topics whose
+   ready questions open on hover, and answers shown in a conversation (src/lib/wega-chat.ts).
+   Client feedback (Oct 15): the Decade ideas are adapted to crypto and to data the platform has: the member's
+   snapshot in My Portfolio (coins, protocols, amounts), the model portfolio, coin prices, the Academy and calls.
+   All numbers are the prototype's sample data (the same portfolio as Wega's panel: src/lib/portfolio.ts). */
 import { createStore } from './store';
 import { PF, hfAt, liqAt } from './portfolio';
 import { R, dur, ROUTES } from './curriculum';
 import { focus, isDone, quizOpen, type Step } from './progress';
-import { STRATS, fitScore, readiness, strat, sizeFor, CHANGES } from './strategies';
+import { STRATS, fitScore, readiness, strat, sizeFor, valueOf, CHANGES, type Strat } from './strategies';
 import { stepTitle, stepCrumb, whyNext } from './learn';
 import { hrefLesson, hrefQuiz, hrefStrategies } from './nav';
 
 /* ---------- categories and their ready prompts ---------- */
-export type CatId = 'portfolio' | 'strategies' | 'simulations' | 'learn' | 'w3u';
+export type CatId = 'portfolio' | 'coins' | 'strategies' | 'simulations' | 'learn' | 'w3u';
 export type Prompt = { label: string; href: string };
 export type Cat = { id: CatId; label: string; icon: string; prompts: Prompt[] };
 
 /** 24px outline icons (stroke = currentColor). */
 const IC = {
   portfolio: 'M12 3a9 9 0 1 0 9 9h-9zM15 3.5A9 9 0 0 1 20.5 9H15z',
+  coins: 'M3 17l5.5-6 4 4L21 6.5M15 6.5h6v6',
   strategies: 'M5 20 10 4M11 20 16 4M17 20 22 4',
   simulations: 'M9 3h6M10 3v6.5L4.8 18.2A1.9 1.9 0 0 0 6.4 21h11.2a1.9 1.9 0 0 0 1.6-2.8L14 9.5V3M7.2 15h9.6',
   learn: 'M3 6l6-3 6 3 6-3v15l-6 3-6-3-6 3zM9 3v15M15 6v15',
@@ -33,8 +36,20 @@ export const CATS: Cat[] = [
       { label: 'Check my portfolio', href: '/wega/portfolio-check' },
       { label: 'How risky is my mix?', href: '/wega/risk-mix' },
       { label: 'Am I close to liquidation?', href: '/wega/scenario?s=liq' },
-      { label: 'How much money is sitting idle?', href: '/wega/idle-cost' },
+      { label: 'Are my stablecoins earning anything?', href: '/wega/idle-cost' },
       { label: 'Compare me with the model portfolio', href: '/wega/allocation' },
+    ],
+  },
+  {
+    id: 'coins',
+    label: 'Coins',
+    icon: IC.coins,
+    prompts: [
+      { label: 'How is ETH doing?', href: '/wega/asset?a=eth' },
+      { label: 'How is Bitcoin doing?', href: '/wega/asset?a=btc' },
+      { label: 'How is ARB doing?', href: '/wega/asset?a=arb' },
+      { label: 'Is USDC holding its peg?', href: '/wega/asset?a=usdc' },
+      { label: 'Compare ETH with Bitcoin', href: '/wega/asset?a=eth&vs=btc' },
     ],
   },
   {
@@ -55,8 +70,8 @@ export const CATS: Cat[] = [
     prompts: [
       { label: 'What if ETH drops 30%?', href: '/wega/scenario?s=eth30' },
       { label: 'Simulate a crash like 2022', href: '/wega/scenario?s=crash22' },
+      { label: 'What if ETH rises 30%?', href: '/wega/scenario?s=up30' },
       { label: 'What if USDC depegs like in March 2023?', href: '/wega/scenario?s=usdc' },
-      { label: 'I got a bonus, where does it fit?', href: '/wega/ask?k=bonus' },
     ],
   },
   {
@@ -95,8 +110,6 @@ export const NET = ethV + PF.usdc + arbV + aaveNet + PF.lp; // 17,260
 export const HF = hfAt(); // 1.42
 export const LIQ = liqAt(); // $2,255
 export const LIQ_DROP = 1 - LIQ / PF.eth; // 29.5%
-export const AAVE_APR = 0.041; // USDC lending rate on Aave
-export const LOAN_APR = 0.05; // borrow rate on the Aave loan
 
 /** Whole percentages that add up to 100 (largest remainder). */
 export function shares(vals: number[]) {
@@ -116,60 +129,81 @@ export function shares(vals: number[]) {
   return out;
 }
 
-/** Risk mix: Safe (doesn't move with crypto prices), Moderate (half stable), Volatile (moves fully, or is borrowed against). */
-export type Layer = { id: 'safe' | 'moderate' | 'volatile'; name: string; what: string; v: number; pct: number; items: { name: string; where: string; v: number }[] };
-export function layers(): Layer[] {
+/** What moves the member's money: their net worth split by the coin each part follows. The Aave loan is in USDC,
+    so it is subtracted there; the LP is half ETH, half USDC. */
+export type CoinRow = { id: 'eth' | 'usdc' | 'arb'; name: string; what: string; v: number; pct: number; items: { name: string; where: string; v: number }[] };
+export const ETH_EXP = ethV + PF.aEth * PF.eth + PF.lp / 2; // 12,020
+export function exposure(): CoinRow[] {
   const L = [
-    { id: 'safe', name: 'Safe', what: 'Doesn’t move with crypto prices', items: [{ name: 'USDC in your wallet', where: 'Arbitrum', v: PF.usdc }] },
-    { id: 'moderate', name: 'Moderate', what: 'Half stable, half ETH', items: [{ name: 'Uniswap V3 LP, ETH/USDC', where: 'Range $2,900–$3,400', v: PF.lp }] },
     {
-      id: 'volatile',
-      name: 'Volatile',
-      what: 'Moves fully with prices',
+      id: 'eth',
+      name: 'ETH',
+      what: 'Moves fully with the ETH price',
       items: [
-        { name: 'ETH in your wallet', where: '1.1 ETH', v: ethV },
-        { name: 'Aave loan: 2 ETH minus 3,720 USDC borrowed', where: 'Health Factor 1.42', v: aaveNet },
-        { name: 'ARB in your wallet', where: '1,500 ARB', v: arbV },
+        { name: 'In your wallet', where: '1.1 ETH', v: ethV },
+        { name: 'Collateral on Aave', where: '2 ETH', v: PF.aEth * PF.eth },
+        { name: 'Half of your Uniswap LP', where: 'ETH/USDC', v: PF.lp / 2 },
       ],
     },
-  ] as Omit<Layer, 'v' | 'pct'>[];
+    {
+      id: 'usdc',
+      name: 'USDC',
+      what: 'Stays at one dollar',
+      items: [
+        { name: 'In your wallet', where: '5,900 USDC', v: PF.usdc },
+        { name: 'Half of your Uniswap LP', where: 'ETH/USDC', v: PF.lp / 2 },
+        { name: 'Your Aave loan', where: '3,720 USDC borrowed', v: -PF.debt },
+      ],
+    },
+    { id: 'arb', name: 'ARB', what: 'Moves even more than ETH', items: [{ name: 'In your wallet', where: '1,500 ARB', v: arbV }] },
+  ] as Omit<CoinRow, 'v' | 'pct'>[];
   const vs = L.map((l) => l.items.reduce((a, b) => a + b.v, 0)),
     p = shares(vs);
   return L.map((l, i) => ({ ...l, v: vs[i], pct: p[i] }));
 }
+/** How much the net worth moves when ETH moves 10% (the Aave loan makes it more than ETH's share of the snapshot). */
+export const ETH_BETA = 1 - scen(-0.1).net / NET; // ≈ 7%
 
-/** Allocation check: the member's mix next to how the team runs the model portfolio (sample ranges). */
-export type AllocRow = { name: string; sub?: string; you: number; lo: number; hi: number };
+/** The model portfolio's types, grouped the way a member understands them. */
+const KIND: Record<string, 'stable' | 'pool' | 'stake'> = {
+  Looping: 'stable',
+  Farming: 'stable',
+  Vault: 'stable',
+  'Carry trade': 'stable',
+  Hedging: 'stable',
+  'Liquidity pool': 'pool',
+  Staking: 'stake',
+};
+/** Allocation check: the member's snapshot next to the model portfolio, both as a share of their total. */
+export type AllocRow = { name: string; sub?: string; you: number; model: number };
 export function allocRows(): AllocRow[] {
-  const [lp, idle, borrow, tokens] = shares([PF.lp, PF.usdc, aaveNet, ethV + arbV]);
+  const m = { stable: 0, pool: 0, stake: 0 };
+  for (const x of STRATS) if (x.status !== 'Closed' && KIND[x.type]) m[KIND[x.type]] += valueOf(x, 'all');
+  const [mStable, mPool, mStake] = shares([m.stable, m.pool, m.stake]);
+  const [yPool, yIdle, yCoins] = shares([PF.lp, PF.usdc, ethV + arbV + aaveNet]);
   return [
-    { name: 'Yield strategies', sub: 'Staking, carry trades, vaults', you: 0, lo: 40, hi: 60 },
-    { name: 'Liquidity pools', you: lp, lo: 20, hi: 30 },
-    { name: 'Not deployed', sub: 'Stablecoins waiting', you: idle, lo: 5, hi: 15 },
-    { name: 'Borrowing against crypto', you: borrow, lo: 0, hi: 8 },
-    { name: 'Single tokens', sub: 'ETH, ARB', you: tokens, lo: 0, hi: 5 },
+    { name: 'Stablecoin strategies', sub: 'Vaults, carry trades, hedged farming', you: 0, model: mStable },
+    { name: 'Liquidity pools', sub: 'You: ETH/USDC · Model: gold pools', you: yPool, model: mPool },
+    { name: 'Staking', sub: 'SOL, HYPE', you: 0, model: mStake },
+    { name: 'Stablecoins not in a strategy', you: yIdle, model: 0 },
+    { name: 'Coins and loans', sub: 'ETH, ARB, your Aave loan', you: yCoins, model: 0 },
   ];
 }
-/** Inside the range = ok, up to 10 points outside = near, further = far. */
-export const allocState = (r: AllocRow) => {
-  const off = r.you < r.lo ? r.lo - r.you : r.you > r.hi ? r.you - r.hi : 0;
-  return off === 0 ? 'ok' : off <= 10 ? 'near' : 'far';
-};
 
-/** Cost of idle money: repaying the loan with idle USDC saves its interest, the rest could be lent on Aave. */
-export const IDLE_REPAY = PF.debt; // 3,720
-export const IDLE_REST = PF.usdc - PF.debt; // 2,180
-export function idleCost(years: number) {
-  const loan = IDLE_REPAY * ((1 + LOAN_APR) ** years - 1),
-    lend = IDLE_REST * ((1 + AAVE_APR) ** years - 1);
-  return { loan, lend, total: loan + lend };
+/** Stablecoins that aren't earning: what the model portfolio's easiest stablecoin strategies pay (APR from Strategies). */
+export function stableYield(): { s: Strat; year: number }[] {
+  return STRATS.filter((x) => KIND[x.type] === 'stable' && x.status === 'Active' && (x.diff === 'Beginner' || x.diff === 'Easy'))
+    .sort((a, b) => a.apr - b.apr)
+    .slice(0, 2)
+    .map((x) => ({ s: x, year: (PF.usdc * x.apr) / 100 }));
 }
 
 /* ---------- scenarios ---------- */
-export type ScenId = 'liq' | 'eth30' | 'crash22' | 'usdc';
+export type ScenId = 'liq' | 'eth30' | 'up30' | 'crash22' | 'usdc';
 export const SCENS: Record<ScenId, { title: string; kind: 'eth' | 'usdc'; init: number; cat: CatId }> = {
   liq: { title: 'Am I close to liquidation?', kind: 'eth', init: -0.3, cat: 'portfolio' },
   eth30: { title: 'What if ETH drops 30%?', kind: 'eth', init: -0.3, cat: 'simulations' },
+  up30: { title: 'What if ETH rises 30%?', kind: 'eth', init: 0.3, cat: 'simulations' },
   crash22: { title: 'A crash like 2022', kind: 'eth', init: -0.75, cat: 'simulations' },
   usdc: { title: 'What if USDC depegs like in March 2023?', kind: 'usdc', init: 0.88, cat: 'simulations' },
 };
@@ -273,21 +307,11 @@ export function textAnswer(k: string): TextAnswer | null {
         follow: ['/wega/ask?k=fit', '/wega/risk-mix'],
       };
     }
-    case 'bonus': {
-      const L = layers();
-      return {
-        cat: 'simulations',
-        q: 'I got a bonus, where does it fit?',
-        a: `Tell me the amount and I’ll show where it would land. Today your money sits in three layers: **${L[0].pct}%** Safe, **${L[1].pct}%** Moderate and **${L[2].pct}%** Volatile.\n\n- Kept in stablecoins, a bonus grows the Safe layer.\n- Put into ETH, it grows the Volatile layer.\n- Spread across strategies, each one stays under its max weight in the model portfolio.\n\nYou decide. I only show how the mix would change.`,
-        next: { label: 'See my risk mix', href: '/wega/risk-mix' },
-        follow: ['/wega/idle-cost', '/wega/scenario?s=eth30'],
-      };
-    }
     case 'il':
       return {
         cat: 'learn',
         q: 'Explain impermanent loss with my numbers',
-        a: `Your LP holds ETH and USDC and earns fees while ETH stays between **$2,900** and **$3,400**. When the price moves, the pool sells the asset that’s rising and buys the one that’s falling.\n\n- If ETH falls to **$2,900**, your LP is worth about **$3,574**. Just holding what you put in would be worth about **$4,049**. The gap, **$476**, is impermanent loss.\n- If ETH rises to **$3,400**, the gap is only about **$51**.\n\nYour fees, **$38** in 30 days, would take about a year to cover the first case. It’s “impermanent” because it shrinks again if ETH returns to $3,200.`,
+        a: `Your LP holds ETH and USDC and earns fees while ETH stays between **$2,900** and **$3,400**. When the price moves, the pool sells the asset that’s rising and buys the one that’s falling.\n\n- If ETH falls to **$2,900**, your LP is worth about **$3,574**. Just holding what you put in would be worth about **$4,049**. The gap, **$476**, is impermanent loss.\n- If ETH rises to **$3,400**, the gap is only about **$51**.\n\nIt’s “impermanent” because the gap shrinks again if ETH returns to $3,200, and the fees your LP earns make up for part of it.`,
         next: { label: 'Watch “IL: impermanent loss”', href: hrefLesson('r2', 1, 5) },
         follow: ['/wega/scenario?s=eth30', '/wega/risk-mix'],
       };
@@ -352,23 +376,40 @@ export function textAnswer(k: string): TextAnswer | null {
 export function routeQuestion(t: string): string | null {
   const s = t.toLowerCase();
   const has = (re: RegExp) => re.test(s);
+  const coins = coinsIn(s);
   if (has(/depeg/)) return '/wega/scenario?s=usdc';
   if (has(/crash|2022/)) return '/wega/scenario?s=crash22';
-  if (has(/what if|drops?|falls?/) && has(/eth/)) return '/wega/scenario?s=eth30';
+  if (has(/rises?|goes up|pumps?|moons?/) && has(/eth/)) return '/wega/scenario?s=up30';
+  if (has(/what if|drops?|falls?|dumps?/) && has(/eth/)) return '/wega/scenario?s=eth30';
   if (has(/liquidat|health factor/)) return '/wega/scenario?s=liq';
-  if (has(/risk|risky|volatil/)) return '/wega/risk-mix';
-  if (has(/idle|sitting|not deployed/)) return '/wega/idle-cost';
+  if (coins.length >= 2 && coins[0] !== 'usdc' && coins[1] !== 'usdc') return `/wega/asset?a=${coins[0]}&vs=${coins[1]}`;
+  if (coins.length === 1 && (has(/price|doing|chart|going|worth|how is|how's|peg|news/) || s.replace(/[^a-z]/g, '').length <= 9)) return `/wega/asset?a=${coins[0]}`;
+  if (has(/risk|risky|volatil|moves my money/)) return '/wega/risk-mix';
+  if (has(/idle|sitting|not deployed|earning|stablecoins/)) return '/wega/idle-cost';
   if (has(/model portfolio|compare/)) return '/wega/allocation';
   if (has(/check my portfolio|portfolio check/)) return '/wega/portfolio-check';
   if (has(/learn next|next lesson|what should i learn/)) return '/wega/learning-path';
   if (has(/impermanent/)) return '/wega/ask?k=il';
-  if (has(/bonus|salary/)) return '/wega/ask?k=bonus';
   if (has(/carry|funding/)) return '/wega/ask?k=carry';
   if (has(/stak/)) return '/wega/ask?k=staking';
   if (has(/beginner|which strategy/)) return '/wega/ask?k=fit';
   if (has(/membership|subscription|price|plan/)) return '/wega/ask?k=membership';
   if (has(/my data|privacy/)) return '/wega/ask?k=data';
   return null;
+}
+
+/** Coins named in a question, in the order they appear. */
+function coinsIn(s: string) {
+  const found: [number, 'eth' | 'btc' | 'arb' | 'usdc'][] = [];
+  const look = (re: RegExp, c: 'eth' | 'btc' | 'arb' | 'usdc') => {
+    const m = re.exec(s);
+    if (m) found.push([m.index, c]);
+  };
+  look(/\b(eth|ether|ethereum)\b/, 'eth');
+  look(/\b(btc|bitcoin)\b/, 'btc');
+  look(/\b(arb|arbitrum)\b/, 'arb');
+  look(/\busdc\b/, 'usdc');
+  return found.sort((a, b) => a[0] - b[0]).map((x) => x[1]);
 }
 
 /** Label of a prompt href: what the member "says" when they tap it. */
@@ -380,20 +421,26 @@ export function promptLabel(href: string) {
 /* ---------- things to check (the pill on the start page) ---------- */
 export const CHECKS = [
   { id: 'hf', t: `Health Factor ${HF.toFixed(2)}`, s: `Liquidation if ETH falls to $${Math.round(LIQ).toLocaleString('en-US')}` },
-  { id: 'idle', t: '5,900 USDC idle', s: `Since your snapshot of ${SNAP_DATE}` },
-  { id: 'appr', t: 'An old approval is still open', s: 'Unverified contract, unused for 214 days' },
+  { id: 'idle', t: '5,900 USDC not earning', s: `Not in any strategy since ${SNAP_DATE}` },
+  { id: 'eth', t: `${Math.round((ETH_EXP / NET) * 100)}% of your money moves with ETH`, s: `A 10% ETH move changes your net worth by about ${Math.round(ETH_BETA * 100)}%` },
 ];
 
 /* ---------- follow-ups Wega suggests after each result ---------- */
 export const RESULT_FOLLOW: Record<string, string[]> = {
   '/wega/portfolio-check': ['/wega/scenario?s=liq', '/wega/idle-cost', '/wega/risk-mix'],
-  '/wega/risk-mix': ['/wega/scenario?s=eth30', '/wega/allocation'],
+  '/wega/risk-mix': ['/wega/asset?a=eth', '/wega/allocation'],
   '/wega/allocation': ['/wega/idle-cost', '/wega/ask?k=fit'],
-  '/wega/idle-cost': ['/wega/allocation', '/wega/scenario?s=liq'],
-  '/wega/scenario?s=liq': ['/wega/scenario?s=eth30', '/wega/idle-cost'],
+  '/wega/idle-cost': ['/wega/allocation', '/wega/asset?a=usdc'],
+  '/wega/scenario?s=liq': ['/wega/scenario?s=eth30', '/wega/asset?a=eth'],
   '/wega/scenario?s=eth30': ['/wega/scenario?s=crash22', '/wega/risk-mix'],
+  '/wega/scenario?s=up30': ['/wega/scenario?s=eth30', '/wega/risk-mix'],
   '/wega/scenario?s=crash22': ['/wega/scenario?s=usdc', '/wega/risk-mix'],
-  '/wega/scenario?s=usdc': ['/wega/scenario?s=eth30', '/wega/idle-cost'],
+  '/wega/scenario?s=usdc': ['/wega/asset?a=usdc', '/wega/idle-cost'],
+  '/wega/asset?a=eth': ['/wega/scenario?s=liq', '/wega/asset?a=eth&vs=btc'],
+  '/wega/asset?a=btc': ['/wega/asset?a=eth', '/wega/ask?k=fit'],
+  '/wega/asset?a=arb': ['/wega/asset?a=eth', '/wega/portfolio-check'],
+  '/wega/asset?a=usdc': ['/wega/idle-cost', '/wega/asset?a=eth'],
+  '/wega/asset?a=eth&vs=btc': ['/wega/scenario?s=eth30', '/wega/risk-mix'],
   '/wega/learning-path': ['/wega/ask?k=quiz', '/wega/ask?k=il'],
 };
 

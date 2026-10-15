@@ -2,37 +2,17 @@
 /* Wega's rich answers in the chat (ideas doc, "Results Wega returns"): a short paragraph about the member's own
    numbers, one visual, a checklist where it helps, and one next step. Sample data, see src/lib/wega-page.ts. */
 import { useId, useState, type CSSProperties, type ReactNode } from 'react';
-import {
-  HF,
-  LIQ,
-  LIQ_DROP,
-  NET,
-  SNAP_DATE,
-  SNAP_AGE,
-  IDLE_REPAY,
-  IDLE_REST,
-  LOAN_APR,
-  AAVE_APR,
-  SCENS,
-  scen,
-  layers,
-  allocRows,
-  allocState,
-  idleCost,
-  nextSteps,
-  stepMin,
-  wp,
-  type ScenId,
-} from '@/lib/wega-page';
+import { HF, LIQ, LIQ_DROP, NET, SNAP_DATE, SNAP_AGE, ETH_EXP, ETH_BETA, SCENS, scen, exposure, allocRows, stableYield, nextSteps, stepMin, type ScenId } from '@/lib/wega-page';
 import { PF } from '@/lib/portfolio';
 import { R } from '@/lib/curriculum';
 import { allCount, focus, useProgress } from '@/lib/progress';
 import { stepTitle, stepCrumb, whyNext } from '@/lib/learn';
-import { hrefLesson, hrefRoute } from '@/lib/nav';
+import { hrefLesson, hrefRoute, hrefStrategies } from '@/lib/nav';
 import { StepBtn } from '@/lib/wega-brain';
 import { useHydrated } from '@/lib/hydrated';
 import { toast } from '@/lib/toast';
 import { Answer, AskLink, CHEV, Checklist, Icon, M } from './parts';
+import { AssetChart } from './Asset';
 
 const usd0 = (n: number) => '$' + Math.round(n).toLocaleString('en-US');
 const pct0 = (n: number) => (n > 0 ? '+' : n < 0 ? '−' : '') + Math.abs(Math.round(n)) + '%';
@@ -63,22 +43,9 @@ function HfGauge({ hf, was }: { hf: number; was?: number }) {
     </span>
   );
 }
-/** A tiny area chart of what idle money costs over 5 years. */
-function IdleSpark() {
-  const pts = Array.from({ length: 21 }, (_, i) => i / 4),
-    max = idleCost(5).total,
-    xy = pts.map((t) => [(t / 5) * 120, 40 - (idleCost(t).total / max) * 36] as const),
-    line = xy.map(([x, y], i) => `${i ? 'L' : 'M'}${x.toFixed(1)} ${y.toFixed(1)}`).join('');
-  return (
-    <svg className="wp-spark" viewBox="0 0 120 40" preserveAspectRatio="none" aria-hidden>
-      <path d={`${line}L120 40L0 40Z`} className="a" />
-      <path d={line} className="l" vectorEffect="non-scaling-stroke" />
-    </svg>
-  );
-}
 /** 15 bars, the first ones lit: Decade's "weight of positions" tile. */
-const Ticks = ({ pct }: { pct: number }) => (
-  <span className="wp-ticks" aria-hidden>
+const Ticks = ({ pct, tone }: { pct: number; tone?: 'ok' }) => (
+  <span className={'wp-ticks' + (tone ? ' ' + tone : '')} aria-hidden>
     {Array.from({ length: 15 }, (_, i) => (
       <i key={i} className={i < Math.round((pct / 100) * 15) ? 'on' : undefined} />
     ))}
@@ -87,18 +54,19 @@ const Ticks = ({ pct }: { pct: number }) => (
 
 /* ---------- Portfolio check ---------- */
 export function PortfolioCheck() {
-  const vol = layers()[2].pct,
-    yearCost = idleCost(1).total;
+  const ethPct = Math.round((ETH_EXP / NET) * 100),
+    usdcPct = Math.round((PF.usdc / NET) * 100),
+    best = stableYield().at(-1)!;
   return (
     <Answer
       title="Portfolio check"
       lead={
         <p>
-          Since your snapshot of {SNAP_DATE}, three things need a look. Your Aave loan is close to liquidation, with a Health Factor of <b>{HF.toFixed(2)}</b>.{' '}
+          I checked your snapshot of {SNAP_DATE}. Three things need a look. Your Aave loan has a Health Factor of <b>{HF.toFixed(2)}</b>, so a 30% ETH drop would get you liquidated.{' '}
           <b>
             <M v={PF.usdc} />
           </b>{' '}
-          in USDC is sitting idle. And an approval to an unverified contract is still open after 214 days. Your LP is in range and earning fees.
+          in USDC isn’t in any strategy. And about <b>{ethPct}%</b> of your money moves with ETH. Your LP is in range and earning fees.
         </p>
       }
       next={
@@ -115,35 +83,35 @@ export function PortfolioCheck() {
           <span className="wp-tile-c">Health Factor. Liquidation if ETH falls to {usd0(LIQ)}</span>
         </AskLink>
         <AskLink href="/wega/idle-cost" className="wp-tile">
-          <span className="wp-tile-h">Idle money</span>
+          <span className="wp-tile-h">Stablecoins not earning</span>
           <b className="wp-tile-v">
             <M v={PF.usdc} />
           </b>
-          <IdleSpark />
+          <Ticks pct={usdcPct} tone="ok" />
           <span className="wp-tile-c">
-            costs about <M v={yearCost} /> a year
+            {best.s.name} pays {best.s.apr}% a year in the model portfolio
           </span>
         </AskLink>
         <AskLink href="/wega/risk-mix" className="wp-tile">
-          <span className="wp-tile-h">Risk mix</span>
-          <b className="wp-tile-v tnum">{vol}%</b>
-          <Ticks pct={vol} />
-          <span className="wp-tile-c">of your money moves fully with prices</span>
+          <span className="wp-tile-h">Moves with ETH</span>
+          <b className="wp-tile-v tnum">{ethPct}%</b>
+          <Ticks pct={ethPct} />
+          <span className="wp-tile-c">A 10% ETH move changes your net worth by about {Math.round(ETH_BETA * 100)}%</span>
         </AskLink>
       </section>
       <Checklist
         rows={[
           { t: `Health Factor of ${HF.toFixed(2)}`, s: `Liquidation if ETH falls ${Math.round(LIQ_DROP * 1000) / 10}% to ${usd0(LIQ)}`, st: 'check' },
           {
-            t: 'USDC sitting idle',
+            t: 'Stablecoins not in a strategy',
             s: (
               <>
-                <M v={PF.usdc} /> since {SNAP_DATE}
+                <M v={PF.usdc} /> in USDC since {SNAP_DATE}
               </>
             ),
             st: 'check',
           },
-          { t: 'Open approvals', s: '1 of 4 goes to an unverified contract, unused for 214 days', st: 'check' },
+          { t: 'Most of your money in one coin', s: `About ${ethPct}% moves with ETH`, st: 'check' },
           { t: 'LP in range', s: 'ETH $3,200 is inside $2,900–$3,400', st: 'ok' },
           { t: 'Snapshot up to date', s: `${SNAP_AGE} days old`, st: 'ok' },
         ]}
@@ -152,17 +120,17 @@ export function PortfolioCheck() {
   );
 }
 
-/* ---------- Risk mix ---------- */
+/* ---------- Risk mix: what moves your money ---------- */
 export function RiskMix() {
-  const L = layers();
+  const L = exposure();
   const [open, setOpen] = useState<string | null>(null);
   return (
     <Answer
-      title="Your risk mix"
+      title="What moves your money"
       lead={
         <p>
-          I sort your money into three layers. <b>Safe</b> doesn’t move with crypto prices, <b>Moderate</b> moves about half as much, and <b>Volatile</b> moves fully. <b>{L[2].pct}%</b> of your money is volatile, and part of
-          it is borrowed against on Aave, so it swings more than its size suggests.
+          I split your money by the coin it follows. <b>{L[0].pct}%</b> moves with ETH: the ETH in your wallet, the 2 ETH on Aave and half of your LP. Because part of it is borrowed against, a 10% ETH move changes your
+          net worth by about <b>{Math.round(ETH_BETA * 100)}%</b>. <b>{L[1].pct}%</b> is USDC, which stays at a dollar, and <b>{L[2].pct}%</b> is ARB.
         </p>
       }
       next={<NextLink href="/wega/scenario?s=eth30">What if ETH drops 30%?</NextLink>}
@@ -175,10 +143,10 @@ export function RiskMix() {
           </span>
         ))}
       </div>
-      <section className="wp-card wp-table" aria-label="Layers">
+      <section className="wp-card wp-table" aria-label="By coin">
         <div className="wp-tr wp-th">
-          <span>Layer</span>
-          <span className="hide-s">What it means</span>
+          <span>Coin</span>
+          <span className="hide-s">What it does</span>
           <span className="r">Share</span>
           <span className="r">Value</span>
         </div>
@@ -195,17 +163,24 @@ export function RiskMix() {
                 <M v={l.v} />
               </span>
             </button>
-            {open === l.id &&
-              l.items.map((it) => (
-                <div key={it.name} className="wp-tr wp-sub">
-                  <span>{it.name}</span>
-                  <span className="hide-s q">{it.where}</span>
-                  <span className="r q tnum">{Math.round((it.v / NET) * 100)}%</span>
-                  <span className="r q">
-                    <M v={it.v} />
-                  </span>
-                </div>
-              ))}
+            {open === l.id && (
+              <>
+                {l.items.map((it) => (
+                  <div key={it.name} className="wp-tr wp-sub">
+                    <span>{it.name}</span>
+                    <span className="hide-s q">{it.where}</span>
+                    <span className="r q tnum" />
+                    <span className="r q">
+                      <M v={it.v} />
+                    </span>
+                  </div>
+                ))}
+                <AskLink href={`/wega/asset?a=${l.id}`} className="wp-tr wp-sub wp-sub-link">
+                  <span>See the {l.name} chart</span>
+                  <Icon d={CHEV} size={16} />
+                </AskLink>
+              </>
+            )}
           </div>
         ))}
         <div className="wp-tr wp-total">
@@ -221,63 +196,48 @@ export function RiskMix() {
   );
 }
 
-/* ---------- Allocation check ---------- */
+/* ---------- You and the model portfolio ---------- */
 export function Allocation() {
   const rows = allocRows();
-  const at = (v: number) => Math.min(100, v) + '%';
   return (
     <Answer
       title="You and the model portfolio"
       lead={
         <p>
-          This puts your mix next to how the team runs the model portfolio. It isn’t a target for you, it shows where you differ. The biggest gaps: nothing in yield strategies yet, <b>{rows[2].you}%</b> waiting in
-          stablecoins, and <b>{rows[4].you}%</b> in single tokens.
+          The model portfolio keeps <b>{rows[0].model}%</b> in stablecoin strategies, where the price barely matters, plus gold pools and staking. Your money is mostly ETH and USDC that isn’t in a strategy yet. This isn’t a
+          target for you, it shows where you differ.
         </p>
       }
-      next={<NextLink href="/strategies">Open Strategies</NextLink>}
+      next={<NextLink href={hrefStrategies()}>Open Strategies</NextLink>}
     >
       <section className="wp-card wp-alloc" aria-label="Your mix and the model portfolio">
         <div className="wp-alloc-h">
-          <div>
-            <h2 className="wp-card-h">Your mix and the model portfolio</h2>
-            <span className="wp-base">
-              Base: your net worth, <M v={NET} />
-            </span>
-          </div>
-          <span className="col">You</span>
+          <h2 className="wp-card-h">Share of each portfolio</h2>
+          <span className="col you">You</span>
           <span className="col">Model</span>
         </div>
-        {rows.map((r) => {
-          const st = allocState(r);
-          return (
-            <div key={r.name} className={'wp-arow is-' + st}>
-              <span className="nm">
-                {r.name}
-                {r.sub && <small>{r.sub}</small>}
-              </span>
-              <span className="bar" aria-hidden>
-                <i className="band" style={{ left: at(r.lo), width: `max(10px, ${r.hi - r.lo}%)` }} />
-                <i className="mk" style={{ left: `clamp(0px, calc(${at(r.you)} - 2px), calc(100% - 4px))` }} />
-              </span>
-              <span className="you tnum">{r.you}%</span>
-              <span className="mod tnum">
-                {r.lo}–{r.hi}%
-              </span>
-            </div>
-          );
-        })}
+        {rows.map((r) => (
+          <div key={r.name} className="wp-arow">
+            <span className="nm">
+              {r.name}
+              {r.sub && <small>{r.sub}</small>}
+            </span>
+            <span className="bars" aria-hidden>
+              <i className="y" style={{ width: r.you + '%' }} />
+              <i className="m" style={{ width: r.model + '%' }} />
+            </span>
+            <span className="you tnum">{r.you}%</span>
+            <span className="mod tnum">{r.model}%</span>
+          </div>
+        ))}
         <p className="wp-legend">
           <span>
-            <i className="ok" />
-            Inside the model’s range
+            <i className="you" />
+            You, from your snapshot
           </span>
           <span>
-            <i className="near" />
-            Up to 10 points off
-          </span>
-          <span>
-            <i className="far" />
-            More than 10 points off
+            <i className="mod" />
+            The model portfolio today
           </span>
         </p>
       </section>
@@ -285,111 +245,70 @@ export function Allocation() {
   );
 }
 
-/* ---------- Cost of idle money ---------- */
-function IdleChart() {
-  const W = wp.use();
-  const N = 50,
-    max = 1600,
-    ts = Array.from({ length: N + 1 }, (_, i) => (i / N) * 5),
-    X = (t: number) => (t / 5) * 500,
-    Y = (v: number) => 200 - (v / max) * 200,
-    path = (f: (t: number) => number) => ts.map((t, i) => `${i ? 'L' : 'M'}${X(t).toFixed(1)} ${Y(f(t)).toFixed(1)}`).join(''),
-    lower = path((t) => idleCost(t).loan),
-    upper = path((t) => idleCost(t).total),
-    end = idleCost(5);
-  return (
-    <section className="wp-card wp-chart" aria-label="What idle money costs over 5 years">
-      <h2 className="wp-card-h">What idle money costs you, by source, over 5 years</h2>
-      <div className="wp-plot">
-        {[0.25, 0.5, 0.75].map((g) => (
-          <i key={g} className="grid" style={{ top: g * 100 + '%' }} />
-        ))}
-        <svg viewBox="0 0 500 200" preserveAspectRatio="none" aria-hidden>
-          <path d={`${upper}L500 200L0 200Z`} className="a2" />
-          <path d={`${lower}L500 200L0 200Z`} className="a1" />
-          <path d={upper} className="l2" vectorEffect="non-scaling-stroke" />
-          <path d={lower} className="l1" vectorEffect="non-scaling-stroke" />
-        </svg>
-        <span className="end tnum" style={{ top: `calc(${(Y(end.total) / 200) * 100}% - 52px)` }}>
-          {W.hide ? '$•••••' : usd0(end.total)}
-          <small>in 5 years</small>
-        </span>
-      </div>
-      <div className="wp-xax" aria-hidden>
-        {['Today', 'Year 1', 'Year 2', 'Year 3', 'Year 4', 'Year 5'].map((l, i) => (
-          <span key={l} style={{ left: i * 20 + '%' } as CSSProperties}>
-            {l}
-          </span>
-        ))}
-      </div>
-      <p className="wp-legend">
-        <span>
-          <i className="a1" />
-          Loan interest you could save
-        </span>
-        <span>
-          <i className="a2" />
-          Interest the rest could earn on Aave
-        </span>
-      </p>
-    </section>
-  );
-}
+/* ---------- Are my stablecoins earning anything? ---------- */
 export function IdleCost() {
-  const save = IDLE_REPAY * LOAN_APR,
-    earn = IDLE_REST * AAVE_APR;
+  const opts = stableYield(),
+    max = opts[opts.length - 1].year;
   return (
     <Answer
-      title="The cost of idle money"
+      title="Stablecoins not earning"
       lead={
         <p>
+          Not yet.{' '}
           <b>
             <M v={PF.usdc} />
           </b>{' '}
-          in USDC has been sitting in your wallet since {SNAP_DATE}. At the same time you pay about <b>5%</b> on the <M v={IDLE_REPAY} /> you borrowed on Aave. Repaying the loan with idle USDC would save about{' '}
-          <b>
-            <M v={save} />
-          </b>{' '}
-          a year, and lending the rest at about <b>4.1%</b> would earn about{' '}
-          <b>
-            <M v={earn} />
-          </b>{' '}
-          more. Rates change, so treat this as math, not advice.
+          in USDC has been in your wallet since {SNAP_DATE} without being in a strategy. In the model portfolio, the two easiest stablecoin strategies pay{' '}
+          {opts.map((o, i) => (
+            <span key={o.s.id}>
+              {i ? ' and ' : ''}
+              <b>{o.s.apr}%</b> a year ({o.s.name})
+            </span>
+          ))}
+          . Rates change every week and each strategy has its own risks, so treat this as math, not advice.
         </p>
       }
-      next={<NextLink href={hrefLesson('r1', 2, 0)}>Watch “Lending basics”</NextLink>}
+      next={<NextLink href={hrefStrategies(opts[0].s.id)}>Open {opts[0].s.name}</NextLink>}
     >
-      <IdleChart />
-      <Checklist
-        title="What I looked for"
-        rows={[
-          {
-            t: 'Stablecoins sitting idle',
-            s: (
-              <>
-                <M v={PF.usdc} /> since {SNAP_DATE}
-              </>
-            ),
-            st: 'check',
-          },
-          {
-            t: 'Paying interest while holding cash',
-            s: (
-              <>
-                <M v={IDLE_REPAY} /> borrowed at about 5%
-              </>
-            ),
-            st: 'check',
-          },
-          { t: 'LP out of range, earning nothing', s: 'In range: ETH $3,200 is inside $2,900–$3,400', st: 'ok' },
-          { t: 'Rewards left unclaimed', s: 'No reward programs in your snapshot', st: 'na' },
-        ]}
-      />
+      <section className="wp-card wp-yield" aria-label="What 5,900 USDC would earn in a year">
+        <h2 className="wp-card-h">
+          What your <M v={PF.usdc} /> would earn in a year
+        </h2>
+        <ul>
+          <li>
+            <span className="nm">
+              In your wallet<small>Not in a strategy</small>
+            </span>
+            <span className="bar" aria-hidden>
+              <i style={{ width: '0%' }} />
+            </span>
+            <b className="tnum">
+              <M v={0} />
+            </b>
+          </li>
+          {opts.map((o) => (
+            <li key={o.s.id}>
+              <span className="nm">
+                {o.s.name}
+                <small>
+                  {o.s.apr}% APR · {o.s.diff}
+                </small>
+              </span>
+              <span className="bar" aria-hidden>
+                <i style={{ width: (o.year / max) * 100 + '%' }} />
+              </span>
+              <b className="tnum">
+                <M v={o.year} />
+              </b>
+            </li>
+          ))}
+        </ul>
+      </section>
     </Answer>
   );
 }
 
-/* ---------- Scenario ---------- */
+/* ---------- Scenario (client, Oct 15: liked, but smaller) ---------- */
 export function Scenario({ s }: { s: ScenId }) {
   const def = SCENS[s];
   const id = useId();
@@ -398,33 +317,51 @@ export function Scenario({ s }: { s: ScenId }) {
     base = scen(0),
     first = eth ? scen(def.init) : scen(0, def.init),
     now = eth ? scen(v) : scen(0, v),
-    chg = (now.net / base.net - 1) * 100;
+    chg = (now.net / base.net - 1) * 100,
+    firstChg = pct0((first.net / base.net - 1) * 100);
   const lead =
     s === 'liq' ? (
       <p>
-        Your Health Factor is <b>{HF.toFixed(2)}</b>. Aave liquidates part of your collateral when it falls below 1. That happens if ETH drops <b>{Math.round(LIQ_DROP * 1000) / 10}%</b>, to <b>{usd0(LIQ)}</b>. Move the slider to
+        Your Health Factor is <b>{HF.toFixed(2)}</b>. Aave sells part of your ETH when it falls below 1, which happens if ETH drops <b>{Math.round(LIQ_DROP * 1000) / 10}%</b>, to <b>{usd0(LIQ)}</b>. Move the slider to
         see how close that is.
       </p>
     ) : s === 'usdc' ? (
       <p>
-        In March 2023, USDC briefly traded at <b>$0.88</b>. At that price your idle USDC would be worth{' '}
+        In March 2023, USDC briefly traded at <b>$0.88</b>. At that price your USDC would be worth{' '}
         <b>
           <M v={first.usdcV} />
         </b>
-        . Your loan is in USDC too, so it gets cheaper in dollars and your Health Factor rises to <b>{first.hf.toFixed(2)}</b>. Net worth: <b>{pct0((first.net / base.net - 1) * 100)}</b>.
+        . Your loan is in USDC too, so your Health Factor rises to <b>{first.hf.toFixed(2)}</b>. Net worth: <b>{firstChg}</b>.
+      </p>
+    ) : def.init > 0 ? (
+      <p>
+        If ETH rises {Math.round(def.init * 100)}% to <b>{usd0(first.p)}</b>, your net worth grows to about{' '}
+        <b>
+          <M v={first.net} />
+        </b>{' '}
+        ({firstChg}) and your Health Factor rises to <b>{first.hf.toFixed(2)}</b>. Your LP leaves its range above $3,400 and stops earning fees until you move it.
       </p>
     ) : (
       <p>
         {s === 'crash22' && <>In 2022, ETH fell about 75% from January to June. </>}
-        If ETH drops {Math.round(-def.init * 100)}% to <b>{usd0(first.p)}</b>, your Health Factor falls to <b>{first.hf.toFixed(2)}</b> and Aave liquidates part of your collateral. Your net worth drops to about{' '}
+        If ETH drops {Math.round(-def.init * 100)}% to <b>{usd0(first.p)}</b>, your Health Factor falls to <b>{first.hf.toFixed(2)}</b> and Aave sells part of your ETH. Your net worth drops to about{' '}
         <b>
           <M v={first.net} />
         </b>{' '}
-        ({pct0((first.net / base.net - 1) * 100)}), before the liquidation penalty. Your LP leaves its range and stops earning fees.
+        ({firstChg}), and your LP stops earning fees.
       </p>
     );
+  /* one next step that fits the scenario: liquidation for a drop, impermanent loss for a rise, the depeg lesson for USDC */
+  const next =
+    s === 'usdc' ? (
+      <NextLink href={hrefLesson('r2', 2, 4)}>Watch “Depeg monitor”</NextLink>
+    ) : def.init > 0 ? (
+      <NextLink href={hrefLesson('r2', 1, 5)}>Watch “IL: impermanent loss”</NextLink>
+    ) : (
+      <NextLink href={hrefRoute('r1', 2)}>Learn how liquidation works</NextLink>
+    );
   return (
-    <Answer title={def.title} lead={lead} next={<NextLink href={hrefRoute('r1', 2)}>Learn how liquidation works</NextLink>}>
+    <Answer title={def.title} lead={lead} next={next}>
       <section className="wp-card wp-scen" aria-label="Scenario">
         <div className="wp-scen-top">
           <label htmlFor={id} className="wp-card-h">
@@ -463,41 +400,27 @@ export function Scenario({ s }: { s: ScenId }) {
             <b className="wp-tile-v">
               <M v={now.net} />
             </b>
-            <span className={'wp-delta ' + (chg < -0.5 ? 'bad' : chg > 0.5 ? 'ok' : '')}>{pct0(chg)}</span>
-            <span className="wp-tile-c">
-              today <M v={base.net} />
+            <span className={'wp-delta ' + (chg < -0.5 ? 'bad' : chg > 0.5 ? 'ok' : '')}>
+              {pct0(chg)}{' '}
+              <span className="wp-tile-c">
+                from <M v={base.net} />
+              </span>
             </span>
           </div>
           <div className="wp-tile">
             <span className="wp-tile-h">Health Factor</span>
             <b className={'wp-tile-v tnum ' + hfTone(now.hf)}>{now.hf.toFixed(2)}</b>
             <HfGauge hf={now.hf} was={HF} />
-            <span className="wp-tile-c">{now.liquidated ? 'Aave liquidates part of your ETH' : `today ${HF.toFixed(2)}`}</span>
+            {now.liquidated && <span className="wp-tile-c">Aave sells part of your ETH</span>}
           </div>
           <div className="wp-tile">
             <span className="wp-tile-h">Your LP</span>
             <b className={'wp-tile-v ' + (now.inRange ? 'ok' : 'warn')}>{now.inRange ? 'In range' : 'Out of range'}</b>
-            <span className="wp-tile-c">{now.inRange ? 'still earning fees' : 'no fees until ETH is back between $2,900 and $3,400'}</span>
+            <span className="wp-tile-c">{now.inRange ? 'Earning fees' : 'No fees outside $2,900–$3,400'}</span>
           </div>
         </div>
       </section>
-      <Checklist
-        rows={[
-          { t: 'Aave loan', s: now.liquidated ? 'Liquidated: part of the 2 ETH is sold to repay the debt' : `Safe at a Health Factor of ${now.hf.toFixed(2)}`, st: now.liquidated ? 'check' : 'ok' },
-          { t: 'Uniswap LP', s: now.inRange ? 'In range, earning fees' : 'Out of range, not earning', st: now.inRange ? 'ok' : 'check' },
-          {
-            t: 'Idle USDC',
-            s: eth ? (
-              'Not affected by the ETH price'
-            ) : (
-              <>
-                worth <M v={now.usdcV} />
-              </>
-            ),
-            st: eth || v >= 0.995 ? 'ok' : 'check',
-          },
-        ]}
-      />
+      <AssetChart sym={eth ? 'eth' : 'usdc'} init={s === 'crash22' || !eth ? '5Y' : '1Y'} mark={eth ? now.p : v} compact />
     </Answer>
   );
 }
