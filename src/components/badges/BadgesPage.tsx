@@ -1,5 +1,5 @@
 'use client';
-/* Badges and certificates (Figma 2402:51204): every badge in one grid, then the three certificates.
+/* Badges and certificates (Figma 2402:51204): the three certificates first (felipe, Oct 16), then every badge in one grid.
    Each tile says plainly where it stands: completed, how far along, or what opens it.
    Earned items open in the 3D viewer; the others take you to the zone that earns them. */
 import type { CSSProperties } from 'react';
@@ -76,16 +76,16 @@ export function BadgesPage() {
       <header className="bx-head">
         <h1>Badges and certificates</h1>
         <p className="tnum">
-          {nb} of {badges.length} badges · {nc} of {certs.length} certificates
+          {nc} of {certs.length} certificates · {nb} of {badges.length} badges
         </p>
       </header>
-      <ul className="bx-grid">
-        {badges.map(([x, c]) => (
+      <ul className="bx-certs">
+        {certs.map(([x, c]) => (
           <Tile key={x.id} it={x} c={c} onOpen={open} />
         ))}
       </ul>
-      <ul className="bx-certs">
-        {certs.map(([x, c]) => (
+      <ul className="bx-grid">
+        {badges.map(([x, c]) => (
           <Tile key={x.id} it={x} c={c} onOpen={open} />
         ))}
       </ul>

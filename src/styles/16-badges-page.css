@@ -1,12 +1,12 @@
-/* ---------- Badges and certificates (Figma 2402:51204): one grid of every badge, then the certificates ---------- */
+/* ---------- Badges and certificates (Figma 2402:51204): the certificates first, then one grid of every badge ---------- */
 .page.bx{max-width:1490px;padding-top:95px}
 .bx-head{display:flex;flex-direction:column;gap:4px;margin-bottom:32px}
 .bx-head h1{font-size:24px;font-weight:500;line-height:1.4;letter-spacing:-.03em}
 .bx-head p{font-size:14px;line-height:1.5;color:rgba(255,255,255,.5)}
 
 .bx-grid,.bx-certs{list-style:none;margin:0;padding:0}
-.bx-grid{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:40px 21px}
-.bx-certs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:40px 32px;margin-top:96px}
+.bx-grid{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:40px 21px;margin-top:96px}
+.bx-certs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:40px 32px}
 
 .bx-btn{display:flex;flex-direction:column;align-items:center;gap:24px;width:100%;text-align:center;border-radius:12px}
 .bx-btn:focus-visible{outline:2px solid var(--accent);outline-offset:4px}
@@ -39,8 +39,8 @@
 @media (max-width:1039px){.bx-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.bx-certs{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media (max-width:700px){
   .page.bx{padding-top:32px}
-  .bx-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:32px 12px}
-  .bx-certs{grid-template-columns:minmax(0,1fr);margin-top:56px}
+  .bx-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:32px 12px;margin-top:56px}
+  .bx-certs{grid-template-columns:minmax(0,1fr)}
   .bx-btn{gap:14px}
   .bx-name{font-size:15px}
 }
