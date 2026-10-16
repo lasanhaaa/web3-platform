@@ -14,7 +14,7 @@ import { hsim } from './hsim';
 import { seekLesson } from './player';
 import { hrefLesson, hrefQuiz, hrefRoute, hrefMap } from './nav';
 import { toast } from './toast';
-import { SPARK } from './icons';
+import { GOOSE } from './icons';
 import { Svg } from './svg';
 import { wega, wgRun, wgClose, type WegaPage, type Answer, type Chip } from './wega';
 import { SimBlock } from '@/components/wega/Sim';
@@ -196,7 +196,7 @@ export function routeText(t: string): Answer {
 /* ---- small interactive pieces inside answers ---- */
 const Acts = ({ children }: { children: ReactNode }) => <div className="wg-acts">{children}</div>;
 export function Spark() {
-  return <Svg src={SPARK} />;
+  return <Svg src={GOOSE} />;
 }
 export function GoBtn({ href, children, cls = 'btn ghost sm' }: { href: string; children: ReactNode; cls?: string }) {
   const router = useRouter();

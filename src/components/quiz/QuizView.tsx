@@ -3,7 +3,7 @@ import { useEffect, useLayoutEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { R } from '@/lib/curriculum';
 import { Q, rightText } from '@/lib/quiz-bank';
-import { I, SPARK } from '@/lib/icons';
+import { I, GOOSE } from '@/lib/icons';
 import { Svg } from '@/lib/svg';
 import { S, useProgress, restoreDemo, quizOpen, lessonOpen, passZone } from '@/lib/progress';
 import { useGo, parseZL, hrefRoute } from '@/lib/nav';
@@ -268,7 +268,7 @@ function Quiz({ QZ }: { QZ: QuizState }) {
           <p>{q.why}</p>
           {!ok && (
             <button className="btn text wg-link" onClick={() => wgAskLive('q_explain', wrongTxt ? `Why is “${wrongTxt}” correct?` : 'Why is that?')}>
-              <Svg src={SPARK} />
+              <Svg src={GOOSE} />
               Wega explains
             </button>
           )}
@@ -285,7 +285,7 @@ function Quiz({ QZ }: { QZ: QuizState }) {
           Skip
         </button>
         <button className="btn text wg-link" style={{ marginTop: 0 }} onClick={() => wgRun('q_hint', 'Give me a hint without the answer')}>
-          <Svg src={SPARK} />
+          <Svg src={GOOSE} />
           Hint from Wega
         </button>
       </div>

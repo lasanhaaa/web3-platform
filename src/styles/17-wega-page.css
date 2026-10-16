@@ -1,6 +1,6 @@
 /* ---------- Wega page: a chat (felipe, Oct 15). Empty: the hub (greeting, one input, six topics, recent chats). Then the conversation. ---------- */
 /* one Wega input on screen: the floating helper steps aside here */
-body.wp-on .wg-fab,body.wp-on .wg-scrim{display:none}
+body.wp-on .wg-scrim{display:none}
 
 .wp-ib{width:36px;height:36px;flex:none;display:grid;place-items:center;border-radius:8px;color:rgba(255,255,255,.5);transition:background .2s,color .2s}
 .wp-ib:hover{background:rgba(255,255,255,.06);color:#fff}

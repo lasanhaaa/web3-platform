@@ -7,7 +7,7 @@ import { S, useProgress, isDone, lessonOpen, quizOpen, lessonState } from '@/lib
 import { useGo, parseZL } from '@/lib/nav';
 import { toast } from '@/lib/toast';
 import { tt } from '@/lib/format';
-import { I, SPARK } from '@/lib/icons';
+import { I, GOOSE, SPARK } from '@/lib/icons';
 import { Svg } from '@/lib/svg';
 import { wega, wgRun, wgClose } from '@/lib/wega';
 import { rewardOpen } from '@/lib/reward';
@@ -28,6 +28,7 @@ import {
   cycleRate,
 } from '@/lib/player';
 import { LessonChat } from './LessonChat';
+import { AskWega } from '@/components/wega/Wega';
 
 const FS_ON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg>';
 const FS_OFF = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 4v5H4M15 4v5h5M9 20v-5H4M15 20v-5h5"/></svg>';
@@ -173,7 +174,9 @@ export function LessonView() {
           {z.name}
         </button>
         <div className="ttl">{rid === 'academy' ? 'Academy' : r.name}</div>
-        <div className="right" />
+        <div className="right">
+          <AskWega where="inline" />
+        </div>
       </div>
       <div className={cx('lp', !V.chat && 'nochat')}>
         <div className="l-stage" ref={stage}>
@@ -383,7 +386,7 @@ function QuickCheck({ rid, zi, li, k }: { rid: string; zi: number; li: number; k
       ) : (
         <div className="wg-acts">
           <button className="btn ghost sm" onClick={() => wgRun('l_terms', 'Explain the key terms')}>
-            <Svg src={SPARK} />
+            <Svg src={GOOSE} />
             Explain the key terms
           </button>
           <button className="btn text sm" onClick={qcContinue}>

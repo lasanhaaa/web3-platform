@@ -10,8 +10,6 @@ import { useGo } from '@/lib/nav';
 import { S, lessonOpen, quizOpen, chooseRoute, type Step } from '@/lib/progress';
 import { toast } from '@/lib/toast';
 import { wgRun } from '@/lib/wega';
-import { SPARK } from '@/lib/icons';
-import { Svg } from '@/lib/svg';
 
 /** Curriculum image paths are relative ('assets/pawn-m.webp'); the app serves them from the root. */
 export const img = (src: string) => '/' + String(src).replace(/^\/+/, '');
@@ -64,17 +62,8 @@ export function StepBtn({ f, label, cls = 'primary sm' }: { f: Step; label?: str
   );
 }
 
-/** Wega's orb (prototype orb()). */
-export function Orb({ cls = '' }: { cls?: string }) {
-  return (
-    <span className={`wg-orb ${cls}`}>
-      <i className="ring" />
-      <span className="wg-av">
-        <Svg src={SPARK} />
-      </span>
-    </span>
-  );
-}
+/** Wega's avatar (prototype orb()). */
+export { Orb } from '@/components/wega/Orb';
 
 const never = () => () => {};
 

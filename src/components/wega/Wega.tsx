@@ -1,18 +1,26 @@
 'use client';
-import { useEffect, useRef, useState, type ReactNode } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
-import { wega, setWegaPage, wgAsk, wgClose, wgNew, wgProbe, wgRun, wgStop, wgToggle, type Chip, type Msg, type WegaPage } from '@/lib/wega';
-import { chipsFor, ctxLabel, helloLead } from '@/lib/wega-brain';
+import { wega, setWegaPage, wgAsk, wgClose, wgHub, wgNew, wgProbe, wgResume, wgRun, wgStop, type Chip, type Msg, type WegaPage } from '@/lib/wega';
+import { promptLabel, wpLoad } from '@/lib/wega-page';
+import { chipsFor, ctxLabel } from '@/lib/wega-brain';
 import { useProgress } from '@/lib/progress';
 import { quiz } from '@/lib/quiz-state';
-import { player } from '@/lib/player';
+import { player, showLessonChat } from '@/lib/player';
 import { rewardOpen } from '@/lib/reward';
 import { toast } from '@/lib/toast';
-import { I, SPARK, WI } from '@/lib/icons';
+import { I, GOOSE, WI } from '@/lib/icons';
 import { Svg } from '@/lib/svg';
 import { zoneExists, lessonExists } from '@/lib/params';
+import { Orb } from './Orb';
+import { MdText } from './MdText';
+import { AnswerFor } from '@/components/wega-page/Answer';
+import { Topics } from '@/components/wega-page/Topics';
+import { AskCtx } from '@/components/wega-page/parts';
 
-/* Wega, the AI copilot: floating button + side panel on every page (prototype wgMount/wgSync/wgPush).
+/* Wega, the AI copilot: the "Ask wega" button at the top right of every page and the side panel (prototype
+   wgMount/wgSync/wgPush). Opened with no question, the panel is a small hub like the Wega page's (felipe, Oct 16,
+   after PostHog's AI panel); a button with a ready question opens it straight on the answer.
    The header's "Open in Wega" goes to the Wega page with the topic of the page you're on. */
 const OPEN_IN = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4h6v6M20 4l-8 8M18 14v4a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4"/></svg>';
 
@@ -33,62 +41,15 @@ function pageFromPath(path: string, prev: WegaPage): WegaPage {
   return { screen: 'map' };
 }
 
-export const Orb = ({ thinking }: { thinking?: boolean }) => (
-  <span className={`wg-orb${thinking ? ' thinking' : ''}`}>
-    <i className="ring" />
-    <span className="wg-av">
-      <Svg src={SPARK} />
-    </span>
-  </span>
-);
+export { Orb, MdText };
 
 export function ChipBtn({ c }: { c: Chip }) {
   return (
     <button className="wg-chip" onClick={() => wgRun(c[1], c[0])}>
-      <Svg src={SPARK} />
+      <Svg src={GOOSE} />
       <span>{c[0]}</span>
     </button>
   );
-}
-
-/** The chat's light markdown: paragraphs, - and 1. lists, **bold**, `code`. */
-function inline(s: string, k: string): ReactNode[] {
-  return s.split(/(\*\*.+?\*\*|`[^`]+`)/g).map((p, i) =>
-    p.startsWith('**') && p.endsWith('**') && p.length > 4 ? (
-      <b key={k + i}>{p.slice(2, -2)}</b>
-    ) : p.startsWith('`') && p.endsWith('`') && p.length > 2 ? (
-      <code key={k + i}>{p.slice(1, -1)}</code>
-    ) : (
-      p
-    ),
-  );
-}
-export function MdText({ text }: { text: string }) {
-  const out: ReactNode[] = [];
-  let list: { tag: 'ul' | 'ol'; items: ReactNode[] } | null = null;
-  const flush = () => {
-    if (list) out.push(list.tag === 'ul' ? <ul key={out.length}>{list.items}</ul> : <ol key={out.length}>{list.items}</ol>);
-    list = null;
-  };
-  text.split('\n').forEach((raw, n) => {
-    const l = raw.trim();
-    const ul = /^[-•*] +/.test(l),
-      ol = /^\d+[.)] +/.test(l);
-    if (ul || ol) {
-      const tag = ul ? 'ul' : 'ol';
-      if (!list || list.tag !== tag) {
-        flush();
-        list = { tag, items: [] };
-      }
-      list.items.push(<li key={n}>{inline(l.replace(/^([-•*]|\d+[.)]) +/, ''), 'l' + n)}</li>);
-      return;
-    }
-    flush();
-    if (!l) return;
-    out.push(<p key={'p' + n}>{inline(l.replace(/^#+ +(.*)$/, '**$1**'), 'p' + n)}</p>);
-  });
-  flush();
-  return <>{out}</>;
 }
 
 function Meta({ m }: { m: Msg }) {
@@ -122,11 +83,12 @@ export function Message({ m }: { m: Msg }) {
   if (m.kind === 'div') return <div className="wg-div">{m.text}</div>;
   if (m.role === 'user')
     return (
-      <div className="wg-m u">
+      <div className="wg-m u" data-m={m.id}>
         <span className="wg-lbl">You</span>
         <div className="wg-bub">{m.text}</div>
       </div>
     );
+  if (m.href && !m.pending) return <RichMessage m={m} href={m.href} />;
   return (
     <div className="wg-m a">
       <span className="wg-lbl">Wega</span>
@@ -147,6 +109,29 @@ export function Message({ m }: { m: Msg }) {
       {!m.pending && m.node}
       {!m.pending && <Meta m={m} />}
       {!m.pending && m.follow && m.follow.length > 0 && (
+        <div className="wg-follow">
+          {m.follow.map((c) => (
+            <ChipBtn key={c[1] + c[0]} c={c} />
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+/** One of the Wega page's ready questions, answered in the panel as on that page; questions inside it stay in the panel. */
+const askHere = (href: string) => wgRun(href, promptLabel(href) || undefined);
+function RichMessage({ m, href }: { m: Msg; href: string }) {
+  useEffect(wpLoad, []);
+  return (
+    <div className="wg-m a">
+      <span className="wg-lbl">Wega</span>
+      <AskCtx.Provider value={askHere}>
+        <div className="wg-rich">
+          <AnswerFor href={href} />
+        </div>
+      </AskCtx.Provider>
+      {m.follow && m.follow.length > 0 && (
         <div className="wg-follow">
           {m.follow.map((c) => (
             <ChipBtn key={c[1] + c[0]} c={c} />
@@ -226,6 +211,78 @@ export function Composer({ inline, placeholder = 'Ask Wega anything …' }: { in
   );
 }
 
+/** On a lesson Wega is the chat beside the video: "Ask wega" shows it and puts the cursor in its input. */
+function openLessonChat() {
+  showLessonChat(true);
+  requestAnimationFrame(() => {
+    const lc = document.getElementById('lc');
+    lc?.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+    lc?.querySelector('textarea')?.focus({ preventScroll: true });
+  });
+}
+
+/** "Ask wega", in the same place on every page (Figma 2870:33537): the top right, where the page's top bar ends; in
+    the phone's top bar; in the lesson's top bar. With no question it opens Wega's hub. */
+export function AskWega({ where }: { where: 'top' | 'bar' | 'inline' }) {
+  const W = wega.use();
+  const click = () => (W.inline ? openLessonChat() : W.open ? wgClose() : wgHub());
+  return (
+    <button
+      className={`wg-ask ${where}${W.ready ? ' ready' : ''}`}
+      onClick={click}
+      aria-label="Ask Wega"
+      aria-controls={W.inline ? 'lc' : 'wg'}
+      aria-expanded={W.inline ? undefined : W.open}
+    >
+      <Orb thinking={W.busy && !W.open && !W.inline} />
+      <span className="wg-ask-l">Ask wega</span>
+      <span className="wg-tip" aria-hidden={!W.ready}>
+        Your answer is ready
+      </span>
+    </button>
+  );
+}
+
+/** The hub: the panel opened with no question. A greeting, the input, the Wega page's topics with their ready
+    questions, and the questions about the page the member is on. */
+function Hub() {
+  const W = wega.use();
+  const here = chipsFor(W.page).slice(0, 3);
+  const last = W.prev?.find((m) => m.role === 'user')?.text;
+  return (
+    <div className="wg-hub">
+      <Orb size={44} />
+      <h3>
+        <span>Hi, Daniel.</span> What do you want to understand today?
+      </h3>
+      <Composer />
+      <p className="wg-try">Try Wega for</p>
+      <Topics ask={(href, label) => wgRun(href, label)} />
+      {here.length > 0 && (
+        <section className="wg-here" aria-label={`About ${ctxLabel(W.page)}`}>
+          <h4>About this page</h4>
+          <ul>
+            {here.map((c) => (
+              <li key={c[1]}>
+                <button onClick={() => wgRun(c[1], c[0])}>
+                  <Svg src={GOOSE} />
+                  <span>{c[0]}</span>
+                </button>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+      {last && (
+        <button className="wg-resume" onClick={wgResume}>
+          <span>Back to your last chat</span>
+          <small>“{last}”</small>
+        </button>
+      )}
+    </div>
+  );
+}
+
 export function WegaRoot() {
   const W = wega.use();
   useProgress();
@@ -234,7 +291,6 @@ export function WegaRoot() {
   const path = usePathname() || '/';
   const router = useRouter();
   const body = useRef<HTMLDivElement>(null);
-  const fab = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
     setWegaPage(pageFromPath(path, wega.get().page));
@@ -244,7 +300,8 @@ export function WegaRoot() {
   }, []);
   useEffect(() => {
     document.body.classList.toggle('wg-open', W.open);
-    if (!W.open && document.activeElement && document.getElementById('wg')?.contains(document.activeElement)) fab.current?.focus({ preventScroll: true });
+    if (!W.open && document.activeElement && document.getElementById('wg')?.contains(document.activeElement))
+      [...document.querySelectorAll<HTMLElement>('.wg-ask')].find((b) => b.getClientRects().length)?.focus({ preventScroll: true });
   }, [W.open]);
   useEffect(() => {
     document.body.dataset.screen = W.page.screen;
@@ -257,23 +314,20 @@ export function WegaRoot() {
     return () => document.removeEventListener('keydown', onKey);
   }, []);
   const n = W.msgs.length,
-    lastText = W.msgs.at(-1)?.text;
+    lastQ = W.msgs.findLast((m) => m.role === 'user')?.id;
+  /* a new question goes to the top of the panel, so its answer reads from the start */
   useEffect(() => {
-    const b = body.current;
-    if (b) b.scrollTop = b.scrollHeight;
-  }, [n, lastText, W.busy]);
+    const b = body.current,
+      el = b?.querySelector<HTMLElement>(`[data-m="${lastQ}"]`);
+    if (b && el) b.scrollTo({ top: el.offsetTop - b.offsetTop - 8, behavior: 'smooth' });
+  }, [lastQ]);
 
   const label = ctxLabel(W.page);
   const chips = chipsFor(W.page);
   return (
     <>
       <div className="wg-scrim" onClick={wgClose} />
-      <button ref={fab} className={`wg-fab${W.ready ? ' ready' : ''}${W.busy ? ' thinking' : ''}`} onClick={wgToggle} aria-label="Open Wega">
-        <Orb />
-        <span className="wg-fab-l">Ask wega</span>
-        <span className="wg-tip">Your response is ready</span>
-      </button>
-      <aside className="wg-panel" id="wg" aria-label="Wega, your AI copilot" aria-hidden={!W.open} inert={!W.open}>
+      <aside className={`wg-panel${n === 0 ? ' hub' : ''}`} id="wg" aria-label="Wega, your AI copilot" aria-hidden={!W.open} inert={!W.open}>
         <header className="wg-head">
           <Orb thinking={W.busy} />
           <div>
@@ -292,36 +346,35 @@ export function WegaRoot() {
           >
             <Svg src={OPEN_IN} />
           </button>
-          <button className="wg-ib" onClick={wgNew} aria-label="New chat" title="New chat">
-            <Svg src={WI.plus} />
-          </button>
+          {n > 0 && (
+            <button className="wg-ib" onClick={wgNew} aria-label="New chat" title="New chat">
+              <Svg src={WI.plus} />
+            </button>
+          )}
           <button className="wg-ib" onClick={wgClose} aria-label="Close" title="Close">
             <Svg src={I.x} />
           </button>
         </header>
-        <div className="wg-ctx">
-          <span className="chip">
-            <span>{label}</span>
-          </span>
-        </div>
+        {n > 0 && (
+          <div className="wg-ctx">
+            <span className="chip">
+              <span>{label}</span>
+            </span>
+          </div>
+        )}
         <div className="wg-body" ref={body} aria-live="polite">
-          {n === 0 ? (
-            <div className="wg-hello">
-              <Orb />
-              <h3>Hi Daniel, how can I help?</h3>
-              <p>{helloLead(W.page)}</p>
-              <div className="wg-chips">
-                {chips.map((c) => (
-                  <ChipBtn key={c[1]} c={c} />
-                ))}
-              </div>
-            </div>
-          ) : (
-            W.msgs.map((m) => <Message key={m.id} m={m} />)
-          )}
+          {n === 0 ? <Hub /> : W.msgs.map((m) => <Message key={m.id} m={m} />)}
         </div>
-        <div className="wg-sugg">{n > 0 && chips.map((c) => <ChipBtn key={c[1]} c={c} />)}</div>
-        <Composer />
+        {n > 0 && (
+          <>
+            <div className="wg-sugg">
+              {chips.map((c) => (
+                <ChipBtn key={c[1]} c={c} />
+              ))}
+            </div>
+            <Composer />
+          </>
+        )}
         <p className="wg-note">Wega can make mistakes · Sample data · Not financial advice</p>
       </aside>
     </>

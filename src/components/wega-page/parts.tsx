@@ -1,14 +1,15 @@
 'use client';
 /* Shared pieces of the Wega page: the prompt box, money that can be hidden, the checklist, an answer's frame,
    links that ask Wega instead of leaving the chat, and the passage popover. */
-import { useEffect, useRef, useState, type ReactNode } from 'react';
+import { createContext, useContext, useEffect, useRef, useState, type ReactNode } from 'react';
 import Link from 'next/link';
 import { wp, wpLoad, CATS, type CatId } from '@/lib/wega-page';
 import { chatAsk, chatFree, chatLoad } from '@/lib/wega-chat';
 import { wgClose } from '@/lib/wega';
 import { toast } from '@/lib/toast';
-import { SPARK, WI } from '@/lib/icons';
+import { WI } from '@/lib/icons';
 import { Svg } from '@/lib/svg';
+import { Orb as WegaOrb } from '@/components/wega/Orb';
 
 export const Icon = ({ d, size = 20 }: { d: string; size?: number }) => (
   <svg viewBox="0 0 24 24" width={size} height={size} fill="none" stroke="currentColor" strokeWidth={1.7} strokeLinecap="round" strokeLinejoin="round" aria-hidden>
@@ -21,15 +22,8 @@ export const EYE_OFF = 'M3 3l18 18M10.6 5.1A10 10 0 0 1 12 5c6.4 0 10 7 10 7a17 
 const CLIP = 'm21 11.5-8.6 8.6a5.5 5.5 0 0 1-7.8-7.8l8.6-8.6a3.7 3.7 0 0 1 5.2 5.2l-8.6 8.6a1.8 1.8 0 0 1-2.6-2.6l7.9-7.9';
 const PIN = 'M12 17v5M9 3h6l-1 6 4 4H6l4-4z';
 
-/** The Wega orb from the panel; the ring spins while Wega is writing. */
-export const Orb = ({ size = 40, thinking }: { size?: number; thinking?: boolean }) => (
-  <span className={'wg-orb' + (thinking ? ' thinking' : '')} style={{ width: size, height: size }} aria-hidden>
-    <span className="ring" />
-    <span className="wg-av">
-      <Svg src={SPARK} />
-    </span>
-  </span>
-);
+/** The Wega avatar from the panel; the ring spins while Wega is writing. */
+export const Orb = ({ size = 40, thinking }: { size?: number; thinking?: boolean }) => <WegaOrb size={size} thinking={thinking} />;
 
 /** Loads the page's saved state and hides the floating helper while the Wega page is open (one Wega on screen, not two). */
 export function useWegaPageChrome() {
@@ -59,11 +53,15 @@ export function M({ v, d = 0 }: { v: number; d?: number }) {
   return <span className="tnum">{(v < 0 && s !== (0).toFixed(d) ? '−$' : '$') + s}</span>;
 }
 
+/** Where a question asked from inside an answer goes: the Wega page's chat, or Wega's side panel when the answer is shown there. */
+export const AskCtx = createContext<(href: string) => void>((href) => chatAsk(href));
+
 /** A link inside an answer: another Wega question is asked in the chat, anything else opens its page. */
 export function AskLink({ href, className, children }: { href: string; className?: string; children: ReactNode }) {
+  const ask = useContext(AskCtx);
   if (href.startsWith('/wega'))
     return (
-      <button type="button" className={className} onClick={() => chatAsk(href)}>
+      <button type="button" className={className} onClick={() => ask(href)}>
         {children}
       </button>
     );

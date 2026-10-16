@@ -2,7 +2,7 @@
 /* Wega in the Academy: the daily review (prototype reviewCards / vReview). */
 import { R, glossFor } from '@/lib/curriculum';
 import { Q } from '@/lib/quiz-bank';
-import { I, SPARK } from '@/lib/icons';
+import { I, GOOSE } from '@/lib/icons';
 import { Svg } from '@/lib/svg';
 import { createStore } from '@/lib/store';
 import { S, useProgress, isDone } from '@/lib/progress';
@@ -40,7 +40,7 @@ export function DailyReview() {
   const head = (
     <div className="ap-h">
       <h3>
-        <Svg src={SPARK} />
+        <Svg src={GOOSE} />
         Daily review
       </h3>
       <span className="mono">{cards.length ? `${cards.length} cards · about 3 min` : 'After your first lesson'}</span>

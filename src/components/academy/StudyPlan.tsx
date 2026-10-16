@@ -1,7 +1,7 @@
 'use client';
 /* Wega in the Academy: the study plan (prototype vPlan). */
 import { ROUTES, R, dur, GOAL } from '@/lib/curriculum';
-import { SPARK } from '@/lib/icons';
+import { GOOSE } from '@/lib/icons';
 import { Svg } from '@/lib/svg';
 import { createStore } from '@/lib/store';
 import { S, useProgress, isDone, fmtMin, type Step } from '@/lib/progress';
@@ -54,7 +54,7 @@ export function StudyPlan({ f }: { f: Step }) {
     <section className="card ap fade">
       <div className="ap-h">
         <h3>
-          <Svg src={SPARK} />
+          <Svg src={GOOSE} />
           Your study plan
         </h3>
         <span className="mono">Planned by Wega</span>
@@ -83,7 +83,7 @@ export function StudyPlan({ f }: { f: Step }) {
         ))}
       </div>
       <p className="wg-why">
-        <Svg src={SPARK} />
+        <Svg src={GOOSE} />
         <span>
           <b>Why this order:</b> {whyNext(f)}
         </span>

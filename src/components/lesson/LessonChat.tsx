@@ -110,7 +110,7 @@ export function LessonChat({ rid, zi, li, k }: { rid: string; zi: number; li: nu
       <header className="lc-h">
         <Orb thinking={W.busy} />
         <div>
-          <b>Ask Wega</b>
+          <b>Wega</b>
           <small>{pr > 0 ? `Watching with you · ${c.t}` : 'Watching with you'}</small>
         </div>
         {msgs.length > 0 && (

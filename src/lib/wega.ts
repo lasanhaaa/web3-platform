@@ -2,6 +2,7 @@
 import { useEffect, type ReactNode } from 'react';
 import { createStore } from './store';
 import { answer, routeText, rulesPrompt, ctxLabel } from './wega-brain';
+import { followFor, promptLabel } from './wega-page';
 
 /* Wega, the AI copilot: one panel that follows the user across the platform.
    Pages tell Wega where the user is with useWegaPage(); buttons anywhere call wgRun(intent, label). */
@@ -27,6 +28,8 @@ export type Msg = {
   follow?: Chip[];
   /** where the lesson video was (0..1) when the message was sent, in the lesson's chat */
   at?: number;
+  /** the answer to one of the Wega page's ready questions (/wega/risk-mix …), shown as it is on that page */
+  href?: string;
 };
 
 export const wega = createStore({
@@ -48,6 +51,8 @@ export const wega = createStore({
   inlineFrom: 0,
   /** the lesson's chat stamps each question with the video's position (null outside a lesson) */
   clock: null as null | (() => number),
+  /** the conversation set aside when "Ask wega" opened the hub; the hub offers to go back to it */
+  prev: null as null | Msg[],
 });
 let seq = 0;
 let ctl: AbortController | null = null;
@@ -115,11 +120,27 @@ export function wgClose() {
   wega.commit();
 }
 export const wgToggle = () => (wega.get().open ? wgClose() : wgOpen());
+/** A fresh start: the conversation so far is set aside for the hub's "Back to your last chat". */
 export function wgNew() {
   wgStop();
   const W = wega.get();
+  if (W.msgs.some((m) => !m.kind)) W.prev = W.msgs;
   W.msgs = [];
   W.prac = null;
+  wega.commit();
+}
+/** "Ask wega" with no question opens the hub (felipe, Oct 16, like PostHog's AI panel). An answer that is still being
+    written, or that arrived while the panel was closed, opens instead. */
+export function wgHub() {
+  const W = wega.get();
+  if (!W.busy && !W.ready) wgNew();
+  wgOpen();
+}
+export function wgResume() {
+  const W = wega.get();
+  if (!W.prev) return;
+  W.msgs = W.prev;
+  W.prev = null;
   wega.commit();
 }
 function push(m: Omit<Msg, 'id'>) {
@@ -130,7 +151,7 @@ function push(m: Omit<Msg, 'id'>) {
   wega.commit();
   return msg;
 }
-function fill(m: Msg, a: Partial<Answer>) {
+function fill(m: Msg, a: Partial<Answer> & { href?: string }) {
   Object.assign(m, a, { pending: false });
   wega.commit();
 }
@@ -149,7 +170,8 @@ export function wgPushUser(text: string) {
   push({ role: 'user', text });
 }
 
-/** Run a scripted intent (prompt chip or a button somewhere on the page). */
+/** Run a scripted intent (prompt chip or a button somewhere on the page), or one of the Wega page's ready questions
+    (an intent that is its href, from the hub's topics). */
 export function wgRun(intent: string, label?: string, extra?: unknown) {
   if (!wega.get().open && !wega.get().inline) wgOpen();
   if (wega.get().busy) wgStop();
@@ -157,7 +179,7 @@ export function wgRun(intent: string, label?: string, extra?: unknown) {
   const m = push({ role: 'wega', pending: true });
   busy(true);
   setTimeout(() => {
-    fill(m, answer(intent, extra));
+    fill(m, intent.startsWith('/wega/') ? { href: intent, follow: followFor(intent).map((h): Chip => [promptLabel(h) || h, h]) } : answer(intent, extra));
     busy(false);
   }, 420 + Math.random() * 380);
 }

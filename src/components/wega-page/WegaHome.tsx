@@ -6,14 +6,13 @@
    the bottom, and "Your chats" to go back to any past conversation. */
 import { useEffect, useRef, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { CATS, CHECKS, RESULT_FOLLOW, SNAP_DATE, cat as catOf, isCat, isScen, promptLabel, textAnswer, wp, wpToggleHide, type CatId } from '@/lib/wega-page';
+import { CHECKS, SNAP_DATE, cat as catOf, followFor, isCat, promptLabel, wp, wpToggleHide } from '@/lib/wega-page';
 import { chat, chatAsk, chatDelete, chatFree, chatLoad, chatNew, chatOpen, chatPanel, chatTopic, groups, when, TOPIC, type Chat, type ChatMsg } from '@/lib/wega-chat';
 import { useHydrated } from '@/lib/hydrated';
 import { toast } from '@/lib/toast';
-import { Allocation, IdleCost, LearningPath, PortfolioCheck, RiskMix, Scenario } from './Results';
-import { AssetAnswer } from './Asset';
-import { isSym } from '@/lib/prices';
-import { FreeReply, TextReply, freeFollow } from './Ask';
+import { AnswerFor } from './Answer';
+import { Topics } from './Topics';
+import { FreeReply, freeFollow } from './Ask';
 import { CHEV, CatIcon, EYE, EYE_OFF, Icon, Orb, Passage, PromptBox, useWegaPageChrome } from './parts';
 
 const PLUS = 'M12 5v14M5 12h14';
@@ -82,7 +81,7 @@ function Start() {
           </h1>
         </div>
         <PromptBox variant="hero" autoFocus />
-        <Topics />
+        <Topics ask={(href) => chatAsk(href)} />
         {recent.length > 0 && (
           <section className="wp-recent" aria-label="Recent chats">
             <div className="wp-recent-h">
@@ -107,71 +106,6 @@ function Start() {
           </section>
         )}
       </div>
-    </div>
-  );
-}
-
-/** Topic chips: hovering one (or tapping it) opens its ready questions under the row; a question opens the chat. */
-function Topics() {
-  const [open, setOpen] = useState<{ id: CatId; pinned: boolean } | null>(null);
-  const timer = useRef<ReturnType<typeof setTimeout>>(undefined);
-  const box = useRef<HTMLDivElement>(null);
-  useEffect(() => {
-    if (!open) return;
-    const away = (e: PointerEvent) => !box.current?.contains(e.target as Node) && setOpen(null);
-    const key = (e: KeyboardEvent) => e.key === 'Escape' && setOpen(null);
-    document.addEventListener('pointerdown', away);
-    document.addEventListener('keydown', key);
-    return () => {
-      document.removeEventListener('pointerdown', away);
-      document.removeEventListener('keydown', key);
-    };
-  }, [open]);
-  const hover = (e: React.PointerEvent, id: CatId) => {
-    if (e.pointerType !== 'mouse') return;
-    clearTimeout(timer.current);
-    setOpen((o) => (o?.pinned ? o : { id, pinned: false }));
-  };
-  const leave = (e: React.PointerEvent) => {
-    if (e.pointerType !== 'mouse') return;
-    clearTimeout(timer.current);
-    timer.current = setTimeout(() => setOpen((o) => (o?.pinned ? o : null)), 220);
-  };
-  const c = open && catOf(open.id);
-  return (
-    <div className="wp-topics" ref={box} onPointerLeave={leave} onPointerEnter={() => clearTimeout(timer.current)}>
-      <div className="wp-chips" role="group" aria-label="Topics">
-        {CATS.map((x) => (
-          <button
-            key={x.id}
-            className={open?.id === x.id ? 'on' : undefined}
-            aria-expanded={open?.id === x.id}
-            aria-controls="wp-topic-pop"
-            onPointerEnter={(e) => hover(e, x.id)}
-            onClick={() => setOpen((o) => (o?.id === x.id && o.pinned ? null : { id: x.id, pinned: true }))}
-          >
-            <CatIcon id={x.id} />
-            {x.label}
-          </button>
-        ))}
-      </div>
-      {c && (
-        <ul className="wp-tpop" id="wp-topic-pop" aria-label={`${c.label} questions`}>
-          {c.prompts.map((p) => (
-            <li key={p.href}>
-              <button
-                onClick={() => {
-                  setOpen(null);
-                  chatAsk(p.href);
-                }}
-              >
-                <span>{p.label}</span>
-                <Icon d={CHEV} size={18} />
-              </button>
-            </li>
-          ))}
-        </ul>
-      )}
     </div>
   );
 }
@@ -310,16 +244,13 @@ function MeMsg({ m }: { m: Extract<ChatMsg, { who: 'me' }> }) {
 }
 
 type WegaM = Extract<ChatMsg, { who: 'wega' }>;
-function followFor(m: WegaM): string[] {
-  if (m.kind === 'answer') {
-    const k = /[?&]k=([^&]+)/.exec(m.href)?.[1];
-    return k ? textAnswer(k)?.follow || [] : RESULT_FOLLOW[m.href] || [];
-  }
+function followOf(m: WegaM): string[] {
+  if (m.kind === 'answer') return followFor(m.href);
   return m.kind === 'free' ? freeFollow(m) : [];
 }
 
 function WegaMsg({ m, last }: { m: WegaM; last: boolean }) {
-  const follow = last ? followFor(m) : [];
+  const follow = last ? followOf(m) : [];
   return (
     <div className="wp-msg wega" data-mid={m.id}>
       <div className="wp-who">
@@ -359,33 +290,4 @@ function TopicReply({ m }: { m: Extract<WegaM, { kind: 'topic' }> }) {
       </ul>
     </section>
   );
-}
-
-function AnswerFor({ href }: { href: string }) {
-  const [path, qs] = href.split('?');
-  const sp = new URLSearchParams(qs);
-  switch (path) {
-    case '/wega/portfolio-check':
-      return <PortfolioCheck />;
-    case '/wega/risk-mix':
-      return <RiskMix />;
-    case '/wega/allocation':
-      return <Allocation />;
-    case '/wega/idle-cost':
-      return <IdleCost />;
-    case '/wega/learning-path':
-      return <LearningPath />;
-    case '/wega/scenario': {
-      const s = sp.get('s');
-      return <Scenario s={isScen(s) ? s : 'eth30'} />;
-    }
-    case '/wega/ask':
-      return <TextReply k={sp.get('k') || ''} />;
-    case '/wega/asset': {
-      const a = sp.get('a'),
-        vs = sp.get('vs');
-      return isSym(a) ? <AssetAnswer a={a} vs={isSym(vs) && vs !== a ? vs : undefined} /> : null;
-    }
-  }
-  return null;
 }

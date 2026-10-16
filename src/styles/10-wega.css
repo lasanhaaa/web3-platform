@@ -4,18 +4,23 @@
 .chip.sm{height:24px;padding:2px 6px;font-size:12px}
 .wg-orb{position:relative;width:40px;height:40px;flex:none;display:grid;place-items:center}
 .wg-orb .ring{position:absolute;inset:-3px;border-radius:50%;background:conic-gradient(from 0deg,#9ED3FF,#1783FF,#9EFFA2,#E2B65E,#9ED3FF);filter:blur(5px);opacity:0;transition:opacity .3s}
-.wg-av{position:relative;width:100%;height:100%;border-radius:50%;display:grid;place-items:center;color:#fff;background:radial-gradient(circle at 30% 25%,rgba(255,255,255,.35),transparent 45%),linear-gradient(-44deg,#9ED3FF 7%,#1783FF 67%,#00040F 140%);box-shadow:inset 1px 1px 0 rgba(255,255,255,.35),inset -1px -1px 0 rgba(0,0,0,.2)}
-.wg-av svg{width:45%;height:45%}
+.wg-av{position:relative;width:100%;height:100%;border-radius:50%;display:grid;place-items:center;color:#fff;background:linear-gradient(169deg,#9ED3FF -14%,#1783FF 100%)}
+.wg-av svg{width:100%;height:100%}
 .thinking .wg-orb .ring,.wg-orb.thinking .ring{opacity:.95;animation:wgspin 1.2s linear infinite}
 @keyframes wgspin{to{transform:rotate(360deg)}}
-.wg-fab{position:fixed;right:24px;bottom:calc(24px + env(safe-area-inset-bottom,0px));z-index:40;display:flex;align-items:center;gap:10px;height:48px;padding:4px 18px 4px 4px;border-radius:37px;color:#fff;font-weight:500;font-size:16px;letter-spacing:-.03em;background:linear-gradient(180deg,rgba(158,211,255,.16),rgba(23,131,255,.06)),rgba(9,13,22,.86);box-shadow:inset 0 0 0 1px rgba(158,211,255,.9),0 8px 32px rgba(0,0,0,.45),0 0 24px rgba(23,131,255,.22);backdrop-filter:blur(14px);transition:transform .3s var(--ease),opacity .3s,bottom .3s var(--ease)}
-.wg-fab:hover{transform:translateY(-2px)}
-body.wg-open .wg-fab{opacity:0;pointer-events:none;transform:translateY(12px)}
-body[data-screen=quiz] .wg-fab{bottom:calc(108px + env(safe-area-inset-bottom,0px))}
-.wg-tip{position:absolute;right:0;bottom:calc(100% + 12px);white-space:nowrap;padding:8px 12px;border-radius:8px;background:#151A26;box-shadow:var(--fx-modal);font-size:14px;color:#fff;opacity:0;transform:translateY(6px);transition:.25s;pointer-events:none}
-.wg-tip::after{content:"";position:absolute;right:22px;top:100%;border:6px solid transparent;border-top-color:#151A26}
-.wg-fab.ready .wg-tip{opacity:1;transform:none}
-.wg-fab.ready .wg-orb::after{content:"";position:absolute;right:-1px;top:-1px;width:10px;height:10px;border-radius:50%;background:var(--good);box-shadow:0 0 0 2px #0B0F19}
+/* "Ask wega" (Figma 2870:33537, felipe Oct 16): the same pill with the goose on every page, at the top right where the
+   page's top bar ends; in the phone's top bar; in the lesson's top bar. It replaces the floating button. */
+.wg-ask{position:relative;flex:none;display:inline-flex;align-items:center;gap:10px;height:43px;padding:0 18px 0 5px;border-radius:49px;color:#fff;font-size:16px;line-height:1;letter-spacing:-.02em;white-space:nowrap;background:rgba(9,13,22,.78);box-shadow:inset 0 0 0 1px #9ED3FF;backdrop-filter:blur(14px);transition:background .2s,opacity .25s}
+.wg-ask:hover{background:rgba(23,131,255,.18)}
+.wg-ask .wg-orb{width:31px;height:31px}
+.wg-ask.top{position:fixed;z-index:40;top:14px;right:clamp(16px,3.4vw,56px)}
+.wg-ask.bar{display:none}
+body.wg-open .wg-ask{opacity:0;pointer-events:none}
+body.wp-on .wg-ask,body[data-screen=quiz] .wg-ask,.app.focus .wg-ask.top{display:none}
+.wg-tip{position:absolute;right:0;top:calc(100% + 12px);white-space:nowrap;padding:8px 12px;border-radius:8px;background:#151A26;box-shadow:var(--fx-modal);font-size:14px;color:#fff;opacity:0;transform:translateY(-6px);transition:.25s;pointer-events:none}
+.wg-tip::after{content:"";position:absolute;right:22px;bottom:100%;border:6px solid transparent;border-bottom-color:#151A26}
+.wg-ask.ready .wg-tip{opacity:1;transform:none}
+.wg-ask.ready .wg-orb::after{content:"";position:absolute;right:-1px;top:-1px;width:10px;height:10px;border-radius:50%;background:var(--good);box-shadow:0 0 0 2px #0B0F19}
 
 .wg-panel{position:fixed;top:12px;right:12px;bottom:12px;width:374px;max-width:calc(100vw - 24px);z-index:50;display:flex;flex-direction:column;border-radius:8px;background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,.03)),rgba(10,14,23,.95);box-shadow:var(--fx-modal);backdrop-filter:blur(24px);transform:translateX(calc(100% + 24px));visibility:hidden;transition:transform .35s var(--ease),visibility 0s .35s}
 body.wg-open .wg-panel{transform:none;visibility:visible;transition:transform .35s var(--ease)}
@@ -33,11 +38,65 @@ body.wg-open .wg-panel{transform:none;visibility:visible;transition:transform .3
 .wg-ctx .chip{max-width:100%;height:24px;padding:2px 6px;font-size:12px;color:var(--accent);background:rgba(158,211,255,.08)}
 .wg-ctx .chip span{overflow:hidden;text-overflow:ellipsis;min-width:0}
 .wg-body{flex:1;overflow-y:auto;padding:8px 16px 16px;display:flex;flex-direction:column;gap:18px;scrollbar-width:thin;overscroll-behavior:contain}
-.wg-hello{margin-top:auto;display:flex;flex-direction:column;gap:12px}
-.wg-hello .wg-orb{width:48px;height:48px}
-.wg-hello h3{font-size:24px;font-weight:500;letter-spacing:-.03em;line-height:1.3}
-.wg-hello p{color:var(--t2);font-size:14px}
-.wg-chips{display:flex;flex-direction:column;gap:8px}
+/* the hub: the panel opened with no question (felipe, Oct 16, after PostHog's AI panel): a greeting, the input, the Wega
+   page's topics and the questions about this page */
+.wg-hub{margin:auto 0;display:flex;flex-direction:column;align-items:center;gap:14px;padding:8px 0 4px;text-align:center}
+.wg-hub h3{margin-bottom:4px;font-size:22px;font-weight:500;line-height:1.25;letter-spacing:-.03em;text-wrap:balance}
+.wg-hub h3 span{display:block;color:rgba(255,255,255,.45)}
+.wg-hub .wg-comp{align-self:stretch;margin:0;text-align:left}
+.wg-try{margin-top:4px;font-size:13px;color:var(--t3)}
+.wg-hub .wp-topics{align-self:stretch}
+.wg-hub .wp-chips{gap:6px}
+.wg-hub .wp-chips :is(button,a){height:36px;padding:0 12px 0 10px;gap:6px;font-size:14px;background:rgba(255,255,255,.05)}
+.wg-hub .wp-chips svg{width:16px;height:16px}
+.wg-hub .wp-tpop button{min-height:44px;font-size:14px}
+.wg-here{align-self:stretch;margin-top:8px;text-align:left}
+.wg-here h4{margin:0 2px 8px;font-family:var(--mono);font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:.04em;color:rgba(255,255,255,.45)}
+.wg-here ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}
+.wg-here button{display:flex;align-items:center;gap:10px;width:100%;min-height:44px;padding:10px 14px;border-radius:8px;background:rgba(255,255,255,.03);box-shadow:var(--fx-card);text-align:left;font-size:14px;line-height:1.35;color:rgba(255,255,255,.85);transition:background .15s}
+.wg-here button:hover{background:rgba(255,255,255,.07);color:#fff}
+.wg-here svg{width:16px;height:16px;flex:none;color:var(--accent)}
+.wg-resume{align-self:stretch;display:flex;flex-direction:column;gap:2px;min-width:0;padding:10px 14px;border-radius:8px;text-align:left;font-size:14px;color:var(--accent)}
+.wg-resume small{font-size:13px;color:var(--t3);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.wg-resume:hover{background:rgba(158,211,255,.06)}
+/* a ready question answered in the panel: the Wega page's answer in its phone layout */
+.wg-rich{align-self:stretch;min-width:0}
+.wg-rich .wp-ans{gap:16px}
+.wg-rich .ac{padding:16px 16px 6px}
+.wg-rich .ac-foot{width:calc(100% + 32px);margin:2px -16px 0;padding:0 14px 0 16px}
+.wg-rich .ac-plot{height:170px;margin-right:44px}
+.wg-rich .ac.compact .ac-plot{height:130px}
+.wg-rich .ac-grid{right:-44px}
+.wg-rich .ac-xax{margin-right:44px}
+.wg-rich .ac-now b{font-size:18px}
+.wg-rich .ac-lvl span{font-size:10px}
+.wg-rich .wp-card{padding:22px 18px}
+.wg-rich .wp-tiles{grid-template-columns:minmax(0,1fr)}
+.wg-rich .wp-tile,.wg-rich .wp-tile:first-child{padding:20px 0;border-left:0;border-top:1px solid rgba(255,255,255,.1)}
+.wg-rich .wp-tile:first-child{border-top:0;padding-top:4px}
+.wg-rich .wp-scen{padding:16px}
+.wg-rich .wp-scen .wp-tiles.in-card{grid-template-columns:repeat(3,minmax(0,1fr))}
+.wg-rich .wp-scen .wp-tile,.wg-rich .wp-scen .wp-tile:first-child{padding:0 8px;border-top:0;border-left:1px solid rgba(255,255,255,.1)}
+.wg-rich .wp-scen .wp-tile:first-child{padding-left:0;border-left:0}
+.wg-rich .wp-scen .wp-tile-v{font-size:16px}
+.wg-rich .wp-scen .wp-gauge,.wg-rich .wp-scen .wp-tile:last-child .wp-tile-c{display:none}
+.wg-rich .wp-scen .wp-delta .wp-tile-c{display:block;margin:2px 0 0}
+.wg-rich .wp-check{padding-top:20px}
+.wg-rich .wp-check .wp-card-h{padding:0 18px 10px}
+.wg-rich .wp-check li{padding:12px 18px}
+.wg-rich .wp-split{height:104px;gap:4px}
+.wg-rich .wp-split span{min-width:76px;padding:12px}
+.wg-rich .wp-split b{font-size:17px}
+.wg-rich .wp-tr{grid-template-columns:minmax(0,1fr) 52px 84px;gap:10px;padding:0 16px}
+.wg-rich .wp-sub{padding-left:28px}
+.wg-rich .hide-s{display:none}
+.wg-rich :is(.wp-alloc-h,.wp-arow){grid-template-columns:minmax(0,1fr) 44px 52px;gap:8px 12px}
+.wg-rich .wp-arow{padding:10px 0}
+.wg-rich .wp-alloc-h h2{grid-column:auto}
+.wg-rich .wp-arow .bars{grid-column:1/-1;grid-row:2;margin:4px 0 2px}
+.wg-rich .wp-yield li{grid-template-columns:minmax(0,1fr) 64px;gap:6px 12px;padding:10px 0}
+.wg-rich .wp-yield .bar{grid-column:1/-1;grid-row:2}
+.wg-rich .wp-path{padding:4px 18px}
 .wg-chip{display:flex;align-items:center;gap:10px;min-height:40px;padding:8px 12px;border-radius:8px;background:rgba(255,255,255,.05);box-shadow:var(--fx-card);font-size:14px;color:#fff;text-align:left;line-height:1.35}
 .wg-chip:hover{background:rgba(255,255,255,.09)}
 .wg-chip svg{width:14px;height:14px;color:var(--accent);flex:none}
@@ -95,7 +154,6 @@ body.wg-open .wg-panel{transform:none;visibility:visible;transition:transform .3
 .wg-sugg::-webkit-scrollbar{display:none}
 .wg-sugg{-webkit-mask-image:linear-gradient(90deg,#000 82%,transparent);mask-image:linear-gradient(90deg,#000 82%,transparent)}
 .rcard .pic .rec{position:absolute;left:16px;top:16px;z-index:1;background:rgba(10,20,34,.85);backdrop-filter:blur(8px)}
-body[data-screen=lesson] .wg-fab{display:none}
 .wg-sugg .wg-chip{flex:none;white-space:nowrap}
 .wg-comp{margin:0 12px;padding:10px 8px 8px 14px;border-radius:8px;background:rgba(255,255,255,.05);box-shadow:var(--fx-card);display:flex;flex-direction:column;gap:6px}
 .wg-comp:focus-within{box-shadow:var(--sel-blue)}

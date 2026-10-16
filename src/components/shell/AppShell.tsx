@@ -5,7 +5,9 @@ import { usePathname } from 'next/navigation';
 import { NAV_ICONS } from '@/lib/icons';
 import { S, useProgress, restoreDemo, setDemo, setHint, type DemoKind } from '@/lib/progress';
 import { toast, useToast } from '@/lib/toast';
-import { WegaRoot } from '@/components/wega/Wega';
+import { AskWega, WegaRoot } from '@/components/wega/Wega';
+import { GOOSE } from '@/lib/icons';
+import { Svg } from '@/lib/svg';
 
 type Item = { label: string; icon: keyof typeof NAV_ICONS; href?: string; on?: (p: string) => boolean; count?: boolean };
 const NAV: (Item | '-')[] = [
@@ -104,7 +106,7 @@ export default function AppShell({ children }: { children: ReactNode }) {
                 <hr key={i} />
               ) : n.href ? (
                 <Link key={n.label} href={n.href} className={n.on?.(p) ? 'on' : undefined} aria-current={n.on?.(p) ? 'page' : undefined}>
-                  <Ico d={NAV_ICONS[n.icon]} />
+                  {n.icon === 'wega' ? <Svg src={GOOSE} className="goose" /> : <Ico d={NAV_ICONS[n.icon]} />}
                   {n.label}
                   {n.count && <span className="count">{earned}/9</span>}
                 </Link>
@@ -154,8 +156,12 @@ export default function AppShell({ children }: { children: ReactNode }) {
               <Link href="/strategies" className={p.startsWith('/strategies') ? 'on' : undefined}>Strategies</Link>
               <Link href="/wega" className={p.startsWith('/wega') ? 'on' : undefined}>Wega</Link>
             </nav>
-            <DemoSelect compact />
+            <div className="tb-r">
+              <DemoSelect compact />
+              <AskWega where="bar" />
+            </div>
           </div>
+          <AskWega where="top" />
           <div id="view">{children}</div>
         </main>
       </div>

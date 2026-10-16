@@ -8,7 +8,7 @@ import { GLOSS } from '@/lib/curriculum';
 import { rulesPrompt, StepBtn } from '@/lib/wega-brain';
 import { wega, wgProbe } from '@/lib/wega';
 import { useProgress } from '@/lib/progress';
-import { MdText } from '@/components/wega/Wega';
+import { MdText } from '@/components/wega/MdText';
 import { Answer, AskLink } from './parts';
 
 export const POPULAR = ['/wega/portfolio-check', '/wega/risk-mix', '/wega/scenario?s=eth30', '/wega/learning-path'];

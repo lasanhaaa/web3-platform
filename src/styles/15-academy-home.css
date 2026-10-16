@@ -3,7 +3,7 @@
 .ah-head{display:flex;flex-direction:column;gap:4px;margin-bottom:26px}
 .ah-head h1{font-size:24px;font-weight:500;line-height:1.4;letter-spacing:-.03em}
 .ah-head p{font-size:14px;line-height:1.5;color:rgba(255,255,255,.5)}
-.ah-list{display:flex;flex-direction:column;gap:36px}
+.ah-list{display:flex;flex-direction:column;gap:36px;container-type:inline-size}
 
 /* Figma (Oct 16): every course in its own colour. --g0/--g1/--g2 are the stops of its gradient, --tc its light tone
    (bars, done marks, hover edge), --ra how strong a filled bar is on a small card. */
@@ -64,7 +64,8 @@
 .ah-mk.lock{background:linear-gradient(135deg,rgba(255,255,255,.07),rgba(255,255,255,0) 65%),rgba(255,255,255,.08);box-shadow:inset 1px 1px 0 rgba(255,255,255,.1)}
 .ah-card.ah-hero .ah-mk.lock{box-shadow:inset 1px 1px 0 rgba(255,255,255,.1),0 12px 80.8px -9px rgba(0,0,0,.53)}
 
-@media (max-width:1100px){
+/* narrower list (a smaller screen, or Wega's panel open beside it): the title above the numbers */
+@container (max-width:860px){
   .ah-card.ah-hero .ah-in{padding:44px;width:min(578px,calc(100% - 300px))}
   .ah-card.ah-row .ah-in{width:calc(100% - 220px);padding:36px}
   .ah-card.ah-row .ah-top{flex-direction:column;align-items:flex-start;gap:12px}

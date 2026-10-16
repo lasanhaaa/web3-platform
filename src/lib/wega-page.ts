@@ -444,6 +444,12 @@ export const RESULT_FOLLOW: Record<string, string[]> = {
   '/wega/learning-path': ['/wega/ask?k=quiz', '/wega/ask?k=il'],
 };
 
+/** The questions Wega suggests after an answer: a result's own, or those of a scripted text answer. */
+export function followFor(href: string): string[] {
+  const k = /[?&]k=([^&]+)/.exec(href)?.[1];
+  return k ? textAnswer(k)?.follow || [] : RESULT_FOLLOW[href] || [];
+}
+
 /* ---------- page state: hide values ---------- */
 export const wp = createStore({ hide: false, loaded: false });
 const LS_HIDE = 'w3u-wega-hide';

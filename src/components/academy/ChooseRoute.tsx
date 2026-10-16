@@ -1,7 +1,7 @@
 'use client';
 /* Route choice after the required start (prototype vFork). */
 import { R, gen } from '@/lib/curriculum';
-import { I, SPARK } from '@/lib/icons';
+import { I, GOOSE } from '@/lib/icons';
 import { Svg } from '@/lib/svg';
 import { useProgress, routeCount } from '@/lib/progress';
 import { ZTile } from '@/components/ui/bits';
@@ -57,7 +57,7 @@ export function ChooseRoute() {
                 <img src={img(r.img)} alt="" />
                 {id === 'r1' && (
                   <span className="chip sm acc rec">
-                    <Svg src={SPARK} />
+                    <Svg src={GOOSE} />
                     Wega recommends
                   </span>
                 )}

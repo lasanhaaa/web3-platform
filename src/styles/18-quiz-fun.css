@@ -142,8 +142,6 @@
 .pred .plot svg{width:100%;height:auto;display:block}
 .pred .opts{width:100%;max-width:none;margin-top:6px;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
 .pred .opts .opt{height:100%}
-/* one Wega on screen: the quiz has its own Hint and Explain buttons in the footer */
-body[data-screen=quiz] .wg-fab{display:none}
 
 /* the line that draws itself after Check (sim and predict) */
 .plot .draw{stroke-dasharray:1;stroke-dashoffset:0;animation:draw 1.5s cubic-bezier(.4,0,.2,1) both}

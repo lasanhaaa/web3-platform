@@ -1,5 +1,5 @@
 /* ---------- LESSON ---------- */
-.ftop{position:sticky;top:0;z-index:5;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:16px;min-height:65px;padding:14px clamp(16px,3vw,48px);background:rgba(4,8,17,.82);backdrop-filter:saturate(1.4) blur(14px);border-bottom:1px solid var(--hair)}
+.ftop{position:sticky;top:0;z-index:5;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:16px;min-height:72px;padding:12px clamp(16px,3vw,48px);background:rgba(4,8,17,.82);backdrop-filter:saturate(1.4) blur(14px);border-bottom:1px solid var(--hair)}
 .ftop .ttl{text-align:center;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .ftop .ttl .mono{color:var(--t3);margin-right:8px;font-size:10px}
 .ftop .right{justify-self:end;display:flex;align-items:center;gap:10px}
@@ -10,7 +10,7 @@
 .lp{--chat:clamp(340px,26vw,400px);--gut:clamp(16px,3vw,48px);padding-block:0 96px}
 .l-stage{display:grid;grid-template-columns:minmax(0,1fr) var(--chat);background:#000}
 .l-vid{min-width:0;display:flex;align-items:center;container-type:inline-size}
-.player{width:min(100%,calc((100svh - 65px) * 16 / 9));margin-inline:auto}
+.player{width:min(100%,calc((100svh - 72px) * 16 / 9));margin-inline:auto}
 .lp.nochat .l-stage{grid-template-columns:minmax(0,1fr)}
 .lp.nochat .lc{display:none}
 .l-stage .lc{border-radius:0;box-shadow:inset 1px 0 0 var(--hair)}

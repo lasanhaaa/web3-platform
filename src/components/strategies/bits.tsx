@@ -1,7 +1,7 @@
 'use client';
 import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react';
 import { GLYPH, PROTO_IMG, DIFF, type Diff } from '@/lib/strategies';
-import { SPARK } from '@/lib/icons';
+import { GOOSE } from '@/lib/icons';
 import { Svg } from '@/lib/svg';
 
 /** Protocol icon tiles (Figma "hyper-foundation": glass tile, -11px overlap). Extra icons collapse into "+n". */
@@ -40,15 +40,8 @@ export function DiffMeter({ d }: { d: Diff }) {
 }
 export const diffStyle = (d: Diff) => ({ '--dc': DIFF[d].c, '--dg': `color-mix(in srgb, ${DIFF[d].c} 20%, transparent)` }) as CSSProperties;
 
-export const Spark = () => <Svg src={SPARK} />;
-export const Orb = () => (
-  <span className="wg-orb">
-    <i className="ring" />
-    <span className="wg-av">
-      <Svg src={SPARK} />
-    </span>
-  </span>
-);
+export const Spark = () => <Svg src={GOOSE} />;
+export { Orb } from '@/components/wega/Orb';
 const CHEV = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>';
 const CHECK = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg>';
 
