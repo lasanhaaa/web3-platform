@@ -2,9 +2,9 @@
 /* Shared bits of the Academy screens: the prototype's click actions (data-act) as one hook,
    the step button (stepBtn), Wega's orb and a hydration-safe clock.
    The screens render from progress only after hydration (useHydrated from '@/lib/hydrated'), like the prototype did. */
-import { useSyncExternalStore } from 'react';
+import { useSyncExternalStore, type CSSProperties } from 'react';
 import { R } from '@/lib/curriculum';
-import { BID } from '@/lib/badges';
+import { BID, PCOLOR } from '@/lib/badges';
 import { openViewer, openCert, copyLink } from '@/lib/reward';
 import { useGo } from '@/lib/nav';
 import { S, lessonOpen, quizOpen, chooseRoute, type Step } from '@/lib/progress';
@@ -13,8 +13,10 @@ import { wgRun } from '@/lib/wega';
 import { SPARK } from '@/lib/icons';
 import { Svg } from '@/lib/svg';
 
-/** Curriculum image paths are relative ('assets/pawn-m.webp'); the app serves them from the root. */
+/** Curriculum image paths are relative ('assets/chess-pawn.webp'); the app serves them from the root. */
 export const img = (src: string) => '/' + String(src).replace(/^\/+/, '');
+/** A course's colour (the glow of its badges and certificate) as --rc, for the art's glow and the bars. */
+export const rc = (id: string) => ({ '--rc': (PCOLOR as Record<string, string>)[id] }) as CSSProperties;
 
 const bid = (k: string) => (BID as Record<string, string>)[k];
 

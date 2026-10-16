@@ -5,25 +5,30 @@
 .ah-head p{font-size:14px;line-height:1.5;color:rgba(255,255,255,.5)}
 .ah-list{display:flex;flex-direction:column;gap:32px}
 
-.ah-card{position:relative;overflow:hidden;border-radius:8px;isolation:isolate;
-  background:linear-gradient(9.58deg,#091020 36.5%,#091020 44.91%,#1456A1 116.16%,#9ED3FF 161.54%);
+/* client feedback (Oct 16): the cards now share the badges' look, the graphite of the reward screen
+   and each course's own colour (--rc, the glow of its badges and certificate) */
+.ah-card{--rc:#3d8bff;position:relative;overflow:hidden;border-radius:8px;isolation:isolate;
+  background:radial-gradient(70% 130% at 100% 0%,rgba(42,43,66,.5),transparent 70%),linear-gradient(165deg,#0c0e1c 0%,#080b16 50%,#05070f 100%);
   box-shadow:inset 1px 1px 0 rgba(255,255,255,.1),inset -1px -1px 0 rgba(0,0,0,.1);transition:box-shadow .2s}
-.ah-card.ah-hero{background:linear-gradient(17.75deg,#091020 36.5%,#091020 44.91%,#1456A1 116.16%,#9ED3FF 161.54%)}
-.ah-card::before{content:'';position:absolute;inset:0;z-index:-1;background:url(/assets/learn/grain.png) 0 0/128px;pointer-events:none}
-.ah-card:hover{box-shadow:inset 1px 1px 0 rgba(158,211,255,.28),inset -1px -1px 0 rgba(0,0,0,.1)}
+.ah-card:hover{box-shadow:inset 1px 1px 0 color-mix(in srgb,var(--rc) 40%,transparent),inset -1px -1px 0 rgba(0,0,0,.1)}
 .ah-hit{position:absolute;inset:0;z-index:1;border-radius:inherit}
 .ah-hit:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
 
-/* chess art on the right, fading out to the left */
-.ah-art{position:absolute;inset:0 0 0 auto;width:clamp(0px,calc(100% - 540px),880px);pointer-events:none;-webkit-mask-image:linear-gradient(to right,transparent,#000 38%);mask-image:linear-gradient(to right,transparent,#000 38%)}
-.ah-art img{position:absolute;left:0;bottom:-6%;width:100%;height:auto;max-width:none;mix-blend-mode:plus-lighter;transition:transform .6s var(--ease)}
+/* the course's chess piece in the badges' metal, on its plinth, in a glow of the course colour */
+.ah-art{position:absolute;inset:0 0 0 auto;width:clamp(280px,calc(100% - 694px),880px);pointer-events:none}
+.ah-art::before{content:'';position:absolute;left:50%;bottom:-38%;width:min(130%,620px);aspect-ratio:1;transform:translateX(-50%);border-radius:50%;
+  background:radial-gradient(closest-side,color-mix(in srgb,var(--rc) 26%,transparent),color-mix(in srgb,var(--rc) 9%,transparent) 55%,transparent);transition:opacity .3s}
+.ah-art img{position:absolute;left:50%;bottom:-9%;height:118%;width:auto;max-width:none;transform:translateX(-50%);transform-origin:50% 90%;transition:transform .6s var(--ease)}
 .ah-card.ah-row .ah-art{width:min(36%,460px)}
-.ah-card.ah-row .ah-art img{top:50%;bottom:auto;transform:translateY(-56%)}
-.ah-card:hover .ah-art img{transform:scale(1.02)}
-.ah-card.ah-row:hover .ah-art img{transform:translateY(-56%) scale(1.02)}
+.ah-card.ah-row .ah-art::before{bottom:-120%;width:min(170%,620px);opacity:.7}
+.ah-card.ah-row .ah-art img{bottom:-10%;height:112%}
+.ah-card:hover .ah-art img{transform:translateX(-50%) scale(1.03)}
+/* not open yet: like a badge not earned, no colour and faded */
+.ah-card.ah-off .ah-art img{filter:grayscale(1);opacity:.3}
+.ah-card.ah-off .ah-art::before{opacity:0}
 
 .ah-in{position:relative;z-index:2;pointer-events:none;display:flex;flex-direction:column}
-.ah-card.ah-hero .ah-in{width:min(578px,100%);gap:49px;padding:58px}
+.ah-card.ah-hero .ah-in{width:min(578px,calc(100% - 396px));gap:49px;padding:58px}
 .ah-card.ah-hero .ah-in{box-sizing:content-box}
 .ah-card.ah-row .ah-in{width:min(868px,calc(100% - 300px));gap:24px;padding:44px}
 .ah-top{display:flex;flex-direction:column;align-items:flex-start;justify-content:space-between}
@@ -48,8 +53,7 @@
 .ah-card.ah-row .ah-track{gap:14px}
 .ah-bar{flex:1;display:flex;height:6px;min-width:12px}
 .ah-card.ah-row .ah-bar{height:8px}
-.ah-bar .f{flex:0 0 0;background:rgba(158,211,255,.32);box-shadow:inset 0 -2px 0 rgba(158,211,255,.13)}
-.ah-card.ah-row .ah-bar .f{background:rgba(158,211,255,.27)}
+.ah-bar .f{flex:0 0 0;background:color-mix(in srgb,var(--rc) 70%,transparent);box-shadow:inset 0 -2px 0 rgba(0,0,0,.18)}
 .ah-bar .e{flex:1;background:rgba(255,255,255,.1);box-shadow:inset 0 -1px 0 rgba(255,255,255,.5)}
 .ah-mk{width:32px;height:32px;flex:none;display:grid;place-items:center;border-radius:6px}
 .ah-card.ah-hero .ah-mk{box-shadow:0 12px 80.8px -9px rgba(0,0,0,.53)}
@@ -57,15 +61,20 @@
 .ah-card.ah-hero .ah-mk.lock{box-shadow:inset 1px 1px 0 rgba(255,255,255,.1),0 12px 80.8px -9px rgba(0,0,0,.53)}
 
 @media (max-width:1100px){
-  .ah-card.ah-hero .ah-in{padding:44px}
+  .ah-card.ah-hero .ah-in{padding:44px;width:min(578px,calc(100% - 368px))}
   .ah-card.ah-row .ah-in{width:calc(100% - 220px);padding:36px}
   .ah-card.ah-row .ah-top{flex-direction:column;align-items:flex-start;gap:12px}
 }
 @media (max-width:700px){
   .page.ah{padding-top:32px}
   .ah-list{gap:16px}
-  .ah-art,.ah-card.ah-row .ah-art{width:70%;opacity:.35}
-  .ah-card.ah-hero .ah-in{padding:24px;gap:32px;box-sizing:border-box}
+  /* phones: the piece moves to the top corner, clear of the text and the bars */
+  .ah-art,.ah-card.ah-row .ah-art{inset:0 0 auto auto;width:88px;height:150px}
+  .ah-art img,.ah-card.ah-row .ah-art img{top:10px;bottom:auto;height:124px}
+  .ah-art::before,.ah-card.ah-row .ah-art::before{top:-80px;bottom:auto;width:250px;opacity:.8}
+  .ah-card.ah-off .ah-art::before{opacity:0}
+  .ah-tt{padding-right:70px}
+  .ah-card.ah-hero .ah-in{padding:24px;gap:32px;box-sizing:border-box;width:100%}
   .ah-card.ah-hero .ah-top{min-height:0;gap:20px}
   .ah-card.ah-row .ah-in{width:100%;padding:24px}
   .ah-tt h2{font-size:24px}

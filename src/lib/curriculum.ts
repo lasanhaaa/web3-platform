@@ -2,17 +2,17 @@
 /* Ported 1:1 from the single-file prototype (academy.html v8). Sample copy for the content team to review. */
 export const pad=(n:number)=>String(n).padStart(2,'0');
 export const ROUTES:any[]=[
- {id:'academy',label:'Required start',name:'Academy',img:'assets/pawn-m.webp',metal:'silver',tagline:'The base for every route: wallet, on-ramps and your first DeFi terms.',by:'',
+ {id:'academy',label:'Required start',name:'Academy',img:'assets/chess-pawn.webp',metal:'silver',tagline:'The base for every route: wallet, on-ramps and your first DeFi terms.',by:'',
   zones:[{name:'Academy',lessons:[['Start','Welcome, track record, team, security'],['Wallet','Set up Rabby, Phantom/Solflare, Ledger'],['On-ramps','OKX, deposits and withdrawals, stablecoins, gas'],['Intro to DeFi','Terms, chains, bridging, Debank/Jup']]}]},
- {id:'r1',label:'Route 1',name:'DeFi Fundamentals',img:'assets/bishop-m.webp',metal:'gold',tagline:'Move, hold and borrow against your assets.',by:'Mara',
+ {id:'r1',label:'Route 1',name:'DeFi Fundamentals',img:'assets/chess-bishop.webp',metal:'gold',tagline:'Move, hold and borrow against your assets.',by:'Mara',
   zones:[{name:'Swaps & Approvals',lessons:['Swapping vs. bridging: the difference','Swap protocols and aggregators','Checks before a swap','Approvals','Swap example (EVM)']},
    {name:'Bridges & Routes',lessons:['Bridging basics','Choosing and checking a route','Bridge example (EVM)','USDC bridge (CCTP)','USDT0 and XAUT0 bridge','Bridge from EVM to Solana','Troubleshooting ladder for technical issues']},
    {name:'Lending & Collateral',lessons:['Lending basics','Collateral and liquidation','Aave','Morpho','Lending example','Putting your HODL stack to work','BTC in DeFi','BTC routes, worked example']}]},
- {id:'r2',label:'Route 2',name:'DeFi Strategies',img:'assets/queen-m.webp',metal:'rose',tagline:'Turn positions into yield.',by:'Daniel',
+ {id:'r2',label:'Route 2',name:'DeFi Strategies',img:'assets/chess-queen.webp',metal:'rose',tagline:'Turn positions into yield.',by:'Daniel',
   zones:[{name:'Perp DEX & Funding',lessons:['Perp DEX basics','Funding','Margin and liquidation','Order book','Perp example','Vault','Vault example','Funding rate farming basics','Selection and monitoring','FRF example']},
    {name:'DeFi Strategies',lessons:['USDC hedge (perp & lending)','Staking: basics','Staking example','V3 with correlated assets','V2 pool: stable + 2 volatile assets','IL: impermanent loss','Dexscreener, Dextools, GeckoTerminal','V2 pool example + IL offset']},
    {name:'DeFi Expert',lessons:['Total return strategy','Uniswap V3 + basics','V3 example + pointer to PerpPilot','Looping: the 3 types, oracles','Depeg monitor','LSTs explained','Looping yield calculation','Looping example','Arbitrage','Arbitrage example']}]},
- {id:'r3',label:'Route 3',name:'PerpPilot',img:'assets/king-m.webp',metal:'titan',tagline:'Automate it all.',by:'Chris',
+ {id:'r3',label:'Route 3',name:'PerpPilot',img:'assets/chess-king.webp',metal:'titan',tagline:'Automate it all.',by:'Chris',
   zones:[{name:'PerpPilot Start',lessons:['Introduction: what is PerpPilot','Sign-up (24h waiting period)','Connecting DEXs (Extended, Nado, Hyperliquid, Lighter)','Pointbot basics','Pointbot setup']},
    {name:'PerpPilot Advanced',lessons:['V3 basics','V3 DEX simulator tool','Setting up the V3 bot with an initial long','Setting up the V3 bot without an initial long','Calculating V3 leverage','Closing V3 (out of range, in range)']}]}
 ];

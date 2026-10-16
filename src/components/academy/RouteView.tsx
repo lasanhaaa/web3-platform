@@ -9,7 +9,7 @@ import { parseZL } from '@/lib/nav';
 import { S, useProgress, routeCount, zoneOpen, routeOpen, quizOpen, routeDone, isDone, nextStep, pct, lessonState } from '@/lib/progress';
 import { useHydrated } from '@/lib/hydrated';
 import { toast } from '@/lib/toast';
-import { useAcademyActs, img } from './parts';
+import { useAcademyActs, img, rc } from './parts';
 
 const A = '/assets/learn/';
 /* eslint-disable @next/next/no-img-element */
@@ -182,7 +182,7 @@ export function RouteView() {
 
   return (
     <div className="page cv">
-      <div className="cv-art" aria-hidden>
+      <div className="cv-art" aria-hidden style={rc(rid)}>
         <img src={img(r.img)} alt="" />
       </div>
       <div className="cv-grid">

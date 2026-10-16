@@ -34,6 +34,9 @@
 .rcard .zl .ztile{--s:24px;border-radius:6px}
 .rcard .zl span.n{margin-left:auto;color:var(--t3);font-size:12px}
 .rcard.locked .pic img{filter:grayscale(1) brightness(.55)}
+/* the route's chess piece in the badges' metal, in a glow of the route colour */
+.pic.chess{background:radial-gradient(46% 80% at 50% 92%,color-mix(in srgb,var(--rc) 24%,transparent),transparent 72%),radial-gradient(80% 90% at 100% 0%,rgba(42,43,66,.4),transparent 70%),#080b16}
+.pic.chess img{inset:auto auto -6% 50%;width:auto;height:108%;object-fit:contain;transform:translateX(-50%)}
 .rcard .foot{margin-top:auto;padding-top:8px;display:flex;align-items:center;justify-content:space-between;gap:12px}
 .lockline{display:flex;gap:8px;align-items:center;color:var(--t3);font-size:13px}
 .lockline svg{width:13px;height:13px}
