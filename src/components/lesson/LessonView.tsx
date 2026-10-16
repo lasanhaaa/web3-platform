@@ -1,5 +1,5 @@
 'use client';
-import { useEffect, useSyncExternalStore, type MouseEvent } from 'react';
+import { useEffect, useRef, useState, useSyncExternalStore, type MouseEvent } from 'react';
 import { useParams } from 'next/navigation';
 import { ROUTES, R, key, pad, dur, chaptersFor, chIdx } from '@/lib/curriculum';
 import { Q } from '@/lib/quiz-bank';
@@ -24,19 +24,18 @@ import {
   reopenLesson,
   seekLesson,
   lessonView,
-  lessonViewPrefs,
-  toggleCinema,
   showLessonChat,
   cycleRate,
 } from '@/lib/player';
 import { LessonChat } from './LessonChat';
 
-/* YouTube's theatre-mode icons: a wide frame to go into cinema mode, a smaller one to leave it */
-const CINE_ON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="2"/></svg>';
-const CINE_OFF = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><rect x="5" y="7.5" width="14" height="9" rx="1.6"/></svg>';
+const FS_ON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg>';
+const FS_OFF = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 4v5H4M15 4v5h5M9 20v-5H4M15 20v-5h5"/></svg>';
 const CHAT = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M4 5.5A1.5 1.5 0 0 1 5.5 4h13A1.5 1.5 0 0 1 20 5.5v9a1.5 1.5 0 0 1-1.5 1.5H10l-4.5 4v-4h0A1.5 1.5 0 0 1 4 14.5z"/></svg>';
-/** Keys outside text fields, as on YouTube: T for cinema mode, K or Space to play and pause. */
+/** Keys outside text fields, as on YouTube: F for full screen, K or Space to play and pause. */
 const typing = (t: EventTarget | null) => t instanceof HTMLElement && !!t.closest('input,textarea,select,[contenteditable="true"]');
+/** Timestamps the way YouTube writes them in a description: 0:00, 4:57, 12:05. */
+const yt = (sec: number) => `${Math.floor(sec / 60)}:${String(Math.round(sec % 60)).padStart(2, '0')}`;
 
 /* false during the server render and hydration, true after. The server always renders the seeded 'mid' state, while
    AppShell restores the saved demo state in an effect that can run before this page hydrates (it streams in its own
@@ -51,7 +50,7 @@ function qcQ(rid: string, zi: number, li: number) {
   const pool = (Q[rid + '.' + zi] || Q['academy.0']).filter((q: any) => q.t === 'choice');
   return pool[li % pool.length];
 }
-/* data-act="lseek": "Rewatch" in the quick check */
+/* data-act="lseek": "Rewatch" in the quick check, and the timestamps in the description */
 function lseek(p: number, fromQc?: boolean) {
   if (!seekLesson(p, fromQc)) return toast('Open the lesson to jump to this part.');
   if (window.innerWidth < 1280 && wega.get().open) wgClose();
@@ -66,9 +65,12 @@ export function LessonView() {
   const li = li0 ?? 0;
   const v = useProgress();
   const P = player.use();
-  lessonView.use();
+  const V = lessonView.use();
   const go = useGo();
   const hydrated = useHydrated();
+  const stage = useRef<HTMLDivElement>(null);
+  const [fs, setFs] = useState(false);
+  const [fsOk, setFsOk] = useState(false);
   const k = key(rid, zi, li),
     ok = !!R(rid)?.zones[zi]?.lessons[li];
 
@@ -77,12 +79,30 @@ export function LessonView() {
     openLesson(rid, zi, li, k);
     return () => closeLesson(k);
   }, [rid, zi, li, k, ok]);
+  /* full screen shows the stage (video and chat) over the whole screen; phones without it (iPhone) don't get the button */
+  const toggleFs = () => {
+    if (document.fullscreenElement) document.exitFullscreen().catch(() => {});
+    else stage.current?.requestFullscreen?.().catch(() => toast('Full screen doesn’t work in this browser.'));
+  };
+  useEffect(() => {
+    setFsOk(!!document.fullscreenEnabled);
+    const onFs = () => setFs(!!document.fullscreenElement && document.fullscreenElement === stage.current);
+    document.addEventListener('fullscreenchange', onFs);
+    return () => document.removeEventListener('fullscreenchange', onFs);
+  }, []);
+  /* the quick check and the description sit under the video: leave full screen when the quick check stops the video */
+  const qcOpen = P.k === k && P.qc[k] === 'open';
+  useEffect(() => {
+    if (qcOpen && document.fullscreenElement) document.exitFullscreen().catch(() => {});
+  }, [qcOpen]);
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (e.metaKey || e.ctrlKey || e.altKey || typing(e.target) || rewardOpen()) return;
       const key = e.key.toLowerCase();
-      if (key === 't' && window.innerWidth > 1000) toggleCinema();
-      else if (key === 'k' || (key === ' ' && !(e.target instanceof HTMLElement && e.target.closest('button,a')))) {
+      if (key === 'f' && document.fullscreenEnabled) {
+        if (document.fullscreenElement) document.exitFullscreen().catch(() => {});
+        else stage.current?.requestFullscreen?.().catch(() => {});
+      } else if (key === 'k' || (key === ' ' && !(e.target instanceof HTMLElement && e.target.closest('button,a')))) {
         e.preventDefault();
         const msg = playToggle();
         if (msg) toast(msg);
@@ -113,7 +133,8 @@ export function LessonView() {
     qOpen = quizOpen(rid, zi),
     done = isDone(rid, zi, li);
   const showBig = !playing && !ended && !(P.bigK === k && P.bigV === v);
-  const V = lessonViewPrefs();
+  /* the description: what the lesson covers (the first two chapters' notes), then its chapters as timestamps */
+  const about = ch[1].n !== ch[0].n ? `${ch[0].n} ${ch[1].n}` : ch[0].n;
 
   /* data-act="lesson" / "quiz" / "route" */
   const toLesson = (l: number) => {
@@ -151,16 +172,11 @@ export function LessonView() {
           </i>
           {z.name}
         </button>
-        <div className="ttl">
-          <span className="mono">{`Lesson ${li + 1} of ${z.lessons.length}`}</span>
-          {rid === 'academy' ? 'Academy' : r.name}
-        </div>
+        <div className="ttl">{rid === 'academy' ? 'Academy' : r.name}</div>
         <div className="right" />
       </div>
-      {/* YouTube's watch page: the video with the chat beside it, the title and next step under the video, the zone's
-          lessons under the chat. Cinema mode spreads the video and the chat across the whole page. */}
-      <div className={cx('lp', V.cinema && 'cine', !V.chat && 'nochat')}>
-        <div className="l-stage">
+      <div className={cx('lp', !V.chat && 'nochat')}>
+        <div className="l-stage" ref={stage}>
           <div className="l-vid">
             <div className="player" id="player">
               <img src="/assets/video.webp" alt="Lesson video preview" />
@@ -200,13 +216,15 @@ export function LessonView() {
                     {!V.chat && (
                       <button className="pb wide showchat" onClick={() => showLessonChat(true)}>
                         <Svg src={CHAT} />
-                        <span>Show chat</span>
+                        <span>Show Wega</span>
                       </button>
                     )}
-                    <button className={cx('pb wide cinebtn', V.cinema && 'on')} onClick={toggleCinema} aria-pressed={V.cinema} title="Cinema mode (T)">
-                      <Svg src={V.cinema ? CINE_OFF : CINE_ON} />
-                      <span>{V.cinema ? 'Exit cinema' : 'Cinema mode'}</span>
-                    </button>
+                    {fsOk && (
+                      <button className="pb wide fsbtn" onClick={toggleFs} title="Full screen (F)">
+                        <Svg src={fs ? FS_OFF : FS_ON} />
+                        <span>{fs ? 'Exit full screen' : 'Full screen'}</span>
+                      </button>
+                    )}
                   </div>
                 </div>
               </div>
@@ -239,58 +257,54 @@ export function LessonView() {
           </div>
           <LessonChat rid={rid} zi={zi} li={li} k={k} />
         </div>
-        <div className="l-below">
-          <div className="l-main">
-            <QuickCheck rid={rid} zi={zi} li={li} k={k} />
-            <div className="l-info">
-              <div>
-                <h1>{s.t}</h1>
-                <p>{`${s.d ? s.d + ' · ' : ''}${m} min`}</p>
-              </div>
-              {/* one next step: mark it done, then the next lesson, or the quiz once every lesson is done */}
-              <div className="actions">
-                {done && (
-                  <span className="l-done">
-                    <Svg src={I.check} />
-                    Done
-                  </span>
-                )}
-                {!done ? (
-                  <button className="btn primary" onClick={markLessonDone}>
-                    Mark as done
-                  </button>
-                ) : qOpen && !passed && (isLast || left === 0) ? (
-                  <button className="btn primary" onClick={toQuiz}>
-                    Start the quiz
-                  </button>
-                ) : !isLast ? (
-                  <button className="btn primary" onClick={() => toLesson(li + 1)}>
-                    Next lesson
-                  </button>
-                ) : (
-                  <button className="btn primary" onClick={toRoute}>
-                    Back to course
-                  </button>
-                )}
-              </div>
+        {/* one centred column under the video, as under a YouTube video: title and next step, the description, the lessons */}
+        <div className="l-col">
+          <QuickCheck rid={rid} zi={zi} li={li} k={k} />
+          <div className="l-head">
+            <h1>{s.t}</h1>
+            {/* one next step: mark it done, then the next lesson, or the quiz once every lesson is done */}
+            <div className="actions">
+              {done && (
+                <span className="l-done">
+                  <Svg src={I.check} />
+                  Done
+                </span>
+              )}
+              {!done ? (
+                <button className="btn primary" onClick={markLessonDone}>
+                  Mark as done
+                </button>
+              ) : qOpen && !passed && (isLast || left === 0) ? (
+                <button className="btn primary" onClick={toQuiz}>
+                  Start the quiz
+                </button>
+              ) : !isLast ? (
+                <button className="btn primary" onClick={() => toLesson(li + 1)}>
+                  Next lesson
+                </button>
+              ) : (
+                <button className="btn primary" onClick={toRoute}>
+                  Back to course
+                </button>
+              )}
             </div>
-            {/* the lesson's parts: the ticks on the bar, as buttons anyone can see and tap */}
-            <section className="l-parts" aria-labelledby="lparts">
-              <h2 id="lparts">In this lesson</h2>
-              <ol>
-                {ch.map((c: any, i: number) => (
-                  <li key={c.a}>
-                    <button className={cx(i === ci && pr > 0 && 'on')} onClick={() => lseek(c.a)}>
-                      <span className="tnum">{tt(c.sec)}</span>
-                      <b>{c.t}</b>
-                    </button>
-                  </li>
-                ))}
-              </ol>
-            </section>
           </div>
-          <aside className="card l-list">
-            <h3>{z.name}</h3>
+          <section className="l-desc" aria-label="About this lesson">
+            <span className="l-meta tnum">{`Lesson ${li + 1} of ${z.lessons.length} · ${z.name} · ${m} min`}</span>
+            <p>{about}</p>
+            <ol className="l-ts" aria-label="Chapters">
+              {ch.map((c: any, i: number) => (
+                <li key={c.a}>
+                  <button className={cx(i === ci && pr > 0 && 'now')} onClick={() => lseek(c.a)} aria-label={`Play from ${yt(c.sec)}: ${c.t}`}>
+                    <span className="tsl tnum">{yt(c.sec)}</span>
+                    {c.t}
+                  </button>
+                </li>
+              ))}
+            </ol>
+          </section>
+          <section className="card l-list" aria-labelledby="lzone">
+            <h2 id="lzone">{z.name}</h2>
             {z.lessons.map((st: any, i: number) => {
               const ss = lessonState(rid, zi, i);
               return (
@@ -315,7 +329,7 @@ export function LessonView() {
                 <small>{passed ? 'Passed · badge earned' : qOpen ? 'Ready · 5 questions' : `Opens after ${left} more ${left === 1 ? 'lesson' : 'lessons'}`}</small>
               </span>
             </button>
-          </aside>
+          </section>
         </div>
       </div>
     </>

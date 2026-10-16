@@ -26,38 +26,12 @@ export const player = createStore({
   rate: 1,
 });
 
-/** How the lesson screen is laid out, remembered on this device: cinema mode (YouTube's theatre mode: the video spans
-    the page, it is not fullscreen) and whether Wega's chat shows beside the video (felipe, Oct 16). */
-export const lessonView = createStore({ cinema: false, chat: true });
-const VIEW_KEY = 'w3u-lesson-view';
-let viewLoaded = false;
-/** The saved layout. Read during the lesson's first client render, so the page doesn't jump after it shows. */
-export function lessonViewPrefs() {
-  const V = lessonView.get();
-  if (!viewLoaded) {
-    viewLoaded = true;
-    try {
-      const saved = JSON.parse(localStorage.getItem(VIEW_KEY) || '{}');
-      V.cinema = saved.cinema === true;
-      V.chat = saved.chat !== false;
-    } catch {}
-  }
-  return V;
-}
-function saveView() {
-  try {
-    localStorage.setItem(VIEW_KEY, JSON.stringify(lessonView.get()));
-  } catch {}
-  lessonView.commit();
-}
-export function toggleCinema() {
-  const V = lessonViewPrefs();
-  V.cinema = !V.cinema;
-  saveView();
-}
+/** Whether Wega's chat shows beside the video. Every lesson opens with it (felipe, Oct 16: cinema mode with Wega open is
+    the default); the member can hide it and bring it back. */
+export const lessonView = createStore({ chat: true });
 export function showLessonChat(on: boolean) {
-  lessonViewPrefs().chat = on;
-  saveView();
+  lessonView.get().chat = on;
+  lessonView.commit();
 }
 
 const RATES = [1, 1.25, 1.5, 2, 0.75];
@@ -93,7 +67,9 @@ export function openLesson(r: string, z: number, l: number, k: string) {
   const P = player.get();
   stopTimer();
   Object.assign(P, { k, r, z, l, ended: false, bigK: null, bigV: -1 });
+  lessonView.get().chat = true;
   player.commit();
+  lessonView.commit();
 }
 /** Called when the lesson view unmounts or its URL changes: nothing keeps running. */
 export function closeLesson(k: string) {

@@ -26,6 +26,9 @@ body.lc-on .wg-fab{display:none}
 .lc-ib{width:36px;height:36px;flex:none;border-radius:6px;display:grid;place-items:center;color:var(--t2)}
 .lc-ib:hover{background:rgba(255,255,255,.08);color:#fff}
 .lc-ib svg{width:16px;height:16px}
+.lc-hide{height:36px;padding:0 10px 0 12px;border-radius:6px;display:inline-flex;align-items:center;gap:4px;font-size:14px;font-weight:500;color:var(--t2);flex:none}
+.lc-hide:hover{background:rgba(255,255,255,.08);color:#fff}
+.lc-hide svg{width:16px;height:16px}
 .lc-body{flex:1;min-height:0;overflow-y:auto;overscroll-behavior:contain;display:flex;flex-direction:column;gap:18px;padding:16px 14px}
 .lc-l{display:grid;grid-template-columns:28px minmax(0,1fr);gap:10px;align-items:start}
 .lc-l .wg-orb{width:28px;height:28px}

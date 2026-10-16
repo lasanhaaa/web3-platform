@@ -118,7 +118,8 @@ export function LessonChat({ rid, zi, li, k }: { rid: string; zi: number; li: nu
             <Svg src={WI.plus} />
           </button>
         )}
-        <button className="lc-ib lc-hide" onClick={() => showLessonChat(false)} aria-label="Hide chat" title="Hide chat">
+        <button className="lc-hide" onClick={() => showLessonChat(false)} title="Hide Wega and watch the video alone">
+          Hide
           <Svg src={HIDE} />
         </button>
       </header>
