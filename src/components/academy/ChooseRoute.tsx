@@ -6,7 +6,7 @@ import { Svg } from '@/lib/svg';
 import { useProgress, routeCount } from '@/lib/progress';
 import { ZTile } from '@/components/ui/bits';
 import { useHydrated } from '@/lib/hydrated';
-import { useAcademyActs, img, rc, Orb } from './parts';
+import { useAcademyActs, img, Orb } from './parts';
 
 export function ChooseRoute() {
   useProgress();
@@ -52,7 +52,7 @@ export function ChooseRoute() {
             c = routeCount(id);
           return (
             <div key={id} className="card rcard">
-              <div className="pic chess" style={rc(id)}>
+              <div className="pic">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src={img(r.img)} alt="" />
                 {id === 'r1' && (

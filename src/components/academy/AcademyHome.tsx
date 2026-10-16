@@ -5,7 +5,7 @@ import { Fragment } from 'react';
 import { R, key } from '@/lib/curriculum';
 import { S, useProgress, focus, allCount, routeCount, routeDone, routeOpen, isDone, pct, firstOpenZone, type Step } from '@/lib/progress';
 import { useHydrated } from '@/lib/hydrated';
-import { useAcademyActs, img, rc } from './parts';
+import { useAcademyActs, img } from './parts';
 
 const A = '/assets/learn/';
 const COURSES = ['academy', 'r1', 'r2', 'r3'];
@@ -91,7 +91,7 @@ export function AcademyHome() {
         <p>{all.d || aPassed || Object.values(S.prog).some((v) => v > 0) ? 'Pick up where you left off.' : 'Start with the Academy, then pick a route.'}</p>
       </header>
       <div className="ah-list">
-        <section className="ah-card ah-hero fade" style={rc(rid)}>
+        <section className="ah-card ah-hero fade">
           <button className="ah-hit" onClick={() => a.route(rid, f ? f.z : firstOpenZone(rid))} aria-label={`Open ${r.name}`} />
           <div className="ah-art" aria-hidden>
             <img src={img(r.img)} alt="" />
@@ -114,7 +114,7 @@ export function AcademyHome() {
         {COURSES.filter((id) => id !== rid).map((id) => {
           const c = R(id);
           return (
-            <section key={id} className={`ah-card ah-row fade${routeOpen(id) ? '' : ' ah-off'}`} style={rc(id)}>
+            <section key={id} className={`ah-card ah-row fade${routeOpen(id) ? '' : ' ah-off'}`}>
               <button className="ah-hit" onClick={() => a.route(id, firstOpenZone(id))} aria-label={`Open ${c.name}`} />
               <div className="ah-art" aria-hidden>
                 <img src={img(c.img)} alt="" />

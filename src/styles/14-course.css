@@ -1,9 +1,7 @@
 /* ---------- course view (Figma "Learn" 2640:43289): zones as a timeline, sticky progress card ---------- */
 .page.cv{max-width:none;padding-block:120px 112px;position:relative}
-.cv-art{position:absolute;inset:0 0 auto;height:460px;overflow:hidden;pointer-events:none;z-index:0}
-/* the course's chess piece in the badges' metal, standing over the first zone line, in a glow of the course colour */
-.cv-art::before{content:'';position:absolute;left:calc(50% - 40px);top:-200px;width:680px;aspect-ratio:1;transform:translateX(-50%);border-radius:50%;background:radial-gradient(closest-side,color-mix(in srgb,var(--rc) 17%,transparent),color-mix(in srgb,var(--rc) 5%,transparent) 55%,transparent)}
-.cv-art img{position:absolute;left:calc(50% - 40px);top:-14px;height:296px;width:auto;max-width:none;transform:translateX(-50%)}
+.cv-art{position:absolute;inset:0 0 auto;height:min(704px,42vw);overflow:hidden;pointer-events:none;z-index:0;-webkit-mask-image:linear-gradient(to bottom,#000 25%,transparent 90%);mask-image:linear-gradient(to bottom,#000 25%,transparent 90%)}
+.cv-art img{display:block;width:100%;margin-top:-15.5%;opacity:.22;mix-blend-mode:luminosity}
 .cv-grid{position:relative;z-index:1;display:grid;grid-template-columns:minmax(0,641px) 317px;column-gap:74px;justify-content:center;align-items:start}
 .cv-head{grid-column:1;grid-row:1;display:flex;flex-direction:column;align-items:flex-start;padding-left:13px}
 .cv-back{display:flex;align-items:center;gap:13px;font-size:16px;font-weight:500;letter-spacing:-.03em;color:rgba(255,255,255,.5)}
@@ -74,7 +72,6 @@
   .cv-stats{gap:20px}
 }
 @media (max-width:900px){
-  .cv-art img{display:none}
   .page.cv{padding-block:40px 112px}
   .cv-grid{grid-template-columns:minmax(0,1fr)}
   .cv-head{padding-left:0}
