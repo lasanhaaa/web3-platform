@@ -1,0 +1,100 @@
+/* ---------- LESSON ---------- */
+.ftop{position:sticky;top:0;z-index:5;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:16px;min-height:72px;padding:12px clamp(16px,3vw,48px);background:rgba(4,8,17,.82);backdrop-filter:saturate(1.4) blur(14px);border-bottom:1px solid var(--hair)}
+.ftop .ttl{text-align:center;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ftop .ttl .mono{color:var(--t3);margin-right:8px;font-size:10px}
+.ftop .right{justify-self:end;display:flex;align-items:center;gap:10px}
+/* The lesson in cinema mode, YouTube's theatre mode (felipe, Oct 16): the video spans the page on black with Wega's chat
+   beside it at the same height. Hiding the chat leaves the video alone, with black bars when the screen is wider than
+   16:9. Full screen shows the same stage over the whole screen. Under it, one centred column: title and next step,
+   the description with the lesson's timestamps, then the zone's lessons. */
+.lp{--chat:clamp(340px,26vw,400px);--gut:clamp(16px,3vw,48px);padding-block:0 96px}
+.l-stage{display:grid;grid-template-columns:minmax(0,1fr) var(--chat);background:#000}
+.l-vid{min-width:0;display:flex;align-items:center;container-type:inline-size}
+.player{width:min(100%,calc((100svh - 72px) * 16 / 9));margin-inline:auto}
+.lp.nochat .l-stage{grid-template-columns:minmax(0,1fr)}
+.lp.nochat .lc{display:none}
+.l-stage .lc{border-radius:0;box-shadow:inset 1px 0 0 var(--hair)}
+.l-stage:fullscreen{width:100vw;height:100vh;grid-template-rows:100%}
+.l-stage:fullscreen .player{width:min(100%,calc(100vh * 16 / 9))}
+.l-col{max-width:calc(1000px + 2 * var(--gut));margin:0 auto;padding:24px var(--gut) 0;display:flex;flex-direction:column;gap:20px}
+.player{position:relative;overflow:hidden;aspect-ratio:16/9;max-width:100%;background:#000}
+.player img{width:100%;height:100%;object-fit:cover;display:block}
+.player::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 62%,rgba(4,8,17,.88));pointer-events:none}
+.p-ui{position:absolute;inset:auto 0 0 0;z-index:2;padding:0 16px 10px;display:flex;flex-direction:column;gap:8px}
+.scrub{position:relative;height:4px;border-radius:4px;background:rgba(255,255,255,.22);cursor:pointer}
+.scrub::before{content:"";position:absolute;inset:-8px 0}
+.scrub span{position:absolute;inset:0 auto 0 0;background:#fff;border-radius:4px}
+.scrub i{position:absolute;top:50%;width:12px;height:12px;border-radius:50%;background:#fff;transform:translate(-50%,-50%)}
+.ctrls{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);align-items:center;gap:12px}
+.ctrls .lft{display:flex;align-items:center;gap:8px;min-width:0}
+.ctrls .pch{font-size:13px;font-weight:500;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ctrls .pch::before{content:"·";margin-right:8px;color:var(--t3)}
+.ctrls .mid{display:flex;align-items:center;gap:16px}
+.ctrls .rgt{justify-self:end;display:flex;align-items:center;gap:4px}
+.ctrls svg{width:20px;height:20px}
+.ctrls .time{color:var(--t2);font-size:12px;font-family:var(--mono);white-space:nowrap}
+.pb{height:32px;min-width:32px;padding:0 8px;border-radius:6px;display:inline-flex;align-items:center;justify-content:center;gap:6px;color:#fff;font-size:13px;font-weight:500;white-space:nowrap}
+.pb:hover{background:rgba(255,255,255,.12)}
+.pb.rate{font:500 12px/1 var(--mono)}
+.pb.on{background:rgba(158,211,255,.18)}
+.ctrls .pb svg{width:18px;height:18px}
+@container (max-width:720px){.ctrls .pch{display:none}.pb.wide span{display:none}}
+.bigplay{position:absolute;z-index:2;left:50%;top:46%;transform:translate(-50%,-50%);width:76px;height:76px;border-radius:50%;display:grid;place-items:center;background:rgba(255,255,255,.16);backdrop-filter:blur(10px)}
+.bigplay svg{width:26px;height:26px;margin-left:4px}
+.endcard{position:absolute;inset:0;z-index:4;display:grid;place-items:center;background:rgba(4,8,17,.8);backdrop-filter:blur(16px);padding:16px}
+.endcard>div{display:flex;flex-direction:column;align-items:center;gap:12px;text-align:center;max-width:460px}
+.okc{width:52px;height:52px;border-radius:50%;display:grid;place-items:center;background:var(--good);color:#06210a}
+.okc svg{width:24px;height:24px}
+.endcard h3{font-size:24px}
+.endcard .actions{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:6px}
+.l-head{display:flex;justify-content:space-between;align-items:center;gap:12px 24px;flex-wrap:wrap}
+.l-head h1{font-size:24px;line-height:1.3;letter-spacing:-.03em;font-weight:500;min-width:0}
+.l-head .actions{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.l-done{display:inline-flex;align-items:center;gap:6px;font-size:15px;font-weight:500;color:var(--good)}
+.l-done svg{width:16px;height:16px}
+/* the description box under a YouTube video: a bold line on top, the text, then the chapters as timestamps */
+.l-desc{padding:16px 20px 18px;border-radius:8px;background:rgba(255,255,255,.05);box-shadow:var(--fx-card);display:flex;flex-direction:column;gap:10px}
+.l-meta{font-size:14px;font-weight:600;color:#fff;letter-spacing:-.01em}
+.l-desc p{font-size:16px;line-height:1.55;color:rgba(255,255,255,.86);max-width:72ch}
+.l-ts{list-style:none;margin:6px 0 0;padding:0;display:flex;flex-direction:column;align-items:flex-start}
+.l-ts button{display:flex;align-items:baseline;gap:10px;padding:5px 8px;margin-left:-8px;border-radius:6px;font-size:16px;line-height:1.4;color:rgba(255,255,255,.86);text-align:left}
+.l-ts button:hover{background:rgba(255,255,255,.06)}
+.l-ts .tsl{min-width:38px;color:#3EA6FF;font-weight:500}
+.l-ts button:hover .tsl{text-decoration:underline}
+.l-ts .now{color:#fff;font-weight:500}
+.l-ts .now::after{content:"Playing";margin-left:4px;font:500 11px/1 var(--mono);text-transform:uppercase;color:var(--t3)}
+/* the zone's lessons, under the description */
+.l-list{padding:14px 8px}
+.l-list h2{font-size:16px;font-weight:500;letter-spacing:-.03em;color:#fff;padding:0 12px 10px}
+.li{display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:10px;width:100%}
+.li:hover:not(:disabled){background:rgba(255,255,255,.03)}
+.li.on{background:rgba(255,255,255,.06)}
+.li .ri{width:26px;height:26px;font-size:10.5px}
+.li.done .ri{background:#2A3A52;color:#fff;box-shadow:none}
+.li.on .ri{background:#fff;color:#040811;box-shadow:none}
+.li .t{flex:1;min-width:0}
+.li .t b{display:block;font-weight:500;font-size:13.5px}
+.li .t small{color:var(--t3);font-size:12px}
+.li:disabled .t b{color:var(--t3)}
+
+
+/* tablets and phones: the video edge to edge, then title, chat, description and lessons */
+@media (max-width:1180px){
+  .lp{display:flex;flex-direction:column;gap:24px}
+  .l-stage:not(:fullscreen),.l-col{display:contents}
+  .l-vid{order:1;background:#000}
+  .qc,.l-head,.lc,.l-desc,.l-list{margin-inline:var(--gut)}
+  .qc{order:2}.l-head{order:3}.lc{order:4}.l-desc{order:5}.l-list{order:6}
+  .l-stage:not(:fullscreen) .lc{border-radius:8px;box-shadow:var(--fx-card)}
+  .lp.nochat .lc{display:flex}
+  .showchat,.lc-hide{display:none!important}
+  .l-stage:fullscreen{grid-template-columns:minmax(0,1fr);grid-template-rows:auto minmax(0,1fr)}
+  .l-stage:fullscreen .lc{contain:none;max-height:none}
+}
+@media (max-width:1180px) and (orientation:landscape){
+  .l-stage:fullscreen{grid-template-columns:minmax(0,1fr) var(--chat);grid-template-rows:100%}
+}
+@media (max-width:600px){
+  .lp{padding-bottom:88px;gap:20px}
+  .l-head h1{font-size:22px}
+}

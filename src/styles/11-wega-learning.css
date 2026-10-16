@@ -1,0 +1,123 @@
+/* ---------- Wega in the lessons and the Academy ---------- */
+.scrub .tk{position:absolute;top:0;bottom:0;width:3px;margin-left:-1.5px;background:rgba(4,8,17,.9);z-index:1;pointer-events:none}
+.qc{padding:20px;display:flex;flex-direction:column;gap:12px;box-shadow:var(--fx-card),inset 0 0 0 1px rgba(158,211,255,.3)}
+.qc-h{display:flex;justify-content:space-between;gap:6px 16px;flex-wrap:wrap}
+.qc-h .mono{color:rgba(255,255,255,.4);display:inline-flex;align-items:center;gap:6px}
+.qc-h .mono.acc{color:var(--accent)}
+.qc-h svg{width:12px;height:12px}
+.qc-q{font-size:18px;font-weight:500;letter-spacing:-.02em;line-height:1.4}
+.qc-opts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.qc-f{font-size:14px;color:var(--t2);line-height:1.5}
+.qc-f.ok b{color:var(--good);font-weight:500}.qc-f.no b{color:var(--bad);font-weight:500}
+.ap{padding:24px;display:flex;flex-direction:column;gap:16px;min-width:0}
+.ap-h{display:flex;align-items:center;gap:8px 12px;flex-wrap:wrap;justify-content:space-between}
+.ap-h h3{font-size:18px;font-weight:500;letter-spacing:-.03em;line-height:1.4;display:flex;align-items:center;gap:8px}
+.ap-h h3 svg{width:16px;height:16px;color:var(--accent)}
+.ap-h .mono{color:rgba(255,255,255,.4)}
+/* Wega's chat beside the lesson video, like a live stream's chat (felipe, Oct 16). Beside the video it is exactly as
+   tall as the video (size containment keeps its messages from stretching the row) and scrolls inside. */
+.lc{display:flex;flex-direction:column;min-width:0;min-height:0;contain:size;border-radius:8px;background:var(--surface);box-shadow:var(--fx-card);overflow:hidden}
+.lc-h{display:flex;align-items:center;gap:10px;padding:10px 8px 10px 14px;border-bottom:1px solid var(--hair)}
+.lc-h .wg-orb{width:32px;height:32px}
+.lc-h>div{flex:1;min-width:0;display:flex;flex-direction:column;gap:1px}
+.lc-h b{font-size:16px;font-weight:500;letter-spacing:-.02em}
+.lc-h small{font-size:13px;color:var(--t2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lc-ib{width:36px;height:36px;flex:none;border-radius:6px;display:grid;place-items:center;color:var(--t2)}
+.lc-ib:hover{background:rgba(255,255,255,.08);color:#fff}
+.lc-ib svg{width:16px;height:16px}
+.lc-hide{height:36px;padding:0 10px 0 12px;border-radius:6px;display:inline-flex;align-items:center;gap:4px;font-size:14px;font-weight:500;color:var(--t2);flex:none}
+.lc-hide:hover{background:rgba(255,255,255,.08);color:#fff}
+.lc-hide svg{width:16px;height:16px}
+.lc-body{flex:1;min-height:0;overflow-y:auto;overscroll-behavior:contain;display:flex;flex-direction:column;gap:18px;padding:16px 14px}
+.lc-l{display:grid;grid-template-columns:28px minmax(0,1fr);gap:10px;align-items:start}
+.lc-l .wg-orb{width:28px;height:28px}
+.lc-av{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;background:rgba(226,182,94,.18);color:var(--gold);font-size:12px;font-weight:600}
+.lc-c{display:flex;flex-direction:column;gap:6px;min-width:0;padding-top:4px}
+.lc-who{display:flex;align-items:center;gap:8px;min-height:20px}
+.lc-who b{font-size:14px;font-weight:600;color:var(--accent)}
+.lc-l.you .lc-who b{color:var(--gold)}
+.lc-at{font:500 12px/1 var(--mono);color:var(--t2);padding:4px 6px;border-radius:4px;background:rgba(255,255,255,.06)}
+.lc-at:hover{background:rgba(158,211,255,.16);color:#fff}
+.lc-q{font-size:15px;line-height:1.5;color:#fff;overflow-wrap:anywhere}
+.lc .wg-txt{font-size:15px;line-height:1.55}
+.lc-sugg{display:flex;flex-direction:column;gap:6px;margin-top:6px}
+.lc-sugg .wg-chip{min-height:42px;padding:9px 12px;font-size:14px}
+.lc .wg-follow .wg-chip{min-height:36px;padding:6px 10px;font-size:13px}
+.lc-f{padding:10px 12px 8px;border-top:1px solid var(--hair);display:flex;flex-direction:column;gap:6px}
+.lc .wg-comp{margin:0}
+.wg-comp.one{flex-direction:row;align-items:flex-end;gap:8px;padding:6px 6px 6px 14px}
+.wg-comp.one textarea{align-self:center;font-size:15px}
+.lc .wg-note{padding:0;font-size:12px;color:var(--t3);text-align:center}
+@media (max-width:1180px){.lc{contain:none;max-height:min(640px,80svh)}}
+.simx{display:flex;flex-direction:column;gap:8px}
+.simx input[type=range]{width:100%;accent-color:#9ED3FF;margin:4px 0}
+.sim-l{font-size:14px;color:var(--t2)}
+.ap-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(340px,100%),1fr));gap:16px;margin-top:16px;align-items:start}
+.ap-big{font-size:24px;font-weight:500;letter-spacing:-.03em;line-height:1.3}
+.ap-big b{font-weight:500}
+.ap-big b:last-child{color:var(--accent)}
+.ap-sub{font-size:14px;color:var(--t2);line-height:1.5;margin-top:-8px}
+.seg3{display:inline-flex;gap:4px;padding:4px;border-radius:8px;background:rgba(255,255,255,.04);box-shadow:var(--fx-card);align-self:flex-start;flex-wrap:wrap}
+.seg3 button{height:32px;padding:0 12px;border-radius:6px;font-size:14px;color:rgba(255,255,255,.6)}
+.seg3 button.on{background:rgba(255,255,255,.1);color:#fff;font-weight:500;box-shadow:var(--fx-card)}
+.ap-week{display:flex;flex-direction:column}
+.ap-week>.mono{color:rgba(255,255,255,.4);margin-bottom:4px}
+.ap-row{display:grid;grid-template-columns:56px minmax(0,1fr) auto;align-items:center;gap:12px;padding:10px 0;border-top:1px solid rgba(255,255,255,.06);text-align:left}
+.ap-week>.mono+.ap-row{border-top:0}
+.ap-row .mono{color:var(--accent)}
+.ap-row b{font-weight:500;font-size:15px;letter-spacing:-.02em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ap-row small{color:var(--t3);font-size:13px}
+.ap-row:hover b{text-decoration:underline}
+.rv .ap-sub{margin-top:-8px}
+.rv-peek,.rv-card{padding:18px;border-radius:8px;background:rgba(255,255,255,.04);box-shadow:var(--fx-card);display:flex;flex-direction:column;gap:8px;min-height:132px;justify-content:center}
+.rv-card.flip{box-shadow:var(--fx-card),inset 0 0 0 1px rgba(158,211,255,.3)}
+.rv-card .mono,.rv-peek .mono{color:rgba(255,255,255,.4)}
+.rv-card b,.rv-peek b{font-size:20px;font-weight:500;letter-spacing:-.03em;line-height:1.35}
+.rv-card p{font-size:14px;color:var(--t2);line-height:1.5}
+.rv-foot{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.rv-foot>.mono{margin-left:auto}
+.rv-dots{margin-left:auto;display:flex;gap:4px}
+.rv-dots i{width:16px;height:3px;background:rgba(255,255,255,.15)}
+.rv-dots i.d{background:var(--accent)}.rv-dots i.n{background:#fff}
+.rv-done{display:flex;flex-direction:column;align-items:flex-start;gap:8px}
+.rv-done .okc{width:40px;height:40px}
+.rv-done .okc svg{width:18px;height:18px}
+.rv-done b{font-size:20px;font-weight:500;letter-spacing:-.03em}
+.rv-done .ap-sub{margin-top:0}
+.simx{container-type:inline-size}
+@container (max-width:380px){.sim-top b{font-size:20px}.sim-out b{font-size:18px}.sim-out div{padding:10px}}
+@media (max-width:1000px){.ap-grid{grid-template-columns:minmax(0,1fr)}}
+@media (max-width:600px){
+  .qc-opts{grid-template-columns:minmax(0,1fr)}
+  .ap,.qc{padding:16px}
+  .ap-big{font-size:20px}
+  .ctrls{gap:10px}
+  .bigplay{width:56px;height:56px}
+  .bigplay svg{width:22px;height:22px}
+}
+
+/* topbar on phones: brand and state on one row, three sections below (Figma chips) */
+.topbar nav button{height:32px;padding:0 12px;border-radius:4px;font-size:14px;color:rgba(255,255,255,.6)}
+.topbar nav button.on{border-radius:48px;background:rgba(255,255,255,.08);box-shadow:var(--fx-card);color:#fff;font-weight:600;letter-spacing:-.03em}
+#demoStateM{border:0!important;border-radius:6px!important;box-shadow:var(--fx-card);background:rgba(255,255,255,.08)!important}
+
+@media (max-width:860px){
+  .topbar{flex-wrap:wrap;row-gap:10px}
+  .tb-r{display:flex;align-items:center;gap:10px}
+  .wg-ask.top{display:none}
+  .wg-ask.bar{display:inline-flex;height:38px;padding:0 14px 0 4px;gap:8px;font-size:15px}
+  .wg-ask.bar .wg-orb{width:30px;height:30px}
+  .topbar nav{order:3;width:100%;display:flex;gap:4px}
+  .topbar nav button{flex:1;padding:0 6px}
+}
+@media (max-width:600px){
+  .wg-ask.inline{width:43px;padding:0;justify-content:center;gap:0}
+  .wg-ask.inline .wg-ask-l{display:none}
+  .wg-tip{right:-4px}
+  .wg-panel{top:auto;left:0;right:0;bottom:0;width:auto;max-width:none;height:88vh;height:88dvh;border-radius:8px 8px 0 0;transform:translateY(105%);padding-bottom:env(safe-area-inset-bottom,0px)}
+  .wg-scrim{display:block;position:fixed;inset:0;z-index:45;background:rgba(0,0,0,.5);opacity:0;pointer-events:none;transition:opacity .3s}
+  body.wg-open .wg-scrim{opacity:1;pointer-events:auto}
+  body.wg-open{overflow:hidden}
+  .sim-out b{font-size:20px}
+  .wg-rec{flex-direction:column;padding:16px}
+}

@@ -1,0 +1,46 @@
+/* ---------- Badges and certificates (Figma 2402:51204): the certificates first, then one grid of every badge ---------- */
+.page.bx{max-width:1490px;padding-top:95px}
+.bx-head{display:flex;flex-direction:column;gap:4px;margin-bottom:32px}
+.bx-head h1{font-size:24px;font-weight:500;line-height:1.4;letter-spacing:-.03em}
+.bx-head p{font-size:14px;line-height:1.5;color:rgba(255,255,255,.5)}
+
+.bx-grid,.bx-certs{list-style:none;margin:0;padding:0}
+.bx-grid{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:40px 21px;margin-top:96px}
+.bx-certs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:40px 32px}
+
+.bx-btn{display:flex;flex-direction:column;align-items:center;gap:24px;width:100%;text-align:center;border-radius:12px}
+.bx-btn:focus-visible{outline:2px solid var(--accent);outline-offset:4px}
+.bx-art{display:grid;place-items:center;width:100%;aspect-ratio:1;padding:9%;border-radius:12px;background:rgba(255,255,255,.03);transition:background-color .2s}
+.bx-art img{display:block;width:100%;height:auto;transition:transform .35s var(--ease),opacity .2s}
+.bx-btn:hover .bx-art{background:rgba(255,255,255,.05)}
+.is-earned .bx-btn:hover .bx-art img{transform:scale(1.04)}
+/* not earned yet: the same render without colour, faded; the ones under way a little less */
+.bx-tile:not(.is-earned) .bx-art img{filter:grayscale(1);opacity:.22}
+.bx-tile.is-progress .bx-art img{opacity:.4}
+
+.bx-meta{display:flex;flex-direction:column;align-items:center;gap:3px;max-width:100%;padding-inline:4px}
+.bx-eye{font-size:12px;font-weight:500;line-height:21.4px;text-transform:uppercase;color:rgba(255,255,255,.8)}
+.bx-name{font-size:16px;font-weight:600;line-height:21.4px;letter-spacing:-.03em}
+.bx-st{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:4px 6px;font-size:12px;line-height:1.5;letter-spacing:-.02em;color:rgba(255,255,255,.6)}
+.bx-st img{flex:none}
+.bx-bar{position:relative;width:64px;height:4px;border-radius:53px;background:rgba(255,255,255,.1);overflow:hidden}
+.bx-bar i{position:absolute;inset:0 auto 0 0;border-radius:inherit;background:var(--c)}
+.is-locked .bx-st{color:rgba(255,255,255,.45)}
+
+/* certificates: the A4 sheet itself, no tile behind it */
+.bx-cert .bx-art{aspect-ratio:800/566;padding:0;background:none;border-radius:4px}
+.bx-cert .bx-art img{border-radius:4px;box-shadow:0 18px 40px -12px rgba(0,0,0,.7)}
+.bx-cert.is-earned .bx-btn:hover .bx-art img{transform:translateY(-4px)}
+.bx-cert:not(.is-earned) .bx-art img{filter:saturate(.35);opacity:.4}
+.bx-cert.is-progress .bx-art img{opacity:.5}
+.bx-cert .bx-btn:hover .bx-art{background:none}
+
+@media (max-width:1519px){.bx-grid{grid-template-columns:repeat(4,minmax(0,1fr))}}
+@media (max-width:1039px){.bx-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.bx-certs{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:700px){
+  .page.bx{padding-top:32px}
+  .bx-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:32px 12px;margin-top:56px}
+  .bx-certs{grid-template-columns:minmax(0,1fr)}
+  .bx-btn{gap:14px}
+  .bx-name{font-size:15px}
+}

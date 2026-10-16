@@ -1,0 +1,30 @@
+<svg width="164" height="164" viewBox="0 0 164 164" fill="none" xmlns="http://www.w3.org/2000/svg">
+<foreignObject x="4.57764e-05" y="0.000778198" width="163.6" height="163.6"><div xmlns="http://www.w3.org/1999/xhtml" style="backdrop-filter:blur(20.95px);clip-path:url(#bgblur_0_2640_43297_clip_path);height:100%;width:100%"></div></foreignObject><g filter="url(#filter0_di_2640_43297)" data-figma-bg-blur-radius="41.9">
+<circle cx="81.8" cy="69.8008" r="10" fill="white" fill-opacity="0.03" shape-rendering="crispEdges"/>
+<circle cx="81.8" cy="69.8008" r="10" fill="url(#paint0_linear_2640_43297)" fill-opacity="0.05" shape-rendering="crispEdges"/>
+</g>
+<path opacity="0.5" d="M83.8 65.8008L79.8 69.8008L83.8 73.8008" stroke="white"/>
+<defs>
+<filter id="filter0_di_2640_43297" x="4.57764e-05" y="0.000778198" width="163.6" height="163.6" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+<feFlood flood-opacity="0" result="BackgroundImageFix"/>
+<feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
+<feMorphology radius="9" operator="erode" in="SourceAlpha" result="effect1_dropShadow_2640_43297"/>
+<feOffset dy="12"/>
+<feGaussianBlur stdDeviation="40.4"/>
+<feComposite in2="hardAlpha" operator="out"/>
+<feColorMatrix type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.53 0"/>
+<feBlend mode="normal" in2="BackgroundImageFix" result="effect1_dropShadow_2640_43297"/>
+<feBlend mode="normal" in="SourceGraphic" in2="effect1_dropShadow_2640_43297" result="shape"/>
+<feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
+<feOffset dx="1" dy="1"/>
+<feComposite in2="hardAlpha" operator="arithmetic" k2="-1" k3="1"/>
+<feColorMatrix type="matrix" values="0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.1 0"/>
+<feBlend mode="normal" in2="shape" result="effect2_innerShadow_2640_43297"/>
+</filter>
+<clipPath id="bgblur_0_2640_43297_clip_path" transform="translate(-4.57764e-05 -0.000778198)"><circle cx="81.8" cy="69.8008" r="10"/>
+</clipPath><linearGradient id="paint0_linear_2640_43297" x1="91.5813" y1="80.6373" x2="83.7871" y2="70.6882" gradientUnits="userSpaceOnUse">
+<stop stop-color="white"/>
+<stop offset="1" stop-color="white" stop-opacity="0"/>
+</linearGradient>
+</defs>
+</svg>
