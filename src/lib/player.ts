@@ -22,7 +22,51 @@ export const player = createStore({
       next full render(). bigK/bigV remember the lesson and the progress version at that moment. */
   bigK: null as string | null,
   bigV: -1,
+  /** playback speed (the "1x" button cycles through RATES) */
+  rate: 1,
 });
+
+/** How the lesson screen is laid out, remembered on this device: cinema mode (YouTube's theatre mode: the video spans
+    the page, it is not fullscreen) and whether Wega's chat shows beside the video (felipe, Oct 16). */
+export const lessonView = createStore({ cinema: false, chat: true });
+const VIEW_KEY = 'w3u-lesson-view';
+let viewLoaded = false;
+/** The saved layout. Read during the lesson's first client render, so the page doesn't jump after it shows. */
+export function lessonViewPrefs() {
+  const V = lessonView.get();
+  if (!viewLoaded) {
+    viewLoaded = true;
+    try {
+      const saved = JSON.parse(localStorage.getItem(VIEW_KEY) || '{}');
+      V.cinema = saved.cinema === true;
+      V.chat = saved.chat !== false;
+    } catch {}
+  }
+  return V;
+}
+function saveView() {
+  try {
+    localStorage.setItem(VIEW_KEY, JSON.stringify(lessonView.get()));
+  } catch {}
+  lessonView.commit();
+}
+export function toggleCinema() {
+  const V = lessonViewPrefs();
+  V.cinema = !V.cinema;
+  saveView();
+}
+export function showLessonChat(on: boolean) {
+  lessonViewPrefs().chat = on;
+  saveView();
+}
+
+const RATES = [1, 1.25, 1.5, 2, 0.75];
+/** The speed button: 1x, 1.25x, 1.5x, 2x, 0.75x, back to 1x. */
+export function cycleRate() {
+  const P = player.get();
+  P.rate = RATES[(RATES.indexOf(P.rate) + 1) % RATES.length];
+  player.commit();
+}
 
 let timer: ReturnType<typeof setInterval> | null = null;
 
@@ -74,7 +118,7 @@ function tick() {
     k = P.k;
   if (!k) return stopTimer();
   const before = S.prog[k] || 0;
-  S.prog[k] = Math.min(1, before + 0.02);
+  S.prog[k] = Math.min(1, before + 0.02 * P.rate);
   if (S.prog[k] >= 1) {
     stopTimer();
     S.done.add(k);
@@ -130,6 +174,8 @@ export function markLessonDone() {
   if (!k) return;
   S.done.add(k);
   S.prog[k] = 1;
+  /* a quick check still waiting for an answer goes away with the end card */
+  if (P.qc[k] === 'open') P.qc[k] = 'done';
   stopTimer();
   P.ended = true;
   render();

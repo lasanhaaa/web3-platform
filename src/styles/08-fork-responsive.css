@@ -7,8 +7,8 @@
 @keyframes fade{from{opacity:.001;transform:translateY(8px)}to{opacity:1;transform:none}}
 
 @media (max-width:1100px){
-  .r-grid,.l-grid{grid-template-columns:minmax(0,1fr)}
-  .aside,.l-list{position:static}
+  .r-grid{grid-template-columns:minmax(0,1fr)}
+  .aside{position:static}
   .routes,.choices,.certs{grid-template-columns:minmax(0,1fr)}
   .charts{grid-template-columns:repeat(2,minmax(0,1fr))}
   .sim{grid-template-columns:minmax(0,1fr)}
@@ -30,7 +30,6 @@
   .page{padding-block:28px 88px}
   .ftop{grid-template-columns:auto 1fr auto}
   .ftop .ttl{text-align:left}
-  .ftop .wega-l{display:none}
   .q-body{padding-block:36px 32px}
   .q-facts div{padding:0 14px}
   .charts{grid-template-columns:minmax(0,1fr)}

@@ -25,6 +25,8 @@ export type Msg = {
   live?: boolean;
   note?: string;
   follow?: Chip[];
+  /** where the lesson video was (0..1) when the message was sent, in the lesson's chat */
+  at?: number;
 };
 
 export const wega = createStore({
@@ -44,6 +46,8 @@ export const wega = createStore({
   inline: false,
   /** the inline conversation shows the messages after this id */
   inlineFrom: 0,
+  /** the lesson's chat stamps each question with the video's position (null outside a lesson) */
+  clock: null as null | (() => number),
 });
 let seq = 0;
 let ctl: AbortController | null = null;
@@ -119,8 +123,10 @@ export function wgNew() {
   wega.commit();
 }
 function push(m: Omit<Msg, 'id'>) {
+  const W = wega.get();
   const msg = { ...m, id: ++seq } as Msg;
-  wega.get().msgs.push(msg);
+  if (W.inline && W.clock && m.role === 'user') msg.at = W.clock();
+  W.msgs.push(msg);
   wega.commit();
   return msg;
 }

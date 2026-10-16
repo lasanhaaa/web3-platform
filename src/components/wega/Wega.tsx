@@ -157,7 +157,7 @@ export function Message({ m }: { m: Msg }) {
   );
 }
 
-/** The input: in the panel, or inline in a page (the lesson's "Ask Wega" card, without the mode label). */
+/** The input: in the panel, or inline in a page (the lesson's chat: one line and a send button, like a stream chat). */
 export function Composer({ inline, placeholder = 'Ask Wega anything …' }: { inline?: boolean; placeholder?: string }) {
   const W = wega.use();
   const ref = useRef<HTMLTextAreaElement>(null);
@@ -184,7 +184,7 @@ export function Composer({ inline, placeholder = 'Ask Wega anything …' }: { in
     wgAsk(t);
   };
   return (
-    <form className="wg-comp" onSubmit={submit}>
+    <form className={`wg-comp${inline ? ' one' : ''}`} onSubmit={submit}>
       <textarea
         ref={ref}
         rows={1}
@@ -199,27 +199,29 @@ export function Composer({ inline, placeholder = 'Ask Wega anything …' }: { in
           }
         }}
       />
-      <div className="wg-tools">
-        <button type="button" className="wg-ib" onClick={() => toast('Images and screenshots is coming soon.')} aria-label="Attach an image">
-          <Svg src={WI.img} />
+      {inline ? (
+        <button type="submit" className={`wg-send${W.busy ? ' stop' : ''}`} aria-label={W.busy ? 'Stop' : 'Send'}>
+          <Svg src={W.busy ? WI.stop : WI.send} />
         </button>
-        <button type="button" className="wg-ib" onClick={() => toast('Voice input is coming soon.')} aria-label="Voice input">
-          <Svg src={WI.mic} />
-        </button>
-        {inline ? (
-          <span className="sp" />
-        ) : (
+      ) : (
+        <div className="wg-tools">
+          <button type="button" className="wg-ib" onClick={() => toast('Images and screenshots is coming soon.')} aria-label="Attach an image">
+            <Svg src={WI.img} />
+          </button>
+          <button type="button" className="wg-ib" onClick={() => toast('Voice input is coming soon.')} aria-label="Voice input">
+            <Svg src={WI.mic} />
+          </button>
           <span
             className={`wg-mode${W.live ? ' live' : ''}`}
             title={W.live ? 'Claude answers free questions live.' : W.live === false ? 'Free questions get sample answers.' : undefined}
           >
             {W.live ? 'Live · Claude' : W.live === false ? 'Sample mode' : ''}
           </span>
-        )}
-        <button type="submit" className={`wg-send${W.busy ? ' stop' : ''}`} aria-label={W.busy ? 'Stop' : 'Send'}>
-          <Svg src={W.busy ? WI.stop : WI.send} />
-        </button>
-      </div>
+          <button type="submit" className={`wg-send${W.busy ? ' stop' : ''}`} aria-label={W.busy ? 'Stop' : 'Send'}>
+            <Svg src={W.busy ? WI.stop : WI.send} />
+          </button>
+        </div>
+      )}
     </form>
   );
 }

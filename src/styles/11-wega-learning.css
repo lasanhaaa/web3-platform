@@ -1,10 +1,6 @@
 /* ---------- Wega in the lessons and the Academy ---------- */
 .scrub .tk{position:absolute;top:0;bottom:0;width:3px;margin-left:-1.5px;background:rgba(4,8,17,.9);z-index:1;pointer-events:none}
-.p-ui .pch{color:#fff}
-.askm{display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 10px;border-radius:6px;background:rgba(158,211,255,.12);color:#fff;font-size:13px;font-weight:500;box-shadow:inset 0 0 0 1px rgba(158,211,255,.35);white-space:nowrap}
-.ctrls .askm svg{width:14px;height:14px;color:var(--accent)}
-.askm:hover{background:rgba(158,211,255,.2)}
-.qc{margin-top:16px;padding:20px;display:flex;flex-direction:column;gap:12px;box-shadow:var(--fx-card),inset 0 0 0 1px rgba(158,211,255,.3)}
+.qc{padding:20px;display:flex;flex-direction:column;gap:12px;box-shadow:var(--fx-card),inset 0 0 0 1px rgba(158,211,255,.3)}
 .qc-h{display:flex;justify-content:space-between;gap:6px 16px;flex-wrap:wrap}
 .qc-h .mono{color:rgba(255,255,255,.4);display:inline-flex;align-items:center;gap:6px}
 .qc-h .mono.acc{color:var(--accent)}
@@ -18,25 +14,39 @@
 .ap-h h3{font-size:18px;font-weight:500;letter-spacing:-.03em;line-height:1.4;display:flex;align-items:center;gap:8px}
 .ap-h h3 svg{width:16px;height:16px;color:var(--accent)}
 .ap-h .mono{color:rgba(255,255,255,.4)}
-/* "Ask Wega" under the lesson video: one place to talk about the lesson, large type, the panel stays closed */
+/* Wega's chat beside the lesson video, like a live stream's chat (felipe, Oct 16). Beside the video it is exactly as
+   tall as the video (size containment keeps its messages from stretching the row) and scrolls inside. */
 body.lc-on .wg-fab{display:none}
-.lc{margin-top:24px;padding:20px 24px 16px;display:flex;flex-direction:column;gap:18px;min-width:0}
-.lc-h{display:flex;align-items:center;gap:12px}
-.lc-h .wg-orb{width:36px;height:36px}
-.lc-h>div{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
-.lc-h b{font-size:18px;font-weight:500;letter-spacing:-.02em}
-.lc-h small{font-size:14px;color:var(--t2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.lc-body{display:flex;flex-direction:column;gap:20px;min-width:0}
-.lc .wg-txt{font-size:16px;line-height:1.6}
-.lc .wg-bub{max-width:80%;font-size:16px}
-.lc-sugg{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
-.lc-sugg .wg-chip{min-height:52px;padding:12px 16px;font-size:15px}
-.lc .wg-follow .wg-chip{min-height:40px;padding:8px 12px;font-size:14px}
+.lc{display:flex;flex-direction:column;min-width:0;min-height:0;contain:size;border-radius:8px;background:var(--surface);box-shadow:var(--fx-card);overflow:hidden}
+.lc-h{display:flex;align-items:center;gap:10px;padding:10px 8px 10px 14px;border-bottom:1px solid var(--hair)}
+.lc-h .wg-orb{width:32px;height:32px}
+.lc-h>div{flex:1;min-width:0;display:flex;flex-direction:column;gap:1px}
+.lc-h b{font-size:16px;font-weight:500;letter-spacing:-.02em}
+.lc-h small{font-size:13px;color:var(--t2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lc-ib{width:36px;height:36px;flex:none;border-radius:6px;display:grid;place-items:center;color:var(--t2)}
+.lc-ib:hover{background:rgba(255,255,255,.08);color:#fff}
+.lc-ib svg{width:16px;height:16px}
+.lc-body{flex:1;min-height:0;overflow-y:auto;overscroll-behavior:contain;display:flex;flex-direction:column;gap:18px;padding:16px 14px}
+.lc-l{display:grid;grid-template-columns:28px minmax(0,1fr);gap:10px;align-items:start}
+.lc-l .wg-orb{width:28px;height:28px}
+.lc-av{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;background:rgba(226,182,94,.18);color:var(--gold);font-size:12px;font-weight:600}
+.lc-c{display:flex;flex-direction:column;gap:6px;min-width:0;padding-top:4px}
+.lc-who{display:flex;align-items:center;gap:8px;min-height:20px}
+.lc-who b{font-size:14px;font-weight:600;color:var(--accent)}
+.lc-l.you .lc-who b{color:var(--gold)}
+.lc-at{font:500 12px/1 var(--mono);color:var(--t2);padding:4px 6px;border-radius:4px;background:rgba(255,255,255,.06)}
+.lc-at:hover{background:rgba(158,211,255,.16);color:#fff}
+.lc-q{font-size:15px;line-height:1.5;color:#fff;overflow-wrap:anywhere}
+.lc .wg-txt{font-size:15px;line-height:1.55}
+.lc-sugg{display:flex;flex-direction:column;gap:6px;margin-top:6px}
+.lc-sugg .wg-chip{min-height:42px;padding:9px 12px;font-size:14px}
+.lc .wg-follow .wg-chip{min-height:36px;padding:6px 10px;font-size:13px}
+.lc-f{padding:10px 12px 8px;border-top:1px solid var(--hair);display:flex;flex-direction:column;gap:6px}
 .lc .wg-comp{margin:0}
-/* less to read for the member: who speaks shows from the bubble side, no copy/rate row under each answer */
-.lc .wg-lbl,.lc .wg-meta{display:none}
-.lc .wg-note{margin:-6px 0 0;padding:0;text-align:center;font-size:13px;color:var(--t3)}
-.lc .wg-comp textarea{font-size:16px}
+.wg-comp.one{flex-direction:row;align-items:flex-end;gap:8px;padding:6px 6px 6px 14px}
+.wg-comp.one textarea{align-self:center;font-size:15px}
+.lc .wg-note{padding:0;font-size:12px;color:var(--t3);text-align:center}
+@media (max-width:1180px){.lc{contain:none;max-height:min(640px,80svh)}}
 .simx{display:flex;flex-direction:column;gap:8px}
 .simx input[type=range]{width:100%;accent-color:#9ED3FF;margin:4px 0}
 .sim-l{font-size:14px;color:var(--t2)}
@@ -77,13 +87,9 @@ body.lc-on .wg-fab{display:none}
 @media (max-width:1000px){.ap-grid{grid-template-columns:minmax(0,1fr)}}
 @media (max-width:600px){
   .qc-opts{grid-template-columns:minmax(0,1fr)}
-  .askm span{display:none}.askm{padding:0 7px}
-  .ap,.qc,.lc{padding:16px}
-  .lc-sugg{grid-template-columns:minmax(0,1fr)}
+  .ap,.qc{padding:16px}
   .ap-big{font-size:20px}
   .ctrls{gap:10px}
-  /* the title is right under the video: on a small video keep only the play button and the controls */
-  .p-ui>.mono,.p-ui h2{display:none}
   .bigplay{width:56px;height:56px}
   .bigplay svg{width:22px;height:22px}
 }
