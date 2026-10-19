@@ -1,0 +1,12 @@
+{
+  "name": "wega-benchmark",
+  "private": true,
+  "type": "module",
+  "description": "Measures what Wega's live answers cost and how fast they are, per model and setup.",
+  "scripts": {
+    "bench": "node run.mjs"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.135.0"
+  }
+}
