@@ -11,6 +11,8 @@ node run.mjs --dry-run                       # what a run will cost, no API call
 ANTHROPIC_API_KEY=sk-ant-... node run.mjs    # the full run, under $2
 ```
 
+The key can also come from `WEGA_API_KEY` (in a Claude Code cloud session `ANTHROPIC_API_KEY` is reserved).
+
 Options: `--setups sonnet-low,haiku-low` runs only some setups, `--only hf-mine,eth-drop` only some questions, `--repeat 3` asks each question 3 times for steadier numbers.
 
 Results land in `results/<time>/`:

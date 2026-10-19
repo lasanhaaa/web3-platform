@@ -100,7 +100,9 @@ if (dry) {
   process.exit(0);
 }
 
-const client = new Anthropic();
+// WEGA_API_KEY works too, for cloud sessions where ANTHROPIC_API_KEY is reserved. The base URL is fixed because
+// Claude Code sessions set ANTHROPIC_BASE_URL to their own proxy.
+const client = new Anthropic({ apiKey: process.env.WEGA_API_KEY || process.env.ANTHROPIC_API_KEY, baseURL: 'https://api.anthropic.com' });
 const cost = (m, u) => {
   const p = PRICE[m];
   return (u.input_tokens * p.in + u.output_tokens * p.out + (u.cache_creation_input_tokens || 0) * p.in * 1.25 + (u.cache_read_input_tokens || 0) * p.read) / 1e6;
