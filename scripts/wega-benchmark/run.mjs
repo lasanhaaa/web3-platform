@@ -465,7 +465,7 @@ function report(dir, stamp) {
     const g = j1.filter((x) => x.sid === sid);
     return { sid, n: g.length, score: avg(g.map((x) => x.score)), madeUp: g.filter((x) => x.made_up).length, missesPoint: g.filter((x) => x.misses_point).length };
   });
-  const one = group(single.filter((r) => r.sid === 'sonnet-low-oneround'));
+  const one = group(single.filter((r) => r.sid === 'sonnet-low-oneround' && tplIds.includes(r.id)));
   if (one && S['sonnet-low'])
     situations['sonnet-low']['Template answers: two requests vs one'] = { a: group(single.filter((r) => r.sid === 'sonnet-low' && tplIds.includes(r.id))), b: one };
   const chats = {};
