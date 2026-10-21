@@ -26,11 +26,29 @@ export const player = createStore({
   rate: 1,
 });
 
-/** Whether Wega's chat shows beside the video. Every lesson opens with it (felipe, Oct 16: cinema mode with Wega open is
-    the default); the member can hide it and bring it back. */
-export const lessonView = createStore({ chat: true });
+/** The lesson page's two side columns (felipe, Oct 21, after Coursera): the zone's lessons on the left, Wega's chat on
+    the right at the same width. Opening Wega folds the lessons menu to a slim rail, and closing Wega brings the menu
+    back as it was. Both can be open on wide screens; below 1280 px one closes the other. The choice carries over from
+    lesson to lesson. */
+export const lessonView = createStore({ chat: false, menu: true, menuWas: true });
+const WIDE = 1280;
 export function showLessonChat(on: boolean) {
-  lessonView.get().chat = on;
+  const V = lessonView.get();
+  if (on === V.chat) return;
+  if (on) {
+    V.menuWas = V.menu;
+    V.menu = false;
+  } else V.menu = V.menuWas;
+  V.chat = on;
+  lessonView.commit();
+}
+export function showLessonMenu(on: boolean) {
+  const V = lessonView.get();
+  V.menu = on;
+  if (on && V.chat && window.innerWidth < WIDE) {
+    V.chat = false;
+    V.menuWas = true;
+  }
   lessonView.commit();
 }
 
@@ -67,9 +85,7 @@ export function openLesson(r: string, z: number, l: number, k: string) {
   const P = player.get();
   stopTimer();
   Object.assign(P, { k, r, z, l, ended: false, bigK: null, bigV: -1 });
-  lessonView.get().chat = true;
   player.commit();
-  lessonView.commit();
 }
 /** Called when the lesson view unmounts or its URL changes: nothing keeps running. */
 export function closeLesson(k: string) {

@@ -6,7 +6,7 @@ import { promptLabel, wpLoad } from '@/lib/wega-page';
 import { chipsFor, ctxLabel } from '@/lib/wega-brain';
 import { useProgress } from '@/lib/progress';
 import { quiz } from '@/lib/quiz-state';
-import { player, showLessonChat } from '@/lib/player';
+import { lessonView, player, showLessonChat } from '@/lib/player';
 import { rewardOpen } from '@/lib/reward';
 import { toast } from '@/lib/toast';
 import { I, GOOSE, WI } from '@/lib/icons';
@@ -211,13 +211,13 @@ export function Composer({ inline, placeholder = 'Ask Wega anything …' }: { in
   );
 }
 
-/** On a lesson Wega is the chat beside the video: "Ask wega" shows it and puts the cursor in its input. */
-function openLessonChat() {
+/** On a lesson Wega is a column beside the video (a sheet on phones): "Ask wega" opens it with the cursor in its input,
+    and closes it again, like the panel on the other pages. */
+function toggleLessonChat() {
+  if (lessonView.get().chat) return showLessonChat(false);
   showLessonChat(true);
   requestAnimationFrame(() => {
-    const lc = document.getElementById('lc');
-    lc?.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
-    lc?.querySelector('textarea')?.focus({ preventScroll: true });
+    if (matchMedia('(hover: hover) and (pointer: fine)').matches) document.querySelector<HTMLElement>('#lc textarea')?.focus({ preventScroll: true });
   });
 }
 
@@ -225,14 +225,15 @@ function openLessonChat() {
     the phone's top bar; in the lesson's top bar. With no question it opens Wega's hub. */
 export function AskWega({ where }: { where: 'top' | 'bar' | 'inline' }) {
   const W = wega.use();
-  const click = () => (W.inline ? openLessonChat() : W.open ? wgClose() : wgHub());
+  const V = lessonView.use();
+  const click = () => (W.inline ? toggleLessonChat() : W.open ? wgClose() : wgHub());
   return (
     <button
       className={`wg-ask ${where}${W.ready ? ' ready' : ''}`}
       onClick={click}
       aria-label="Ask Wega"
       aria-controls={W.inline ? 'lc' : 'wg'}
-      aria-expanded={W.inline ? undefined : W.open}
+      aria-expanded={W.inline ? V.chat : W.open}
     >
       <Orb thinking={W.busy && !W.open && !W.inline} />
       <span className="wg-ask-l">Ask wega</span>

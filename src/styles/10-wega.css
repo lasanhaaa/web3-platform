@@ -3,7 +3,7 @@
 .chip.warn{background:rgba(226,182,94,.1);color:var(--gold)}
 .chip.sm{height:24px;padding:2px 6px;font-size:12px}
 .wg-orb{position:relative;width:40px;height:40px;flex:none;display:grid;place-items:center}
-.wg-orb .ring{position:absolute;inset:-3px;border-radius:50%;background:conic-gradient(from 0deg,#9ED3FF,#1783FF,#9EFFA2,#E2B65E,#9ED3FF);filter:blur(5px);opacity:0;transition:opacity .3s}
+.wg-orb .ring{position:absolute;inset:-3px;width:auto;height:auto;border-radius:50%;background:conic-gradient(from 0deg,#9ED3FF,#1783FF,#9EFFA2,#E2B65E,#9ED3FF);filter:blur(5px);opacity:0;transition:opacity .3s}
 .wg-av{position:relative;width:100%;height:100%;border-radius:50%;display:grid;place-items:center;color:#fff;background:linear-gradient(169deg,#9ED3FF -14%,#1783FF 100%)}
 .wg-av svg{width:100%;height:100%}
 .thinking .wg-orb .ring,.wg-orb.thinking .ring{opacity:.95;animation:wgspin 1.2s linear infinite}

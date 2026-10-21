@@ -1,12 +1,12 @@
 'use client';
-/* Wega's chat beside the lesson video, like the chat next to a live stream (felipe, Oct 16: one place to ask Wega, a
-   known pattern that stays on screen without getting in the way). Questions carry the moment of the video they were
-   asked at, as in a stream's chat replay; tapping the time jumps back there. The terms, simpler explanations and
-   "what it means for my money" are questions in this chat, not boxes of their own. */
+/* Wega's chat on the lesson page, like the chat next to a live stream (felipe, Oct 16). Since Oct 21 it is a column on
+   the right, as wide as the lessons menu, opened from "Ask wega"; on phones it is a sheet over the page. Questions carry
+   the moment of the video they were asked at, as in a stream's chat replay; tapping the time jumps back there. The
+   terms, simpler explanations and "what it means for my money" are questions in this chat, not boxes of their own. */
 import { useEffect, useRef } from 'react';
 import { ROUTES, R, chaptersFor, chIdx, dur } from '@/lib/curriculum';
 import { S, useProgress } from '@/lib/progress';
-import { player, seekLesson, showLessonChat } from '@/lib/player';
+import { lessonView, player, seekLesson, showLessonChat } from '@/lib/player';
 import { wega, wgClose, wgInline, type Chip, type Msg } from '@/lib/wega';
 import { tt } from '@/lib/format';
 import { WI } from '@/lib/icons';
@@ -24,8 +24,11 @@ const HIDE = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-
 /** One line of the chat: who wrote it, when in the video, then the text (and, for Wega, any card and follow-ups). */
 function Line({ m, len }: { m: Msg; len: number }) {
   const you = m.role === 'user';
+  /* on a phone the sheet covers the video, so it closes to show that moment */
   const jump = () => {
-    if (m.at != null && seekLesson(m.at) && window.innerWidth <= 1000) window.scrollTo({ top: 0, behavior: 'smooth' });
+    if (m.at == null || !seekLesson(m.at) || window.innerWidth > 1000) return;
+    showLessonChat(false);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
   return (
     <div className={`lc-l${you ? ' you' : ''}`} data-lc={m.id}>
@@ -74,7 +77,6 @@ export function LessonChat({ rid, zi, li, k }: { rid: string; zi: number; li: nu
   useProgress();
   player.use();
   const W = wega.use();
-  const box = useRef<HTMLElement>(null);
   const body = useRef<HTMLDivElement>(null);
   /* a fresh conversation for each lesson; the floating panel stays closed while the lesson shows Wega itself */
   useEffect(() => {
@@ -91,14 +93,21 @@ export function LessonChat({ rid, zi, li, k }: { rid: string; zi: number; li: nu
   const msgs = W.msgs.filter((m) => m.id > W.inlineFrom && !m.kind);
   const lastQ = msgs.filter((m) => m.role === 'user').at(-1)?.id;
   /* a new question goes to the top of the chat so its answer reads from the start; when it was asked from elsewhere
-     on the page (the quick check) and the chat is off screen, the chat comes into view */
+     on the page (the quick check) while the chat was closed, the chat opens */
+  const first = useRef(true);
   useEffect(() => {
+    /* the first render can still list the conversation from before this lesson: only new questions count */
+    if (first.current) {
+      first.current = false;
+      return;
+    }
     if (lastQ == null) return;
-    const b = body.current,
-      el = b?.querySelector<HTMLElement>(`[data-lc="${lastQ}"]`);
-    if (b && el) b.scrollTo({ top: el.offsetTop - b.offsetTop - 12, behavior: 'smooth' });
-    const rc = box.current?.getBoundingClientRect();
-    if (rc && (rc.top > window.innerHeight - 120 || rc.bottom < 80)) box.current?.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+    if (!lessonView.get().chat) showLessonChat(true);
+    requestAnimationFrame(() => {
+      const b = body.current,
+        el = b?.querySelector<HTMLElement>(`[data-lc="${lastQ}"]`);
+      if (b && el) b.scrollTo({ top: el.offsetTop - b.offsetTop - 12, behavior: 'smooth' });
+    });
   }, [lastQ]);
 
   const ch = chaptersFor(rid, zi, li),
@@ -106,7 +115,7 @@ export function LessonChat({ rid, zi, li, k }: { rid: string; zi: number; li: nu
     c = ch[chIdx(ch, pr)],
     len = dur(ROUTES.indexOf(R(rid)), zi, li) * 60;
   return (
-    <section className="lc" id="lc" ref={box} aria-label="Chat with Wega about this lesson">
+    <section className="lc" id="lc" aria-label="Chat with Wega about this lesson">
       <header className="lc-h">
         <Orb thinking={W.busy} />
         <div>
@@ -118,7 +127,7 @@ export function LessonChat({ rid, zi, li, k }: { rid: string; zi: number; li: nu
             <Svg src={WI.plus} />
           </button>
         )}
-        <button className="lc-hide" onClick={() => showLessonChat(false)} title="Hide Wega and watch the video alone">
+        <button className="lc-hide" onClick={() => showLessonChat(false)} title="Close Wega and show the lessons again">
           Hide
           <Svg src={HIDE} />
         </button>

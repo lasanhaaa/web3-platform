@@ -726,7 +726,10 @@ The classic mistake: ${t[1]}`,
     }
     case 'l_quiz':
     case 'prac_appr': {
-      const pool = (i === 'prac_appr' ? Q['r1.0'] : (p.r && Q[p.r + '.' + p.z]) || Q['academy.0']).filter((q: any) => q.t === 'choice'),
+      /* questions with answer options; a zone without any (Perp DEX & Funding) borrows the Academy's */
+      const opts = (qs: any[]) => qs.filter((q: any) => q.t === 'choice' || q.t === 'predict'),
+        own = opts(i === 'prac_appr' ? Q['r1.0'] : (p.r && Q[p.r + '.' + p.z]) || Q['academy.0']),
+        pool = own.length ? own : opts(Q['academy.0']),
         q = pool[W.lq++ % pool.length];
       return { text: 'Here’s a practice question. It doesn’t count toward the quiz.', node: <QCard q={q} />, follow: [] };
     }

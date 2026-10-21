@@ -48,7 +48,6 @@
 .wg-comp.one{flex-direction:row;align-items:flex-end;gap:8px;padding:6px 6px 6px 14px}
 .wg-comp.one textarea{align-self:center;font-size:15px}
 .lc .wg-note{padding:0;font-size:12px;color:var(--t3);text-align:center}
-@media (max-width:1180px){.lc{contain:none;max-height:min(640px,80svh)}}
 .simx{display:flex;flex-direction:column;gap:8px}
 .simx input[type=range]{width:100%;accent-color:#9ED3FF;margin:4px 0}
 .sim-l{font-size:14px;color:var(--t2)}

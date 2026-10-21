@@ -33,7 +33,7 @@ The repo is connected to Vercel: every push to a branch gets a preview link, and
 | `/academy` | Academy home: the current course as one big card, the other courses below |
 | `/academy/choose` | Choose a route after the Academy |
 | `/academy/[route]/[zone]` | A course: its zones as a vertical timeline of lessons and quizzes |
-| `/academy/[route]/[zone]/[lesson]` | Lesson in cinema mode: the video with Wega's chat beside it, full screen, the description with timestamps and the zone's lessons below |
+| `/academy/[route]/[zone]/[lesson]` | Lesson, laid out like Coursera's video page: the course's lessons on the left (Hide menu), the video with full screen, then Transcript (sample), Notes (saved with the video time, in this browser) and Strategies that build on the lesson. "Ask wega" opens Wega as a column on the right and folds the lessons menu; on phones Wega is a sheet |
 | `/academy/[route]/[zone]/quiz` | Zone quiz (5 question types, 3 lives) |
 | `/badges` | Certificates first, then all badges (earned, locked and what's missing) |
 | `/strategies` | Strategies; `?s=<id>` opens a strategy |
