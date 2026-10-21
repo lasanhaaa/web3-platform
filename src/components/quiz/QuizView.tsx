@@ -3,12 +3,11 @@ import { useEffect, useLayoutEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { R } from '@/lib/curriculum';
 import { Q, rightText } from '@/lib/quiz-bank';
-import { I, GOOSE } from '@/lib/icons';
+import { I } from '@/lib/icons';
 import { Svg } from '@/lib/svg';
 import { S, useProgress, restoreDemo, quizOpen, lessonOpen, passZone } from '@/lib/progress';
 import { useGo, parseZL, hrefRoute } from '@/lib/nav';
 import { toast } from '@/lib/toast';
-import { wgRun, wgAskLive } from '@/lib/wega';
 import { earnFlow, closeReward } from '@/lib/reward';
 import { quiz, getQZ, freshQuiz, freshMatch, startQuizState, startPractice, quizQs, answered, isRight, type QuizState } from '@/lib/quiz-state';
 import { sound, soundLoad, soundToggle, sfx } from '@/lib/sfx';
@@ -266,12 +265,6 @@ function Quiz({ QZ }: { QZ: QuizState }) {
             </p>
           )}
           <p>{q.why}</p>
-          {!ok && (
-            <button className="btn text wg-link" onClick={() => wgAskLive('q_explain', wrongTxt ? `Why is “${wrongTxt}” correct?` : 'Why is that?')}>
-              <Svg src={GOOSE} />
-              Wega explains
-            </button>
-          )}
         </div>
       </div>
       <button className={`btn ${ok ? 'good' : 'bad'} lg`} onClick={qnext} autoFocus>
@@ -283,10 +276,6 @@ function Quiz({ QZ }: { QZ: QuizState }) {
       <div className="q-foot-l">
         <button className="btn text" style={{ color: 'var(--t2)' }} onClick={() => answer(true)}>
           Skip
-        </button>
-        <button className="btn text wg-link" style={{ marginTop: 0 }} onClick={() => wgRun('q_hint', 'Give me a hint without the answer')}>
-          <Svg src={GOOSE} />
-          Hint from Wega
         </button>
       </div>
       {q.t === 'match' ? (
@@ -327,7 +316,7 @@ function Quiz({ QZ }: { QZ: QuizState }) {
   );
 }
 
-/* Enter checks the answer, or goes on after the result (desktop). Not while typing to Wega. */
+/* Enter checks the answer, or goes on after the result (desktop). Not while typing in a field. */
 let keyAct: () => unknown = () => {};
 function useKeys(QZ: QuizState) {
   useEffect(() => {

@@ -293,7 +293,10 @@ export function WegaRoot() {
   const body = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    setWegaPage(pageFromPath(path, wega.get().page));
+    const pg = pageFromPath(path, wega.get().page);
+    setWegaPage(pg);
+    /* no Wega in a quiz (felipe, Oct 21: it could give the answer away), so an open panel closes on the way in */
+    if (pg.screen === 'quiz') wgClose();
   }, [path]);
   useEffect(() => {
     wgProbe();
