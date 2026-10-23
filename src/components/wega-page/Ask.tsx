@@ -1,7 +1,7 @@
 'use client';
 /* Wega's text answers in the chat: ready questions get their scripted answer; typed questions and
    "ask about this passage" go live through /api/wega when a model key is set, otherwise a sample answer. */
-import { useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { textAnswer } from '@/lib/wega-page';
 import { chatFill, chatHistory, type ChatMsg } from '@/lib/wega-chat';
 import { GLOSS } from '@/lib/curriculum';
@@ -9,6 +9,8 @@ import { rulesPrompt, StepBtn } from '@/lib/wega-brain';
 import { wega, wgProbe } from '@/lib/wega';
 import { useProgress } from '@/lib/progress';
 import { MdText } from '@/components/wega/MdText';
+import { Fresh, StreamText, Thinking } from '@/components/wega/Stream';
+import { thinkSteps } from '@/lib/wega-think';
 import { Answer, AskLink } from './parts';
 
 export const POPULAR = ['/wega/portfolio-check', '/wega/risk-mix', '/wega/scenario?s=eth30', '/wega/learning-path'];
@@ -30,15 +32,16 @@ export const freeFollow = (m: Extract<ChatMsg, { kind: 'free' }>) => (m.mode ===
 /** A ready question with a scripted answer (/wega/ask?k=…). */
 export function TextReply({ k }: { k: string }) {
   useProgress();
+  const F = useContext(Fresh);
   const a = textAnswer(k);
   if (!a) return null;
   const nx = a.next;
   return (
     <Answer
       title={a.q}
-      lead={<MdText text={a.a} />}
+      lead={F.fresh ? <StreamText text={a.a} onDone={F.done} /> : <MdText text={a.a} />}
       next={
-        nx ? (
+        nx && !F.fresh ? (
           nx.step ? (
             <StepBtn f={nx.step} cls="btn primary lg" label={nx.label} />
           ) : (
@@ -63,7 +66,7 @@ export function FreeReply({ m }: { m: Extract<ChatMsg, { kind: 'free' }> }) {
   useEffect(() => {
     if (!pending || W.live === undefined) return;
     if (W.live === false) {
-      const t = setTimeout(() => chatFill(m.id, { text: sampleAnswer(m.q, m.passage), mode: 'sample' }), 900);
+      const t = setTimeout(() => chatFill(m.id, { text: sampleAnswer(m.q, m.passage), mode: 'sample' }), 1300);
       return () => clearTimeout(t);
     }
     const c = new AbortController();
@@ -89,22 +92,21 @@ export function FreeReply({ m }: { m: Extract<ChatMsg, { kind: 'free' }> }) {
     return () => c.abort();
   }, [pending, W.live, m.id, m.q, m.passage]);
 
+  const F = useContext(Fresh);
   const text = m.text || preview;
   return (
     <section className="wp-ans" aria-label={m.q} aria-busy={pending}>
       <div className="wp-text wp-prose">
-        {text ? (
-          <MdText text={text} />
+        {!text ? (
+          <Thinking steps={thinkSteps(m.passage ? 'passage' : m.q)} />
+        ) : F.fresh ? (
+          <StreamText text={text} done={!pending} onDone={F.done} />
         ) : (
-          <span className="wg-dots" aria-label="Wega is writing">
-            <i />
-            <i />
-            <i />
-          </span>
+          <MdText text={text} />
         )}
-        {m.failed && <p className="wp-err">The live answer didn’t work. This is a sample answer.</p>}
+        {m.failed && !F.fresh && <p className="wp-err">The live answer didn’t work. This is a sample answer.</p>}
       </div>
-      {m.mode === 'live' && <p className="wp-mode">Live answer · Claude</p>}
+      {m.mode === 'live' && !F.fresh && <p className="wp-mode">Live answer · Claude</p>}
     </section>
   );
 }

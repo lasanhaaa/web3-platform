@@ -6,6 +6,7 @@
    are added on the first visit so the hub isn't empty in the prototype. */
 import { createStore } from './store';
 import { promptLabel, routeQuestion, type CatId } from './wega-page';
+import { thinkSteps } from './wega-think';
 
 export type ChatMsg =
   | { id: number; who: 'me'; text: string; passage?: string }
@@ -36,6 +37,8 @@ export const chat = createStore({
   list: [] as Chat[],
   typing: 0,
   typingIn: null as string | null,
+  /** what Wega says it is doing while it "types" */
+  think: [] as string[],
   /** the "Your chats" panel */
   panel: false,
   loaded: false,
@@ -50,6 +53,8 @@ function save() {
     sessionStorage.setItem(SS, C.cur || '');
   } catch {}
 }
+/** Wega's messages that have just arrived ("chat id:message id"): their text is written out once, as it arrives. */
+export const freshIds = new Set<string>();
 const newId = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
 const titleOf = (t: string) => (t.length > 64 ? t.slice(0, 62).trimEnd() + '…' : t);
 
@@ -100,6 +105,7 @@ function push(m: NewMsg, cid: string | null = chat.get().cur) {
   const next: Chat = { ...c, at: Date.now(), title: c.title || (m.who === 'me' ? titleOf(m.text) : ''), msgs: [...c.msgs, { ...m, id } as ChatMsg] };
   C.list = [next, ...C.list.filter((x) => x.id !== next.id)];
   if (C.cur === next.id) C.msgs = next.msgs;
+  if (m.who === 'wega') freshIds.add(next.id + ':' + id);
   save();
   chat.commit();
   return next.id;
@@ -109,6 +115,7 @@ function reply(m: NewMsg, cid: string) {
   const C = chat.get();
   C.typing++;
   C.typingIn = cid;
+  C.think = thinkSteps(m.who === 'wega' && m.kind === 'answer' ? m.href : m.who === 'wega' && m.kind === 'topic' ? m.cat : '');
   chat.commit();
   setTimeout(
     () => {
@@ -116,7 +123,7 @@ function reply(m: NewMsg, cid: string) {
       if (!C.typing) C.typingIn = null;
       push(m, cid);
     },
-    700 + Math.random() * 400,
+    1100 + Math.random() * 500,
   );
 }
 

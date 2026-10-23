@@ -80,7 +80,7 @@ body.wp-on .wg-scrim{display:none}
 /* Wega: its orb and name, then the answer at full width */
 .wp-msg.wega{display:flex;flex-direction:column;align-items:flex-start;gap:14px}
 .wp-msg.wega>*{align-self:stretch}
-.wp-msg.wega>.wg-dots{align-self:flex-start;padding-left:2px}
+.wp-msg.wega .wg-think,.wp-text .wg-think{font-size:16px}
 .wp-who{display:flex;align-items:center;gap:10px;font-size:14px;font-weight:500;letter-spacing:-.01em;color:rgba(255,255,255,.7)}
 .wp-ans{display:flex;flex-direction:column;gap:20px;min-width:0}
 .wp-text{max-width:720px;font-size:16px;line-height:1.65;letter-spacing:-.01em;color:rgba(255,255,255,.82)}
@@ -88,7 +88,6 @@ body.wp-on .wg-scrim{display:none}
 .wp-text p+p,.wp-text p+ul,.wp-text p+ol,.wp-text ul+p,.wp-text ol+p{margin-top:12px}
 .wp-text ul,.wp-text ol{margin:0;padding-left:22px;display:flex;flex-direction:column;gap:6px}
 .wp-text li::marker{color:rgba(255,255,255,.35)}
-.wp-text .wg-dots i{background:rgba(255,255,255,.5)}
 /* selecting text to ask about it: Decade's gold highlight */
 .wp-prose ::selection{background:rgba(226,182,94,.55);color:#fff}
 .wp-quote{margin:0;padding:2px 0 2px 14px;border-left:2px solid rgba(226,182,94,.7);color:rgba(255,255,255,.7)}

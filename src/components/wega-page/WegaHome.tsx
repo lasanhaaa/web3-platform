@@ -4,15 +4,16 @@
    answered (client feedback, Oct 15, like Decade). Once the member asks anything, the page becomes the conversation:
    their messages on the right, Wega's answers under each one, follow-ups after the last answer, the input docked at
    the bottom, and "Your chats" to go back to any past conversation. */
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { CHECKS, SNAP_DATE, cat as catOf, followFor, isCat, promptLabel, wp, wpToggleHide } from '@/lib/wega-page';
-import { chat, chatAsk, chatDelete, chatFree, chatLoad, chatNew, chatOpen, chatPanel, chatTopic, groups, when, TOPIC, type Chat, type ChatMsg } from '@/lib/wega-chat';
+import { chat, chatAsk, chatDelete, chatFree, chatLoad, chatNew, chatOpen, chatPanel, chatTopic, freshIds, groups, when, TOPIC, type Chat, type ChatMsg } from '@/lib/wega-chat';
 import { useHydrated } from '@/lib/hydrated';
 import { toast } from '@/lib/toast';
 import { AnswerFor } from './Answer';
 import { Topics } from './Topics';
 import { FreeReply, freeFollow } from './Ask';
+import { Fresh, Thinking } from '@/components/wega/Stream';
 import { CHEV, CatIcon, EYE, EYE_OFF, Icon, Orb, Passage, PromptBox, useWegaPageChrome } from './parts';
 
 const PLUS = 'M12 5v14M5 12h14';
@@ -207,18 +208,14 @@ function Conversation() {
       </div>
 
       <div className="wp-thread" aria-live="polite">
-        {C.msgs.map((m) => (m.who === 'me' ? <MeMsg key={m.id} m={m} /> : <WegaMsg key={m.id} m={m} last={m.id === lastId} />))}
+        {C.msgs.map((m) => (m.who === 'me' ? <MeMsg key={m.id} m={m} /> : <WegaMsg key={m.id} m={m} cid={C.cur || ''} last={m.id === lastId} />))}
         {C.typing > 0 && C.typingIn === C.cur && (
           <div className="wp-msg wega">
             <div className="wp-who">
               <Orb size={24} thinking />
               Wega
             </div>
-            <span className="wg-dots" aria-label="Wega is writing">
-              <i />
-              <i />
-              <i />
-            </span>
+            <Thinking steps={C.think} />
           </div>
         )}
       </div>
@@ -249,15 +246,29 @@ function followOf(m: WegaM): string[] {
   return m.kind === 'free' ? freeFollow(m) : [];
 }
 
-function WegaMsg({ m, last }: { m: WegaM; last: boolean }) {
-  const follow = last ? followOf(m) : [];
+/* text answers (typed questions and the scripted /wega/ask ones) are written out when they arrive; the follow-ups
+   come after the writing */
+const writes = (m: WegaM) => m.kind === 'free' || (m.kind === 'answer' && m.href.startsWith('/wega/ask'));
+function WegaMsg({ m, cid, last }: { m: WegaM; cid: string; last: boolean }) {
+  const key = cid + ':' + m.id;
+  const [fresh, setFresh] = useState(() => freshIds.has(key) && writes(m));
+  const done = useCallback(() => {
+    freshIds.delete(key);
+    setFresh(false);
+  }, [key]);
+  useEffect(() => {
+    if (!writes(m)) freshIds.delete(key);
+  }, [key, m]);
+  const follow = last && !fresh ? followOf(m) : [];
   return (
     <div className="wp-msg wega" data-mid={m.id}>
       <div className="wp-who">
-        <Orb size={24} />
+        <Orb size={24} thinking={m.kind === 'free' && !m.mode} />
         Wega
       </div>
-      {m.kind === 'topic' ? <TopicReply m={m} /> : m.kind === 'answer' ? <AnswerFor href={m.href} /> : <FreeReply m={m} />}
+      <Fresh.Provider value={{ fresh, done }}>
+        {m.kind === 'topic' ? <TopicReply m={m} /> : m.kind === 'answer' ? <AnswerFor href={m.href} /> : <FreeReply m={m} />}
+      </Fresh.Provider>
       {follow.length > 0 && (
         <div className="wp-sugg" role="group" aria-label="Suggested questions">
           {follow.map((h) => (

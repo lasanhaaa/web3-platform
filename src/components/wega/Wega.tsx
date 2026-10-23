@@ -1,7 +1,7 @@
 'use client';
 import { useEffect, useRef, useState } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
-import { wega, setWegaPage, wgAsk, wgClose, wgHub, wgNew, wgProbe, wgResume, wgRun, wgStop, type Chip, type Msg, type WegaPage } from '@/lib/wega';
+import { wega, setWegaPage, wgAsk, wgClose, wgHidden, wgHub, wgNew, wgOpen, wgPeek, wgProbe, wgResume, wgRun, wgSeen, wgSettle, wgStop, type Chip, type Msg, type WegaPage } from '@/lib/wega';
 import { promptLabel, wpLoad } from '@/lib/wega-page';
 import { chipsFor, ctxLabel } from '@/lib/wega-brain';
 import { useProgress } from '@/lib/progress';
@@ -14,6 +14,7 @@ import { Svg } from '@/lib/svg';
 import { zoneExists, lessonExists } from '@/lib/params';
 import { Orb } from './Orb';
 import { MdText } from './MdText';
+import { Fresh, StreamText, Thinking } from './Stream';
 import { AnswerFor } from '@/components/wega-page/Answer';
 import { Topics } from '@/components/wega-page/Topics';
 import { AskCtx } from '@/components/wega-page/parts';
@@ -41,7 +42,7 @@ function pageFromPath(path: string, prev: WegaPage): WegaPage {
   return { screen: 'map' };
 }
 
-export { Orb, MdText };
+export { Orb, MdText, Thinking };
 
 export function ChipBtn({ c }: { c: Chip }) {
   return (
@@ -79,6 +80,24 @@ function Meta({ m }: { m: Msg }) {
   );
 }
 
+/** Wega's words in a message: the thinking line while it is pending, then the answer written out, then the text. */
+export function WegaText({ m }: { m: Msg }) {
+  return (
+    <div className="wg-txt">
+      {m.pending ? (
+        <Thinking steps={m.think} />
+      ) : m.fresh ? (
+        <StreamText text={m.text || ''} done={!m.streaming} onDone={() => wgSettle(m.id)} />
+      ) : (
+        <>
+          <MdText text={m.text || ''} />
+          {m.note && <p className="err">{m.note}</p>}
+        </>
+      )}
+    </div>
+  );
+}
+
 export function Message({ m }: { m: Msg }) {
   if (m.kind === 'div') return <div className="wg-div">{m.text}</div>;
   if (m.role === 'user')
@@ -89,26 +108,15 @@ export function Message({ m }: { m: Msg }) {
       </div>
     );
   if (m.href && !m.pending) return <RichMessage m={m} href={m.href} />;
+  /* the cards, the actions and the follow-ups come in once the text is written */
+  const shown = !m.pending && !m.fresh;
   return (
     <div className="wg-m a">
       <span className="wg-lbl">Wega</span>
-      <div className="wg-txt">
-        {m.pending ? (
-          <span className="wg-dots">
-            <i />
-            <i />
-            <i />
-          </span>
-        ) : (
-          <>
-            <MdText text={m.text || ''} />
-            {m.note && <p className="err">{m.note}</p>}
-          </>
-        )}
-      </div>
-      {!m.pending && m.node}
-      {!m.pending && <Meta m={m} />}
-      {!m.pending && m.follow && m.follow.length > 0 && (
+      <WegaText m={m} />
+      {shown && m.node && <div className="wg-in">{m.node}</div>}
+      {shown && <Meta m={m} />}
+      {shown && m.follow && m.follow.length > 0 && (
         <div className="wg-follow">
           {m.follow.map((c) => (
             <ChipBtn key={c[1] + c[0]} c={c} />
@@ -123,15 +131,22 @@ export function Message({ m }: { m: Msg }) {
 const askHere = (href: string) => wgRun(href, promptLabel(href) || undefined);
 function RichMessage({ m, href }: { m: Msg; href: string }) {
   useEffect(wpLoad, []);
+  /* only the scripted text answers (/wega/ask?k=…) are written out; the others come in part by part */
+  const writes = href.startsWith('/wega/ask');
+  useEffect(() => {
+    if (!writes) wgSettle(m.id);
+  }, [writes, m.id]);
   return (
     <div className="wg-m a">
       <span className="wg-lbl">Wega</span>
       <AskCtx.Provider value={askHere}>
-        <div className="wg-rich">
-          <AnswerFor href={href} />
-        </div>
+        <Fresh.Provider value={{ fresh: writes && !!m.fresh, done: () => wgSettle(m.id) }}>
+          <div className="wg-rich">
+            <AnswerFor href={href} />
+          </div>
+        </Fresh.Provider>
       </AskCtx.Provider>
-      {m.follow && m.follow.length > 0 && (
+      {!(writes && m.fresh) && m.follow && m.follow.length > 0 && (
         <div className="wg-follow">
           {m.follow.map((c) => (
             <ChipBtn key={c[1] + c[0]} c={c} />
@@ -216,6 +231,7 @@ export function Composer({ inline, placeholder = 'Ask Wega anything …' }: { in
 function toggleLessonChat() {
   if (lessonView.get().chat) return showLessonChat(false);
   showLessonChat(true);
+  wgSeen();
   requestAnimationFrame(() => {
     if (matchMedia('(hover: hover) and (pointer: fine)').matches) document.querySelector<HTMLElement>('#lc textarea')?.focus({ preventScroll: true });
   });
@@ -227,20 +243,82 @@ export function AskWega({ where }: { where: 'top' | 'bar' | 'inline' }) {
   const W = wega.use();
   const V = lessonView.use();
   const click = () => (W.inline ? toggleLessonChat() : W.open ? wgClose() : wgHub());
+  /* out of sight, Wega still shows it is thinking, and says when the answer is there (felipe, Oct 23) */
+  const think = W.busy && (W.inline ? !V.chat : !W.open);
   return (
     <button
-      className={`wg-ask ${where}${W.ready ? ' ready' : ''}`}
+      className={`wg-ask ${where}${W.ready ? ' ready' : ''}${think ? ' busy' : ''}`}
       onClick={click}
-      aria-label="Ask Wega"
+      aria-label={think ? 'Ask Wega: Wega is thinking' : W.ready ? 'Ask Wega: your answer is ready' : 'Ask Wega'}
       aria-controls={W.inline ? 'lc' : 'wg'}
       aria-expanded={W.inline ? V.chat : W.open}
     >
-      <Orb thinking={W.busy && !W.open && !W.inline} />
-      <span className="wg-ask-l">Ask wega</span>
-      <span className="wg-tip" aria-hidden={!W.ready}>
-        Your answer is ready
-      </span>
+      <Orb thinking={think} />
+      <span className="wg-ask-l">{think ? <span className="wg-shim">Thinking…</span> : W.ready ? 'Answer ready' : 'Ask wega'}</span>
     </button>
+  );
+}
+
+/** The pop-up under "Ask wega" when an answer arrives while Wega is out of sight: the start of the answer and a way
+    to read it. It goes after a few seconds (not while the pointer is on it); "Ask wega" keeps saying "Answer ready". */
+const plain = (t: string) => t.replace(/\*\*|`/g, '').replace(/^\s*([-•*]|\d+[.)])\s+/gm, '').replace(/\s+/g, ' ').trim();
+function Peek() {
+  const W = wega.use();
+  lessonView.use();
+  const [at, setAt] = useState<null | { top: number; right: number }>(null);
+  const over = useRef(false);
+  useEffect(() => {
+    if (!W.peek) return setAt(null);
+    const place = () => {
+      const b = [...document.querySelectorAll<HTMLElement>('.wg-ask')].find((x) => x.getClientRects().length && getComputedStyle(x).opacity !== '0');
+      const r = b?.getBoundingClientRect();
+      setAt(r ? { top: r.bottom + 10, right: Math.max(12, innerWidth - r.right) } : null);
+    };
+    place();
+    let t: ReturnType<typeof setTimeout>;
+    const later = (ms: number) => (t = setTimeout(() => (over.current ? later(2500) : wgPeek(false)), ms));
+    later(8000);
+    addEventListener('resize', place);
+    addEventListener('scroll', place, { passive: true, capture: true });
+    return () => {
+      clearTimeout(t);
+      removeEventListener('resize', place);
+      removeEventListener('scroll', place, { capture: true });
+    };
+  }, [W.peek]);
+  if (!W.peek || !at || !wgHidden(W)) return null;
+  const a = W.msgs.findLast((m) => m.role === 'wega' && !m.pending),
+    q = W.msgs.findLast((m) => m.role === 'user')?.text;
+  const text = a?.text ? plain(a.text) : '';
+  const read = () => {
+    if (W.inline) {
+      showLessonChat(true);
+      wgSeen();
+    } else wgOpen();
+  };
+  return (
+    <div
+      className="wg-peek"
+      style={{ top: at.top, right: at.right }}
+      role="status"
+      onMouseEnter={() => (over.current = true)}
+      onMouseLeave={() => (over.current = false)}
+    >
+      <button className="wg-peek-open" onClick={read}>
+        <Orb size={30} />
+        <span className="wg-peek-c">
+          <b>{text ? 'Wega answered' : 'Your answer is ready'}</b>
+          <small>{text || (q ? `“${q}”` : 'Open Wega to read it.')}</small>
+          <em>
+            Read the answer
+            <Svg src={WI.arrow} />
+          </em>
+        </span>
+      </button>
+      <button className="wg-peek-x" onClick={() => wgPeek(false)} aria-label="Close" title="Close">
+        <Svg src={I.x} />
+      </button>
+    </div>
   );
 }
 
@@ -252,7 +330,7 @@ function Hub() {
   const last = W.prev?.find((m) => m.role === 'user')?.text;
   return (
     <div className="wg-hub">
-      <Orb size={44} />
+      <Orb size={36} />
       <h3>
         <span>Hi, Daniel.</span> What do you want to understand today?
       </h3>
@@ -334,10 +412,7 @@ export function WegaRoot() {
       <aside className={`wg-panel${n === 0 ? ' hub' : ''}`} id="wg" aria-label="Wega, your AI copilot" aria-hidden={!W.open} inert={!W.open}>
         <header className="wg-head">
           <Orb thinking={W.busy} />
-          <div>
-            <b>Wega</b>
-            <small>Your AI copilot</small>
-          </div>
+          <b>Ask wega</b>
           <span className="sp" />
           <button
             className="wg-ib"
@@ -381,6 +456,7 @@ export function WegaRoot() {
         )}
         <p className="wg-note">Wega can make mistakes · Sample data · Not financial advice</p>
       </aside>
+      <Peek />
     </>
   );
 }

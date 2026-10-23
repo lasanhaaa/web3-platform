@@ -3,6 +3,8 @@ import { useEffect, type ReactNode } from 'react';
 import { createStore } from './store';
 import { answer, routeText, rulesPrompt, ctxLabel } from './wega-brain';
 import { followFor, promptLabel } from './wega-page';
+import { thinkSteps } from './wega-think';
+import { lessonView } from './player';
 
 /* Wega, the AI copilot: one panel that follows the user across the platform.
    Pages tell Wega where the user is with useWegaPage(); buttons anywhere call wgRun(intent, label). */
@@ -30,14 +32,22 @@ export type Msg = {
   at?: number;
   /** the answer to one of the Wega page's ready questions (/wega/risk-mix …), shown as it is on that page */
   href?: string;
+  /** what Wega says it is doing while the answer is pending */
+  think?: string[];
+  /** just arrived: the text is still being written out word by word (cleared by wgSettle) */
+  fresh?: boolean;
+  /** a live answer whose words are still arriving */
+  streaming?: boolean;
 };
 
 export const wega = createStore({
   open: false,
   msgs: [] as Msg[],
   busy: false,
-  /** answer arrived while the panel was closed */
+  /** answer arrived while Wega was out of sight (the panel or the lesson's column closed) */
   ready: false,
+  /** the small pop-up under "Ask wega" with the start of that answer */
+  peek: false,
   page: { screen: 'map' } as WegaPage,
   ctxKey: '',
   /** null = no live model configured (scripted answers only) */
@@ -112,7 +122,27 @@ export function wgInline(on: boolean) {
 export function wgOpen() {
   const W = wega.get();
   W.open = true;
-  W.ready = false;
+  W.ready = W.peek = false;
+  wega.commit();
+}
+/** The member sees Wega's conversation again (the lesson's column opened): the "answer ready" signs go. */
+export function wgSeen() {
+  const W = wega.get();
+  if (!W.ready && !W.peek) return;
+  W.ready = W.peek = false;
+  wega.commit();
+}
+export function wgPeek(on: boolean) {
+  wega.get().peek = on;
+  wega.commit();
+}
+/** Wega can't be seen: the panel is closed, or on a lesson the Wega column is. */
+export const wgHidden = (W = wega.get()) => (W.inline ? !lessonView.get().chat : !W.open);
+/** An answer has been written out in full. */
+export function wgSettle(id: number) {
+  const m = wega.get().msgs.find((x) => x.id === id);
+  if (!m?.fresh) return;
+  m.fresh = false;
   wega.commit();
 }
 export function wgClose() {
@@ -151,14 +181,16 @@ function push(m: Omit<Msg, 'id'>) {
   wega.commit();
   return msg;
 }
-function fill(m: Msg, a: Partial<Answer> & { href?: string }) {
+function fill(m: Msg, a: Partial<Answer> & Pick<Msg, 'href' | 'fresh' | 'streaming'>) {
   Object.assign(m, a, { pending: false });
   wega.commit();
 }
 function busy(on: boolean) {
   const W = wega.get();
+  const was = W.busy;
   W.busy = on;
-  if (!on && !W.open && !W.inline) W.ready = true;
+  /* an answer that arrives while Wega is out of sight: "Ask wega" says so and shows its start in a small pop-up */
+  if (was && !on && wgHidden(W) && W.msgs.at(-1)?.role === 'wega') W.ready = W.peek = true;
   wega.commit();
 }
 export function wgStop() {
@@ -176,26 +208,27 @@ export function wgRun(intent: string, label?: string, extra?: unknown) {
   if (!wega.get().open && !wega.get().inline) wgOpen();
   if (wega.get().busy) wgStop();
   if (label) push({ role: 'user', text: label });
-  const m = push({ role: 'wega', pending: true });
+  const m = push({ role: 'wega', pending: true, think: thinkSteps(intent, wega.get().page.screen) });
   busy(true);
+  /* long enough to see Wega think, as with a live model */
   setTimeout(() => {
-    fill(m, intent.startsWith('/wega/') ? { href: intent, follow: followFor(intent).map((h): Chip => [promptLabel(h) || h, h]) } : answer(intent, extra));
+    fill(m, intent.startsWith('/wega/') ? { href: intent, fresh: true, follow: followFor(intent).map((h): Chip => [promptLabel(h) || h, h]) } : { ...answer(intent, extra), fresh: true });
     busy(false);
-  }, 420 + Math.random() * 380);
+  }, 1000 + Math.random() * 500);
 }
 
 /** Free text: live through /api/wega when a model key is configured, otherwise the keyword router. */
 export async function wgAsk(text: string) {
   if (!wega.get().open && !wega.get().inline) wgOpen();
   push({ role: 'user', text });
-  const m = push({ role: 'wega', pending: true });
+  const m = push({ role: 'wega', pending: true, think: thinkSteps(text, wega.get().page.screen) });
   busy(true);
   const W = wega.get();
   if (W.live === false) {
     setTimeout(() => {
-      fill(m, routeText(text));
+      fill(m, { ...routeText(text), fresh: true });
       busy(false);
-    }, 500);
+    }, 1200);
     return;
   }
   const hist = W.msgs
@@ -214,7 +247,7 @@ export async function wgAsk(text: string) {
     });
     if (res.status === 501) {
       W.live = false;
-      fill(m, { ...routeText(text) });
+      fill(m, { ...routeText(text), fresh: true });
       return;
     }
     if (!res.ok || !res.body) throw new Error('bad');
@@ -226,15 +259,13 @@ export async function wgAsk(text: string) {
       const { done, value } = await rd.read();
       if (done) break;
       out += dec.decode(value, { stream: true });
-      m.text = out;
-      m.pending = false;
-      m.live = true;
+      Object.assign(m, { text: out, pending: false, live: true, fresh: true, streaming: true });
       wega.commit();
     }
-    fill(m, { text: out, live: true });
+    fill(m, { text: out, live: true, fresh: true, streaming: false });
   } catch (e: any) {
-    if (e?.name === 'AbortError') fill(m, { text: m.text || '', live: true, note: 'Stopped.' });
-    else fill(m, { ...routeText(text), note: 'The live answer didn’t work. This is a sample answer.' });
+    if (e?.name === 'AbortError') fill(m, { text: m.text || '', live: true, note: 'Stopped.', streaming: false });
+    else fill(m, { ...routeText(text), note: 'The live answer didn’t work. This is a sample answer.', fresh: true, streaming: false });
   } finally {
     if (ctl === c) ctl = null;
     busy(false);

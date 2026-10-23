@@ -7,11 +7,11 @@ import { useEffect, useRef } from 'react';
 import { ROUTES, R, chaptersFor, chIdx, dur } from '@/lib/curriculum';
 import { S, useProgress } from '@/lib/progress';
 import { lessonView, player, seekLesson, showLessonChat } from '@/lib/player';
-import { wega, wgClose, wgInline, type Chip, type Msg } from '@/lib/wega';
+import { wega, wgClose, wgInline, wgSeen, type Chip, type Msg } from '@/lib/wega';
 import { tt } from '@/lib/format';
 import { WI } from '@/lib/icons';
 import { Svg } from '@/lib/svg';
-import { ChipBtn, Composer, MdText, Orb } from '@/components/wega/Wega';
+import { ChipBtn, Composer, Orb, WegaText } from '@/components/wega/Wega';
 
 const SUGG: Chip[] = [
   ['What is this part about?', 'l_moment'],
@@ -24,6 +24,8 @@ const HIDE = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-
 /** One line of the chat: who wrote it, when in the video, then the text (and, for Wega, any card and follow-ups). */
 function Line({ m, len }: { m: Msg; len: number }) {
   const you = m.role === 'user';
+  /* a card and the follow-ups come in once Wega's text is written */
+  const shown = !m.pending && !m.fresh;
   /* on a phone the sheet covers the video, so it closes to show that moment */
   const jump = () => {
     if (m.at == null || !seekLesson(m.at) || window.innerWidth > 1000) return;
@@ -32,7 +34,7 @@ function Line({ m, len }: { m: Msg; len: number }) {
   };
   return (
     <div className={`lc-l${you ? ' you' : ''}`} data-lc={m.id}>
-      {you ? <span className="lc-av">D</span> : <Orb />}
+      {you ? <span className="lc-av">D</span> : <Orb thinking={m.pending} />}
       <div className="lc-c">
         <div className="lc-who">
           <b>{you ? 'You' : 'Wega'}</b>
@@ -42,26 +44,9 @@ function Line({ m, len }: { m: Msg; len: number }) {
             </button>
           )}
         </div>
-        {you ? (
-          <p className="lc-q">{m.text}</p>
-        ) : (
-          <div className="wg-txt">
-            {m.pending ? (
-              <span className="wg-dots">
-                <i />
-                <i />
-                <i />
-              </span>
-            ) : (
-              <>
-                <MdText text={m.text || ''} />
-                {m.note && <p className="err">{m.note}</p>}
-              </>
-            )}
-          </div>
-        )}
-        {!you && !m.pending && m.node}
-        {!you && !m.pending && m.follow && m.follow.length > 0 && (
+        {you ? <p className="lc-q">{m.text}</p> : <WegaText m={m} />}
+        {!you && shown && m.node && <div className="wg-in">{m.node}</div>}
+        {!you && shown && m.follow && m.follow.length > 0 && (
           <div className="wg-follow">
             {m.follow.map((c) => (
               <ChipBtn key={c[1] + c[0]} c={c} />
@@ -90,6 +75,11 @@ export function LessonChat({ rid, zi, li, k }: { rid: string; zi: number; li: nu
       document.body.classList.remove('lc-on');
     };
   }, [k]);
+  const V = lessonView.use();
+  /* opening the column shows the answer: "Ask wega" stops saying it is ready */
+  useEffect(() => {
+    if (V.chat) wgSeen();
+  }, [V.chat]);
   const msgs = W.msgs.filter((m) => m.id > W.inlineFrom && !m.kind);
   const lastQ = msgs.filter((m) => m.role === 'user').at(-1)?.id;
   /* a new question goes to the top of the chat so its answer reads from the start; when it was asked from elsewhere
