@@ -1,36 +1,49 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Web3 Universe platform prototype
 
-## Getting Started
+A navigable prototype of the Web3 Universe platform: the Academy (routes, zones, lessons, quizzes), Badges & Certificates with the original badgeweb3 3D badges, Strategies, and Wega, the AI copilot (the "Ask wega" button at the top right of every page, its side panel and the Wega page). All portfolio numbers, returns and quiz questions are sample data.
 
-First, run the development server:
+## Run it
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open http://localhost:3000. The sidebar's "Prototype · State" picker switches between demo progress states (new member, Academy quiz open, midway through Route 1, last quiz open).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Wega's live answers
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Prompt chips always use scripted answers. Free questions typed into Wega go to Claude when a key is set:
 
-## Learn More
+```bash
+ANTHROPIC_API_KEY=... npm run dev
+# optional: WEGA_MODEL=claude-sonnet-5-5
+```
 
-To learn more about Next.js, take a look at the following resources:
+Without a key, Wega shows "Sample mode" and answers free questions with the closest scripted answer.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Deploy
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+The repo is connected to Vercel: every push to a branch gets a preview link, and `main` is production. Set `ANTHROPIC_API_KEY` (and optionally `WEGA_MODEL`) in the Vercel project's environment variables for Wega's live answers.
 
-## Deploy on Vercel
+## Pages
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+| URL | Screen |
+|---|---|
+| `/academy` | Academy home: the current course as one big card, the other courses below |
+| `/academy/choose` | Choose a route after the Academy |
+| `/academy/[route]/[zone]` | A course: its zones as a vertical timeline of lessons and quizzes |
+| `/academy/[route]/[zone]/[lesson]` | Lesson, laid out like Coursera's video page: the course's lessons on the left (Hide menu), the video with full screen, then Transcript (sample), Notes (saved with the video time, in this browser) and Strategies that build on the lesson. "Ask wega" opens Wega as a column on the right and folds the lessons menu; on phones Wega is a sheet |
+| `/academy/[route]/[zone]/quiz` | Zone quiz (5 question types, 3 lives) |
+| `/badges` | Certificates first, then all badges (earned, locked and what's missing) |
+| `/strategies` | Strategies; `?s=<id>` opens a strategy |
+| `/wega` | Wega as a chat: a hub with topics and recent chats, answers with charts from the sample portfolio |
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Where things are
+
+- `src/app`: routes. Every Academy URL is prerendered with `generateStaticParams`.
+- `src/components`: one folder per area (academy, lesson, quiz, badges, strategies, wega for the button and side panel, wega-page for the Wega page, shell).
+- `src/lib`: course data, quiz bank, sample portfolio, progress store, Wega's scripted brain (`wega-brain.tsx`, `wega-strategies.tsx`, `wega-page.ts`). Progress and Wega chats are kept in the browser (localStorage); there is no backend besides `/api/wega`.
+- `src/styles`: global CSS. `00-design-system.css` is a copy of the platform design system tokens; don't edit it here.
+- `public/w3u-badges.js` and `public/renders`: the original badgeweb3 engine and badge renders.
+- `docs/platform-ideas.md`: what Wega adds to Strategies and ideas for the whole platform.

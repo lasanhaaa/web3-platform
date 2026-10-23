@@ -1,0 +1,207 @@
+/* ---------- QUIZ: fun like Duolingo, obvious for everyone (felipe, Oct 15) ---------- */
+
+/* what to do, always in the same place under the question */
+.q-do{display:inline-flex;align-items:center;gap:8px;align-self:flex-start;padding:6px 12px 6px 10px;border-radius:999px;background:rgba(158,211,255,.08);color:var(--t2)!important;font-size:15px!important}
+.q-do svg{width:18px;height:18px;color:var(--accent);flex:none}
+.q-head{animation:qIn .35s var(--ease) both}
+@keyframes qIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.q-area{animation:qIn .4s var(--ease) .05s both}
+
+/* bigger, easier targets */
+.q-area .opt{font-size:16px;min-height:60px;text-align:left}
+.q-prog{height:4px}
+.q-prog span{border-radius:0 2px 2px 0;box-shadow:0 0 12px rgba(158,255,162,.45)}
+
+/* sound and practice in the top bar */
+.ftop .right{gap:14px}
+.q-snd{width:36px;height:36px;border-radius:8px;display:grid;place-items:center;color:var(--t2);background:rgba(255,255,255,.04);box-shadow:var(--fx-card)}
+.q-snd:hover{color:var(--text);background:rgba(255,255,255,.08)}
+.q-snd svg{width:18px;height:18px}
+.q-prac{padding:6px 10px;border-radius:6px;background:rgba(158,211,255,.1);color:var(--accent);font-size:12px}
+
+/* right answers pop, wrong ones shake */
+.q-area.is-ok :is(.opt.right,.ccard.right,.fstep.slot.right,.sbtn.right,.blank.right,.ord-slot.right){animation:qPop .45s var(--ease)}
+.q-area.is-no :is(.opt.wrong,.ccard.wrong,.fstep.slot.wrong,.sbtn.wrong,.blank.wrong,.ord-slot.wrong){animation:qShake .45s}
+@keyframes qPop{0%{transform:scale(1)}40%{transform:scale(1.035)}100%{transform:scale(1)}}
+@keyframes qShake{0%,100%{transform:none}20%{transform:translateX(-6px)}40%{transform:translateX(6px)}60%{transform:translateX(-4px)}80%{transform:translateX(3px)}}
+
+/* ---------- footer and result sheet ---------- */
+.q-foot-l{display:flex;gap:20px;align-items:center;flex-wrap:wrap}
+.q-count{color:var(--t2);font-size:15px;font-family:var(--mono)}
+.q-foot.sheet{animation:sheetUp .35s var(--ease)}
+@keyframes sheetUp{from{transform:translateY(24px);opacity:0}to{transform:none;opacity:1}}
+.q-foot.play{justify-content:center}
+.q-playing{display:inline-flex;align-items:center;gap:10px;color:var(--t2);font-size:15px}
+.q-playing i{width:10px;height:10px;border-radius:50%;background:var(--accent);animation:qPulse 1s ease-in-out infinite}
+@keyframes qPulse{0%,100%{opacity:.35;transform:scale(.8)}50%{opacity:1;transform:scale(1.1)}}
+.fb{align-items:flex-start}
+.fb .ic{position:relative;width:48px;height:48px;animation:icPop .5s var(--ease)}
+.fb .ic svg{width:22px;height:22px;position:relative}
+@keyframes icPop{0%{transform:scale(.4)}60%{transform:scale(1.15)}100%{transform:scale(1)}}
+.fb-h{display:flex;align-items:center;flex-wrap:wrap;gap:10px;font-size:20px!important;font-weight:500;letter-spacing:-.02em;color:var(--text)!important;margin:2px 0 4px!important}
+.q-foot.ok .fb-h{color:var(--good)!important}
+.q-foot.no .fb-h{color:#FF8A8A!important}
+.fb-streak{display:inline-flex;align-items:center;gap:4px;padding:3px 10px 3px 7px;border-radius:999px;background:rgba(226,182,94,.16);color:var(--gold);font-size:13px;font-weight:500;letter-spacing:0;animation:icPop .5s var(--ease) .15s both}
+.fb-streak svg{width:14px;height:14px}
+.fb-life{padding:3px 8px;border-radius:6px;background:rgba(255,97,97,.14);color:#FF8A8A;font-family:var(--mono);font-size:12px;letter-spacing:0}
+.fb p{font-size:15px}
+.fb .fb-right{color:var(--text);margin-bottom:4px}
+.fb .fb-right b{font-weight:500}
+
+/* sparks around a check mark */
+.burst{position:absolute;inset:0;pointer-events:none}
+.burst i{position:absolute;left:50%;top:50%;width:6px;height:6px;margin:-3px;border-radius:50%;background:var(--good);opacity:0;animation:spark .7s var(--ease) .05s both}
+.burst i:nth-child(3n){background:var(--accent)}
+.burst i:nth-child(4n){background:var(--gold)}
+@keyframes spark{0%{opacity:1;transform:rotate(var(--a)) translateY(0) scale(1)}100%{opacity:0;transform:rotate(var(--a)) translateY(calc(var(--d) * -1)) scale(.4)}}
+
+/* ---------- order: tap into place ---------- */
+.ord{max-width:720px;margin:0 auto;display:flex;flex-direction:column;gap:24px}
+.ord-slots{list-style:none;display:flex;flex-direction:column;gap:8px}
+.ord-slot{display:flex;align-items:center;gap:12px;min-height:58px;padding:6px 8px 6px 12px;border-radius:8px;border:1.5px dashed rgba(255,255,255,.14)}
+.ord-slot.next{border-color:rgba(158,211,255,.55);background:rgba(158,211,255,.04)}
+.ord-slot.on{border:0;background:var(--surface);box-shadow:var(--fx-card)}
+.ord-slot.right{background:rgba(158,255,162,.06);box-shadow:var(--sel-green)}
+.ord-slot.wrong{background:rgba(255,97,97,.06);box-shadow:var(--sel-red)}
+.ord-slot .n{width:28px;height:28px;flex:none;border-radius:6px;display:grid;place-items:center;font-family:var(--mono);font-size:12px;background:rgba(255,255,255,.06);box-shadow:var(--fx-card)}
+.ord-empty{color:var(--t3);font-size:14px}
+.ord-item{flex:1;display:flex;align-items:center;justify-content:space-between;gap:12px;text-align:left;font-size:16px;min-height:44px;padding:0 6px}
+.ord-item svg{width:16px;height:16px;flex:none;color:var(--t3)}
+.ord-slot.right .ord-item svg{color:var(--good)}
+.ord-item small{color:#FF8A8A;font-size:13px;text-align:right}
+.ord-item:disabled{cursor:default}
+
+/* word tiles (order and fill) */
+.tiles{display:flex;flex-wrap:wrap;gap:10px;justify-content:center}
+.tile{min-height:52px;padding:10px 18px;border-radius:8px;background:rgba(255,255,255,.06);box-shadow:var(--fx-card),0 3px 0 rgba(0,0,0,.35);font-size:16px;transition:transform .12s,background .15s}
+.tile:hover:not(:disabled){background:rgba(255,255,255,.1)}
+.tile:active:not(:disabled){transform:translateY(2px);box-shadow:var(--fx-card),0 1px 0 rgba(0,0,0,.35)}
+.tile.used{color:transparent;background:rgba(255,255,255,.03);box-shadow:inset 0 0 0 1px rgba(255,255,255,.06)}
+.tile.hint{box-shadow:inset 0 0 0 1px rgba(158,255,162,.35),0 3px 0 rgba(0,0,0,.35)}
+
+/* ---------- match ---------- */
+.match{max-width:760px;margin:0 auto;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.match .col{display:flex;flex-direction:column;gap:10px;min-width:0}
+.mtc{min-height:68px;padding:12px 16px;border-radius:8px;background:var(--surface);box-shadow:var(--fx-card),0 3px 0 rgba(0,0,0,.35);font-size:15.5px;line-height:1.3;text-align:center;transition:background .15s,box-shadow .15s,opacity .3s,transform .12s}
+.mtc.term{font-weight:500;font-size:16.5px}
+.mtc:hover:not(:disabled){background:rgba(255,255,255,.07)}
+.mtc.sel{background:rgba(158,211,255,.1);box-shadow:var(--sel-blue)}
+.mtc.bad{background:rgba(255,97,97,.08);box-shadow:var(--sel-red);animation:qShake .45s}
+.mtc.done{background:rgba(158,255,162,.06);box-shadow:inset 0 0 0 1px rgba(158,255,162,.4);color:var(--good);opacity:.55;animation:qPop .4s var(--ease);cursor:default}
+
+/* ---------- fill ---------- */
+.fill{max-width:720px;margin:0 auto;display:flex;flex-direction:column;gap:32px}
+.fill-s{font-size:clamp(20px,2.4vw,24px);line-height:2.3;text-align:center;letter-spacing:-.01em}
+.blank-w{display:inline-flex;flex-direction:column;align-items:center;vertical-align:middle;margin:0 4px;line-height:1.2}
+.blank{min-width:120px;min-height:46px;padding:6px 14px;border-radius:8px;border-bottom:2px solid rgba(255,255,255,.3);background:rgba(255,255,255,.03);font-size:inherit;color:var(--text)}
+.blank.next{border-bottom-color:var(--accent);background:rgba(158,211,255,.06)}
+.blank.on{border-bottom:0;background:rgba(255,255,255,.08);box-shadow:var(--sel-blue)}
+.blank.right{background:rgba(158,255,162,.08);box-shadow:var(--sel-green);color:var(--good)}
+.blank.wrong{background:rgba(255,97,97,.08);box-shadow:var(--sel-red);color:#FF8A8A;text-decoration:line-through}
+.blank:disabled{cursor:default}
+.blank-w .fix{margin-top:6px;font-size:14px;color:var(--good)}
+
+/* ---------- safe or scam ---------- */
+.scam{max-width:560px;margin:0 auto;display:flex;flex-direction:column;gap:20px}
+.scam-card{padding:18px 20px;border-radius:16px;background:#0E1626;box-shadow:var(--fx-card),0 18px 40px rgba(0,0,0,.35);display:flex;flex-direction:column;gap:12px}
+.sc-h{display:flex;align-items:center;gap:12px}
+.sc-h>div{flex:1;min-width:0;display:flex;flex-direction:column}
+.sc-h b{font-weight:500;font-size:16px}
+.sc-h small{color:var(--t3);font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sc-h .tm{color:var(--t3);font-size:12px}
+.sc-h .av{width:40px;height:40px;flex:none;border-radius:50%;display:grid;place-items:center;background:linear-gradient(135deg,#F6851B,#E2761B);color:#fff;font-weight:600}
+.sc-h .av.w{border-radius:10px;background:rgba(158,211,255,.12);color:var(--accent)}
+.sc-h .av svg{width:20px;height:20px}
+.sc-msg{padding:12px 14px;border-radius:4px 14px 14px 14px;background:rgba(255,255,255,.07);font-size:16px;line-height:1.5}
+.sc-big{font-size:18px;font-weight:500;line-height:1.35}
+.sc-meta{color:var(--t3);font-size:13.5px}
+.sc-fake{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:4px}
+.sc-fake span{height:38px;border-radius:8px;display:grid;place-items:center;font-size:14px;background:rgba(255,255,255,.06);color:var(--t3)}
+.sc-fake span+span{background:rgba(255,255,255,.14);color:var(--t2)}
+.scam-opts{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.sbtn{min-height:72px;border-radius:8px;display:flex;align-items:center;justify-content:center;gap:10px;font-size:18px;font-weight:500;background:var(--surface);box-shadow:var(--fx-card),0 3px 0 rgba(0,0,0,.35);transition:background .15s,box-shadow .15s}
+.sbtn svg{width:24px;height:24px}
+.sbtn.is-safe svg{color:var(--good)}
+.sbtn.is-scam svg{color:#FF8A8A}
+.sbtn:hover:not(:disabled){background:rgba(255,255,255,.07)}
+.sbtn.sel{background:rgba(158,211,255,.1);box-shadow:var(--sel-blue)}
+.sbtn.right{background:rgba(158,255,162,.07);box-shadow:var(--sel-green)}
+.sbtn.wrong{background:rgba(255,97,97,.07);box-shadow:var(--sel-red)}
+.sbtn.hint{box-shadow:inset 0 0 0 1px rgba(158,255,162,.35),var(--fx-card)}
+.sbtn:disabled{cursor:default}
+
+/* ---------- predict the trade ---------- */
+.pred{max-width:760px;margin:0 auto;display:flex;flex-direction:column;gap:14px}
+.ticket{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));border-radius:8px;background:var(--surface);box-shadow:var(--fx-card)}
+.ticket div{padding:12px 16px;display:flex;flex-direction:column;gap:4px;min-width:0}
+.ticket div+div{border-left:1px solid var(--hair)}
+.ticket span{color:var(--t3);font-size:13px}
+.ticket b{font-size:20px;font-weight:500;letter-spacing:-.02em}
+.ticket b.ok{color:var(--good)}.ticket b.bad{color:#FF8A8A}
+.pred .plot{padding:10px;border-radius:8px;background:var(--surface);box-shadow:var(--fx-card)}
+.pred .plot svg{width:100%;height:auto;display:block}
+.pred .opts{width:100%;max-width:none;margin-top:6px;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.pred .opts .opt{height:100%}
+
+/* the line that draws itself after Check (sim and predict) */
+.plot .draw{stroke-dasharray:1;stroke-dashoffset:0;animation:draw 1.5s cubic-bezier(.4,0,.2,1) both}
+@keyframes draw{from{stroke-dashoffset:1}to{stroke-dashoffset:0}}
+.plot .pend{animation:fadeIn .3s ease 1.45s both}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+.plot .liq.hit{animation:liqHit .5s ease 1.3s 2 both}
+@keyframes liqHit{50%{stroke-width:4;stroke-opacity:1}}
+.plot .pulse{animation:qPulse 1.2s ease-in-out infinite;transform-box:fill-box;transform-origin:center}
+
+/* ---------- sim: simpler panel ---------- */
+.sim-out{padding:14px;border-radius:8px;background:rgba(255,255,255,.03);box-shadow:var(--fx-card);display:flex;flex-direction:column;gap:10px}
+.sim-liq{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+.sim-liq span{color:var(--t2);font-size:14px}
+.sim-liq b{font-size:20px;font-weight:500;color:#FF8A8A}
+.sim-out .tip{color:var(--t3);font-size:13.5px;line-height:1.45}
+.sim-out .res{display:flex;align-items:center;gap:8px;font-size:15px;font-weight:500;animation:qIn .3s var(--ease)}
+.sim-out .res svg{width:18px;height:18px}
+.sim-out .res.ok{color:var(--good)}.sim-out .res.no{color:#FF8A8A}
+.sl .rng{font-size:12px}
+
+/* ---------- result stages ---------- */
+.okc.big{position:relative;width:64px;height:64px;box-shadow:0 0 40px rgba(158,255,162,.45);animation:icPop .6s var(--ease)}
+.okc.big svg{width:28px;height:28px;position:relative}
+.okc.big .burst i{--d:64px}
+.q-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;width:100%;max-width:460px;margin:14px 0 18px}
+.q-stats div{padding:14px 12px;border-radius:8px;background:var(--surface);box-shadow:var(--fx-card);display:flex;flex-direction:column;gap:4px;animation:qIn .4s var(--ease) both}
+.q-stats div:nth-child(2){animation-delay:.08s}.q-stats div:nth-child(3){animation-delay:.16s}
+.q-stats span{color:var(--t3);font-size:13px}
+.q-stats b{font-size:24px;font-weight:500;letter-spacing:-.03em}
+.q-stats b.fl{display:inline-flex;align-items:center;justify-content:center;gap:4px;color:var(--gold)}
+.q-stats b.fl svg{width:20px;height:20px}
+.q-more{display:flex;gap:24px;justify-content:center;flex-wrap:wrap;margin-top:4px}
+.q-more .btn.text{color:var(--t2);font-size:15px}
+
+@media (max-width:860px){
+  .ticket{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .ticket div:nth-child(3){border-left:0}
+  .ticket div:nth-child(n+3){border-top:1px solid var(--hair)}
+}
+@media (max-width:600px){
+  .q-foot{flex-direction:column-reverse;align-items:stretch;gap:12px;padding-block:14px calc(14px + env(safe-area-inset-bottom,0px))}
+  .q-foot-l{justify-content:space-between}
+  .q-foot.sheet{flex-direction:column}
+  .q-foot>.btn{width:100%}
+  .q-foot .q-count{text-align:center}
+  .fb .ic{width:40px;height:40px}
+  .fb-h{font-size:18px!important}
+  .fb p{font-size:14.5px}
+  .q-do{font-size:14px!important}
+  .match{gap:8px}
+  .match .col{gap:8px}
+  .mtc{min-height:72px;padding:10px;font-size:14px}
+  .mtc.term{font-size:15px}
+  .blank{min-width:96px}
+  .scam-opts{gap:10px}
+  .sbtn{min-height:64px;font-size:17px}
+  .ticket b{font-size:18px}
+  .pred .opts{grid-template-columns:minmax(0,1fr)}
+  .q-stats b{font-size:20px}
+  .ftop .right{gap:10px}
+  .lives .mono{display:none}
+}

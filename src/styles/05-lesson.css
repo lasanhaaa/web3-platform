@@ -1,0 +1,198 @@
+/* ---------- LESSON ---------- */
+.ftop{position:sticky;top:0;z-index:5;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:16px;min-height:72px;padding:12px clamp(16px,3vw,48px);background:rgba(4,8,17,.82);backdrop-filter:saturate(1.4) blur(14px);border-bottom:1px solid var(--hair)}
+.ftop .ttl{text-align:center;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ftop .ttl .mono{color:var(--t3);margin-right:8px;font-size:10px}
+.ftop .right{justify-self:end;display:flex;align-items:center;gap:10px}
+/* The lesson page after Coursera's video page (felipe, Oct 21): no dashboard menu, the zone's lessons on the left, the
+   video and its tabs in the middle, Wega in a column on the right as wide as the lessons menu. The top bar carries
+   the way back (course, zone) and "Ask wega". */
+.l-top{display:flex;justify-content:space-between;z-index:6;padding-inline:clamp(16px,2vw,28px)}
+.crumbs{display:flex;align-items:center;gap:6px;min-width:0}
+.crumbs .back i{width:36px;height:36px}
+.crumbs .back svg{width:14px;height:14px}
+.crumbs .back{margin-right:6px;flex:none}
+.crumb{font-size:15px;color:var(--t2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;padding:6px 4px;border-radius:6px}
+.crumb:last-child{color:#fff;font-weight:500}
+.crumb:hover{text-decoration:underline}
+.crumbs .sep{width:14px;height:14px;flex:none;color:var(--t3)}
+
+.lp{--side:clamp(280px,21vw,340px);--top:72px;display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:start;min-height:calc(100svh - var(--top))}
+/* the lessons menu, and the rail it folds to */
+.l-menu{position:sticky;top:var(--top);height:calc(100svh - var(--top));width:var(--side);box-shadow:inset -1px 0 0 var(--hair);display:flex;flex-direction:column}
+.lp.rail .l-menu{width:72px}
+.lp.menu .l-rail,.lp.rail .l-mbox{display:none}
+.l-rail{padding:16px 8px;display:flex;justify-content:center}
+.l-rail button{width:56px;padding:10px 0 8px;border-radius:8px;display:flex;flex-direction:column;align-items:center;gap:4px;font-size:12px;font-weight:500;color:var(--t2)}
+.l-rail button:hover{background:rgba(255,255,255,.06);color:#fff}
+.l-rail svg{width:22px;height:22px}
+.l-mbox{flex:1;min-height:0;overflow-y:auto;overscroll-behavior:contain;padding:12px 12px 40px;display:flex;flex-direction:column;gap:4px;scrollbar-width:thin}
+.l-hide{align-self:flex-start;display:inline-flex;align-items:center;gap:8px;height:36px;padding:0 10px;margin-bottom:6px;border-radius:6px;font-size:14px;font-weight:500;color:var(--accent)}
+.l-hide:hover{background:rgba(158,211,255,.08)}
+.l-hide svg{width:18px;height:18px}
+.lm-z+.lm-z{margin-top:4px}
+.lm-zh{width:100%;display:flex;align-items:center;justify-content:space-between;gap:8px;padding:10px 10px;border-radius:6px;text-align:left}
+button.lm-zh:hover{background:rgba(255,255,255,.04)}
+.lm-zh>span{display:flex;flex-direction:column;gap:2px;min-width:0}
+.lm-zh b{font-size:16px;font-weight:600;letter-spacing:-.02em;line-height:1.3}
+.lm-zh small{font-size:13px;color:var(--t3)}
+.lm-chev{width:16px;height:16px;flex:none;color:var(--t3);transition:transform .2s}
+.lm-zh[aria-expanded=true] .lm-chev:not(.lk){transform:rotate(180deg)}
+.lm-z:not(.cur) .lm-zh b{color:rgba(255,255,255,.86)}
+.lm-list{display:flex;flex-direction:column;gap:2px;padding:2px 0 8px}
+/* a lesson: icon, title, length. The one playing is lit, with a blue bar on its left edge as on Coursera. */
+.lm-i{position:relative;width:100%;display:grid;grid-template-columns:24px minmax(0,1fr);gap:12px;align-items:start;padding:10px 10px 10px 12px;border-radius:6px;text-align:left}
+.lm-i:hover:not(:disabled){background:rgba(255,255,255,.04)}
+.lm-i.on{background:rgba(158,211,255,.1)}
+.lm-i.on::before{content:"";position:absolute;left:0;top:6px;bottom:6px;width:3px;border-radius:2px;background:var(--accent)}
+.lm-ico{width:24px;height:24px;display:grid;place-items:center;color:var(--t2)}
+.lm-ico svg{width:20px;height:20px}
+.lm-i.on .lm-ico{color:var(--accent)}
+.lm-i.done .lm-ico{color:var(--good)}
+.lm-i.done .lm-ico svg{width:16px;height:16px}
+.lm-i:disabled .lm-ico svg{width:16px;height:16px}
+.lm-i.quiz:not(:disabled):not(.done) .lm-ico{color:var(--gold)}
+.lm-i.quiz .lm-ico svg{width:16px;height:16px}
+.lm-t{display:flex;flex-direction:column;gap:2px;min-width:0}
+.lm-t b{font-size:15px;font-weight:500;line-height:1.35;letter-spacing:-.01em}
+.lm-t small{font-size:13px;color:var(--t3)}
+.lm-i.on .lm-t small{color:var(--accent)}
+.lm-i:disabled{cursor:default}
+.lm-i:disabled .lm-t b{color:var(--t3)}
+
+/* the middle: video, then title and next step, then the tabs. The video stays short enough for the title to show
+   under it without scrolling. */
+.l-main{min-width:0;padding:24px clamp(16px,2.5vw,40px) 96px}
+.l-in{max-width:max(720px,min(1440px,calc((100svh - var(--top) - 190px) * 16 / 9)));margin-inline:auto;display:flex;flex-direction:column}
+.l-vid{container-type:inline-size}
+.l-body{display:flex;flex-direction:column;gap:20px;padding-top:20px}
+/* Wega's column, the same width as the lessons menu */
+.l-wega{position:sticky;top:var(--top);height:calc(100svh - var(--top));width:var(--side);display:none}
+.lp.chat .l-wega{display:flex}
+.l-wega .lc{flex:1;border-radius:0;box-shadow:inset 1px 0 0 var(--hair)}
+.l-scrim{display:none}
+/* full screen: the video over the whole screen, with Wega's column when it is open */
+.lp:fullscreen{background:#000;height:100vh;grid-template-columns:minmax(0,1fr) auto;align-items:stretch}
+.lp:fullscreen .l-menu,.lp:fullscreen .l-body{display:none}
+.lp:fullscreen .l-main{padding:0;display:flex;align-items:center;justify-content:center}
+.lp:fullscreen .l-in{max-width:none;width:100%}
+.lp:fullscreen .player{width:min(100%,calc(100vh * 16 / 9));margin-inline:auto}
+.lp:fullscreen .l-wega{top:0;height:100vh}
+.player{position:relative;overflow:hidden;aspect-ratio:16/9;max-width:100%;background:#000}
+.player img{width:100%;height:100%;object-fit:cover;display:block}
+.player::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 62%,rgba(4,8,17,.88));pointer-events:none}
+.p-ui{position:absolute;inset:auto 0 0 0;z-index:2;padding:0 16px 10px;display:flex;flex-direction:column;gap:8px}
+.scrub{position:relative;height:4px;border-radius:4px;background:rgba(255,255,255,.22);cursor:pointer}
+.scrub::before{content:"";position:absolute;inset:-8px 0}
+.scrub span{position:absolute;inset:0 auto 0 0;background:#fff;border-radius:4px}
+.scrub i{position:absolute;top:50%;width:12px;height:12px;border-radius:50%;background:#fff;transform:translate(-50%,-50%)}
+.ctrls{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);align-items:center;gap:12px}
+.ctrls .lft{display:flex;align-items:center;gap:8px;min-width:0}
+.ctrls .pch{font-size:13px;font-weight:500;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ctrls .pch::before{content:"·";margin-right:8px;color:var(--t3)}
+.ctrls .mid{display:flex;align-items:center;gap:16px}
+.ctrls .rgt{justify-self:end;display:flex;align-items:center;gap:4px}
+.ctrls svg{width:20px;height:20px}
+.ctrls .time{color:var(--t2);font-size:12px;font-family:var(--mono);white-space:nowrap}
+.pb{height:32px;min-width:32px;padding:0 8px;border-radius:6px;display:inline-flex;align-items:center;justify-content:center;gap:6px;color:#fff;font-size:13px;font-weight:500;white-space:nowrap}
+.pb:hover{background:rgba(255,255,255,.12)}
+.pb.rate{font:500 12px/1 var(--mono)}
+.pb.on{background:rgba(158,211,255,.18)}
+.ctrls .pb svg{width:18px;height:18px}
+@container (max-width:720px){.ctrls .pch{display:none}.pb.wide span{display:none}}
+.bigplay{position:absolute;z-index:2;left:50%;top:46%;transform:translate(-50%,-50%);width:76px;height:76px;border-radius:50%;display:grid;place-items:center;background:rgba(255,255,255,.16);backdrop-filter:blur(10px)}
+.bigplay svg{width:26px;height:26px;margin-left:4px}
+.endcard{position:absolute;inset:0;z-index:4;display:grid;place-items:center;background:rgba(4,8,17,.8);backdrop-filter:blur(16px);padding:16px}
+.endcard>div{display:flex;flex-direction:column;align-items:center;gap:12px;text-align:center;max-width:460px}
+.okc{width:52px;height:52px;border-radius:50%;display:grid;place-items:center;background:var(--good);color:#06210a}
+.okc svg{width:24px;height:24px}
+.endcard h3{font-size:24px}
+.endcard .actions{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:6px}
+.p-hit{position:absolute;inset:0;z-index:1;cursor:pointer}
+.l-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px 24px;flex-wrap:wrap}
+.l-tt{display:flex;flex-direction:column;gap:6px;min-width:0;flex:1 1 320px}
+.l-head h1{font-size:28px;line-height:1.25;letter-spacing:-.03em;font-weight:500}
+.l-meta{font-size:15px;color:var(--t2)}
+.l-head .actions{display:flex;align-items:center;gap:14px;flex-wrap:wrap;padding-top:2px}
+.l-done{display:inline-flex;align-items:center;gap:6px;font-size:15px;font-weight:500;color:var(--good)}
+.l-done svg{width:16px;height:16px}
+/* the tabs: the design system's underlined tabs (Figma), then the open tab's content */
+.l-tablist{display:flex;gap:8px;box-shadow:inset 0 -1px 0 var(--hair);overflow-x:auto;scrollbar-width:none}
+.l-tablist button{position:relative;display:inline-flex;align-items:center;gap:8px;height:48px;padding:0 14px;font-size:16px;font-weight:500;color:rgba(255,255,255,.6);white-space:nowrap}
+.l-tablist button:hover{color:#fff}
+.l-tablist button[aria-selected=true]{color:#fff}
+.l-tablist button[aria-selected=true]::after{content:"";position:absolute;left:8px;right:8px;bottom:0;height:2px;border-radius:2px;background:var(--w3u-tab-line,#acc8ff)}
+.l-count{min-width:20px;height:20px;padding:0 6px;border-radius:10px;display:inline-grid;place-items:center;background:rgba(255,255,255,.1);font-size:12px;color:#fff}
+.l-panel{padding-top:20px}
+.l-hint{font-size:14px;color:var(--t3)}
+/* Transcript: a chapter per row, its time on the left; the sentence being said is lit */
+.tr{display:flex;flex-direction:column;gap:20px;max-width:80ch}
+.tr-ch{display:grid;grid-template-columns:56px minmax(0,1fr);gap:12px;align-items:start}
+.tr-at{justify-self:start;padding:3px 6px;margin-left:-6px;border-radius:4px;font:500 14px/1.6 var(--mono);color:#3EA6FF}
+.tr-at:hover{background:rgba(62,166,255,.12);text-decoration:underline}
+.tr-ch h3{font-size:16px;font-weight:600;letter-spacing:-.02em;margin-bottom:4px;line-height:1.6}
+.tr-ch p{font-size:17px;line-height:1.75;color:rgba(255,255,255,.82)}
+.tr-s{cursor:pointer;border-radius:4px;transition:background .15s}
+.tr-s:hover{background:rgba(255,255,255,.06);color:#fff}
+.tr-s.now{background:rgba(158,211,255,.16);color:#fff;box-decoration-break:clone;-webkit-box-decoration-break:clone}
+/* Notes */
+.nt{display:flex;flex-direction:column;gap:20px;max-width:80ch}
+.nt-new{display:flex;flex-direction:column;gap:10px}
+.nt-new textarea{width:100%;min-height:96px;resize:vertical;padding:12px 14px;border:0;border-radius:8px;background:rgba(255,255,255,.05);box-shadow:var(--fx-card);color:#fff;font:inherit;font-size:16px;line-height:1.5}
+.nt-new textarea:focus{outline:none;box-shadow:var(--sel-blue)}
+.nt-new textarea::placeholder{color:var(--t3)}
+.nt-act{display:flex;align-items:center;justify-content:space-between;gap:10px 16px;flex-wrap:wrap}
+.nt-act .btn:disabled{opacity:.4;cursor:default}
+.nt-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column}
+.nt-list li{display:grid;grid-template-columns:56px minmax(0,1fr) auto;gap:12px;align-items:start;padding:12px 0;border-top:1px solid var(--hair)}
+.nt-list p{font-size:16px;line-height:1.6;white-space:pre-wrap;overflow-wrap:anywhere;padding-top:1px}
+.nt-del{width:36px;height:36px;margin-top:-6px;border-radius:6px;display:grid;place-items:center;color:var(--t3)}
+.nt-del:hover{background:rgba(255,255,255,.06);color:#fff}
+.nt-del svg{width:18px;height:18px}
+.nt-empty{font-size:15px;color:var(--t3)}
+/* Strategies that build on the lesson */
+.ls{display:flex;flex-direction:column;gap:14px;align-items:flex-start}
+.ls-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px;width:100%;max-width:880px}
+.ls-row{display:grid;grid-template-columns:auto minmax(0,1fr) auto 18px;gap:14px;align-items:center;padding:14px 16px;border-radius:8px;background:rgba(255,255,255,.04);box-shadow:var(--fx-card);color:inherit;text-decoration:none}
+.ls-row:hover{background:rgba(255,255,255,.07)}
+.ls-t{display:flex;flex-direction:column;gap:2px;min-width:0}
+.ls-t b{font-size:16px;font-weight:500;letter-spacing:-.02em}
+.ls-t small{font-size:13px;color:var(--t3)}
+.ls-r{display:flex;flex-direction:column;align-items:flex-end;gap:6px}
+.ls-go{width:18px;height:18px;color:var(--t3)}
+.ls-row:hover .ls-go{color:#fff}
+
+/* below 1280 the menu and Wega take turns (player.ts); the layout is the same */
+/* tablets and phones: one column. The video edge to edge, title, tabs, then the zone's lessons; Wega is a sheet. */
+@media (max-width:1000px){
+  .lp{display:flex;flex-direction:column;min-height:0}
+  .l-main{order:1;padding:0 0 24px}
+  .l-in{max-width:none}
+  .l-vid{background:#000}
+  .l-body{padding:20px 16px 0}
+  .lp .l-menu,.lp.rail .l-menu{order:2;position:static;height:auto;width:auto;box-shadow:none;margin:0 16px 96px;border-radius:8px;background:rgba(255,255,255,.04);box-shadow:var(--fx-card)}
+  .lp.rail .l-mbox{display:flex}
+  .l-rail,.l-hide{display:none!important}
+  .l-mbox{overflow:visible;padding:8px 8px 12px}
+  .l-wega,.lp.chat .l-wega{position:fixed;z-index:46;left:0;right:0;bottom:0;top:auto;width:auto;height:min(85svh,720px);display:flex;transform:translateY(105%);visibility:hidden;transition:transform .3s var(--ease),visibility 0s .3s;padding-bottom:env(safe-area-inset-bottom,0px);background:var(--bg);border-radius:8px 8px 0 0;overflow:hidden}
+  .lp.chat .l-wega{transform:none;visibility:visible;transition:transform .3s var(--ease)}
+  .l-wega .lc{box-shadow:none}
+  .l-wega .lc-hide svg{transform:rotate(90deg)}
+  .l-scrim{display:block;position:fixed;inset:0;z-index:45;background:rgba(0,0,0,.5);opacity:0;pointer-events:none;transition:opacity .3s}
+  .lp.chat .l-scrim{opacity:1;pointer-events:auto}
+  .l-head h1{font-size:24px}
+  .lp:fullscreen .l-wega{display:none}
+}
+@media (max-width:600px){
+  .crumb:not(:last-child),.crumbs .sep{display:none}
+  .l-head .actions .btn{flex:1}
+  .l-head .actions{width:100%}
+  .l-head h1{font-size:22px}
+  .tr-ch,.nt-list li{grid-template-columns:minmax(0,1fr)}
+  .tr-ch{gap:2px}
+  .tr-ch p{font-size:16px}
+  .nt-list li{grid-template-columns:auto minmax(0,1fr) auto}
+  .ls-row{grid-template-columns:minmax(0,1fr) 18px;gap:10px 12px}
+  .ls-row .pts{display:none}
+  .ls-r{grid-column:1;grid-row:2;flex-direction:row;flex-wrap:wrap;align-items:center;gap:6px 16px}
+  .ls-go{grid-column:2;grid-row:1/3}
+}

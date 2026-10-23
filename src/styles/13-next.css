@@ -1,0 +1,8 @@
+/* ---------- Next.js app glue ----------
+   Fonts come from next/font (Geist, Geist Mono); point both the prototype vars and the design system at them. */
+:root{
+  --w3u-font:var(--font-geist-sans),"Geist",ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;
+  --w3u-mono:var(--font-geist-mono),"Geist Mono",ui-monospace,"SFMono-Regular",Menlo,monospace;
+}
+a{color:inherit;text-decoration:none}
+.nav a{display:flex;align-items:center}
