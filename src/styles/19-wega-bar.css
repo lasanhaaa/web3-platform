@@ -1,0 +1,60 @@
+/* ---------- Ask wega as a chat bar at the bottom of the page (felipe, Oct 27; Figma 3333:52128) ---------- */
+.wb{position:fixed;z-index:40;bottom:24px;left:calc(240px + (100vw - 240px) / 2);width:min(760px,calc(100vw - 240px - 48px));transform:translateX(-50%);display:flex;flex-direction:column;transition:opacity .25s,transform .35s var(--ease),visibility 0s}
+.wb.away{opacity:0;visibility:hidden;transform:translate(-50%,28px);pointer-events:none;transition:opacity .2s,transform .3s var(--ease),visibility 0s .3s}
+.wb-fade{position:fixed;z-index:39;left:240px;right:0;bottom:0;height:200px;pointer-events:none;background:linear-gradient(180deg,rgba(4,8,17,0),rgba(4,8,17,.86) 55%,#040811);transition:opacity .25s}
+.wb-fade.away{opacity:0}
+body.wb-on #view{padding-bottom:180px}
+body.wb-on .toast{bottom:200px}
+
+/* the bar: the Wega panel's input (Figma "Wega composer"), on a solid surface */
+.wb-box{position:relative;z-index:2;display:flex;flex-direction:column;gap:20px;padding:18px 16px 14px 18px;border-radius:12px;background:#141A26;box-shadow:var(--fx-modal);backdrop-filter:blur(10px)}
+.wb-line{display:flex;align-items:flex-start;gap:14px}
+.wb-line .wg-orb{margin-top:1px}
+.wb-line textarea{flex:1;min-width:0;resize:none;border:0;outline:0;background:none;color:#fff;font:inherit;font-size:16px;line-height:24px;letter-spacing:-.01em;min-height:24px;max-height:120px;padding:0}
+.wb-line textarea::placeholder{color:var(--t3)}
+.wb-tools{display:flex;align-items:center;gap:4px;margin-left:-6px}
+.wb-tools .wg-ib{width:32px;height:32px;color:#fff}
+.wb-tools .wg-ib svg{width:20px;height:20px}
+.wb-tools .sp{flex:1}
+.wb-tools .wg-send{width:30px;height:30px}
+
+/* what Wega says above the bar: one line that slides up from behind it */
+.wb-msg{position:relative;z-index:1;margin:0 16px -12px;padding:10px 10px 22px 16px;display:flex;align-items:center;gap:12px;border-radius:12px 12px 0 0;background:#1C212E;box-shadow:inset 0 0 0 1px rgba(255,255,255,.08),var(--fx-modal);animation:wbup .4s var(--ease) both}
+@keyframes wbup{from{opacity:0;transform:translateY(16px)}}
+.wb-msg .wg-orb{flex:none}
+.wb-msg-c{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px;text-align:left;color:inherit}
+.wb-msg-c b{font-size:16px;font-weight:500;line-height:1.4;letter-spacing:-.02em;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.wb-msg-c small{font-size:14px;line-height:1.4;color:var(--t2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.wb-msg-c small em{font-style:normal;font-weight:500;color:var(--good)}
+.wb-msg-c .wg-think{font-size:14px;line-height:1.4}
+.wb-msg .btn{flex:none}
+.wb-x{flex:none;width:28px;height:28px;border-radius:8px;display:grid;place-items:center;background:rgba(255,255,255,.05);box-shadow:var(--fx-card);color:var(--t2)}
+.wb-x:hover{background:rgba(255,255,255,.1);color:#fff}
+.wb-x svg{width:16px;height:16px}
+
+/* clicked while empty: the questions about this page, the page's tour and Wega's hub */
+.wb-sug{position:absolute;left:0;right:0;bottom:calc(100% + 8px);padding:8px;border-radius:12px;background:#141A26;box-shadow:var(--fx-modal);display:flex;flex-direction:column;animation:wbup .25s var(--ease) both}
+.wb-sug-h{padding:8px 12px 6px;font:500 12px/1.4 var(--mono);text-transform:uppercase;color:var(--t3)}
+.wb-sug button{display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:8px;text-align:left;font-size:15px;color:#fff}
+.wb-sug button:hover,.wb-sug button:focus-visible{background:rgba(255,255,255,.06)}
+.wb-sug svg{width:18px;height:18px;flex:none;color:var(--accent)}
+
+/* a running tour: the page darkens around the part Wega talks about; Wega's bubble sits beside it */
+.tr{position:fixed;inset:0;z-index:70;pointer-events:none}
+.tr-hole{position:fixed;border-radius:10px;box-shadow:0 0 0 1.5px #9ED3FF,0 0 0 6px rgba(158,211,255,.18),0 0 0 200vmax rgba(0,0,0,.7)}
+.tr-step{position:fixed;pointer-events:auto;display:flex;align-items:flex-start;gap:10px;animation:wbup .3s var(--ease) both}
+.tr-step>.wg-orb{flex:none;margin-top:2px}
+.tr-bub{flex:1;min-width:0;display:flex;flex-direction:column;gap:10px;padding:14px 16px;border-radius:4px 12px 12px 12px;background:#141A26;box-shadow:var(--fx-modal)}
+.tr-h{display:flex;justify-content:space-between;gap:12px;font:500 12px/1.4 var(--mono);text-transform:uppercase;color:var(--t3)}
+.tr-h span:first-child{color:var(--t2)}
+.tr-bub p{font-size:15px;line-height:1.5;color:rgba(255,255,255,.92)}
+.tr-acts{display:flex;align-items:center;gap:8px;margin-top:4px}
+.tr-acts .sp{flex:1}
+
+@media (max-width:860px){
+  .wb{left:50%;width:calc(100vw - 24px);bottom:calc(12px + env(safe-area-inset-bottom))}
+  .wb-fade{left:0}
+  .wb-box{gap:12px;padding:14px 12px 10px 14px}
+  .wb-msg{margin:0 10px -12px;padding:10px 8px 20px 12px;gap:10px}
+  .wb-msg .btn{padding:0 10px;font-size:14px}
+}

@@ -5,7 +5,8 @@ import { usePathname } from 'next/navigation';
 import { NAV_ICONS } from '@/lib/icons';
 import { S, useProgress, restoreDemo, setDemo, setHint, type DemoKind } from '@/lib/progress';
 import { toast, useToast } from '@/lib/toast';
-import { AskWega, WegaRoot } from '@/components/wega/Wega';
+import { WegaRoot } from '@/components/wega/Wega';
+import { toursReset } from '@/lib/tours';
 import { GOOSE } from '@/lib/icons';
 import { Svg } from '@/lib/svg';
 
@@ -57,7 +58,10 @@ function DemoSelect({ compact }: { compact?: boolean }) {
     <select
       aria-label="Prototype state"
       value={S.demo}
-      onChange={(e) => setDemo(e.target.value as DemoKind)}
+      onChange={(e) => {
+        setDemo(e.target.value as DemoKind);
+        if (e.target.value === 'fresh') toursReset();
+      }}
       className={compact ? 'demo-m' : undefined}
     >
       {opts.map(([v, l, s]) => (
@@ -158,10 +162,8 @@ export default function AppShell({ children }: { children: ReactNode }) {
             </nav>
             <div className="tb-r">
               <DemoSelect compact />
-              <AskWega where="bar" />
             </div>
           </div>
-          <AskWega where="top" />
           <div id="view">{children}</div>
         </main>
       </div>

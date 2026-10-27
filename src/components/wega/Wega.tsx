@@ -18,6 +18,7 @@ import { Fresh, StreamText, Thinking } from './Stream';
 import { AnswerFor } from '@/components/wega-page/Answer';
 import { Topics } from '@/components/wega-page/Topics';
 import { AskCtx } from '@/components/wega-page/parts';
+import { TourLayer, WegaBar } from './Bar';
 
 /* Wega, the AI copilot: the "Ask wega" button at the top right of every page and the side panel (prototype
    wgMount/wgSync/wgPush). Opened with no question, the panel is a small hub like the Wega page's (felipe, Oct 16,
@@ -286,7 +287,8 @@ function Peek() {
       removeEventListener('scroll', place, { capture: true });
     };
   }, [W.peek]);
-  if (!W.peek || !at || !wgHidden(W)) return null;
+  /* outside lessons the chat bar's "last chat" message says it instead */
+  if (!W.inline || !W.peek || !at || !wgHidden(W)) return null;
   const a = W.msgs.findLast((m) => m.role === 'wega' && !m.pending),
     q = W.msgs.findLast((m) => m.role === 'user')?.text;
   const text = a?.text ? plain(a.text) : '';
@@ -383,7 +385,7 @@ export function WegaRoot() {
   useEffect(() => {
     document.body.classList.toggle('wg-open', W.open);
     if (!W.open && document.activeElement && document.getElementById('wg')?.contains(document.activeElement))
-      [...document.querySelectorAll<HTMLElement>('.wg-ask')].find((b) => b.getClientRects().length)?.focus({ preventScroll: true });
+      [...document.querySelectorAll<HTMLElement>('.wg-ask, .wb textarea')].find((b) => b.getClientRects().length)?.focus({ preventScroll: true });
   }, [W.open]);
   useEffect(() => {
     document.body.dataset.screen = W.page.screen;
@@ -457,6 +459,8 @@ export function WegaRoot() {
         <p className="wg-note">Wega can make mistakes · Sample data · Not financial advice</p>
       </aside>
       <Peek />
+      <WegaBar />
+      <TourLayer />
     </>
   );
 }

@@ -63,6 +63,8 @@ export const wega = createStore({
   clock: null as null | (() => number),
   /** the conversation set aside when "Ask wega" opened the hub; the hub offers to go back to it */
   prev: null as null | Msg[],
+  /** the question whose "last chat" message above the chat bar the member closed with × */
+  lastX: 0,
 });
 let seq = 0;
 let ctl: AbortController | null = null;
@@ -130,6 +132,11 @@ export function wgSeen() {
   const W = wega.get();
   if (!W.ready && !W.peek) return;
   W.ready = W.peek = false;
+  wega.commit();
+}
+/** The member closed the "last chat" message above the chat bar; it comes back with the next question. */
+export function wgLastX(id: number) {
+  wega.get().lastX = id;
   wega.commit();
 }
 export function wgPeek(on: boolean) {
@@ -214,7 +221,7 @@ export function wgRun(intent: string, label?: string, extra?: unknown) {
   setTimeout(() => {
     fill(m, intent.startsWith('/wega/') ? { href: intent, fresh: true, follow: followFor(intent).map((h): Chip => [promptLabel(h) || h, h]) } : { ...answer(intent, extra), fresh: true });
     busy(false);
-  }, 1000 + Math.random() * 500);
+  }, 1800 + Math.random() * 700);
 }
 
 /** Free text: live through /api/wega when a model key is configured, otherwise the keyword router. */
@@ -225,10 +232,11 @@ export async function wgAsk(text: string) {
   busy(true);
   const W = wega.get();
   if (W.live === false) {
+    /* long enough to close the chat and see the "last chat" message above the chat bar still thinking */
     setTimeout(() => {
       fill(m, { ...routeText(text), fresh: true });
       busy(false);
-    }, 1200);
+    }, 2600);
     return;
   }
   const hist = W.msgs

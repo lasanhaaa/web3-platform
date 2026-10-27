@@ -1,6 +1,6 @@
 # Web3 Universe platform prototype
 
-A navigable prototype of the Web3 Universe platform: the Academy (routes, zones, lessons, quizzes), Badges & Certificates with the original badgeweb3 3D badges, Strategies, and Wega, the AI copilot (the "Ask wega" button at the top right of every page, its side panel and the Wega page). All portfolio numbers, returns and quiz questions are sample data.
+A navigable prototype of the Web3 Universe platform: the Academy (routes, zones, lessons, quizzes), Badges & Certificates with the original badgeweb3 3D badges, Strategies, and Wega, the AI copilot (the "Ask wega" chat bar at the bottom of every page, its side panel and the Wega page). All portfolio numbers, returns and quiz questions are sample data.
 
 ## Run it
 
@@ -10,6 +10,16 @@ npm run dev
 ```
 
 Open http://localhost:3000. The sidebar's "Prototype · State" picker switches between demo progress states (new member, Academy quiz open, midway through Route 1, last quiz open).
+
+## Ask wega chat bar (test, Oct 27)
+
+Ask wega is a chat bar fixed at the bottom of every page (Decade style; Figma section "wega chat bar · test" 3333:52128), instead of the old pill at the top right.
+
+- A question opens the chat on the right (the Wega panel, with the thinking line and the answer written word by word). The bar hides while the panel is open.
+- Clicked while empty, the bar offers the questions about this page, the page's tour and Wega's hub.
+- Above the bar Wega says one thing at a time. First, the last chat: when the panel is closed it shows the question, the thinking line while Wega works, then "Answer ready" with the start of the answer. "Open chat" brings the chat back. Otherwise, it offers the page's tour once.
+- Tours are on the Academy home, the course page and Strategies. When a tour starts, the bar hides, the page darkens and Wega's bubble points at each part inside a blue ring. Texts are scripted (`src/lib/tours.ts`). The prototype state "New: nothing done" offers the tours again.
+- The bar is not shown on lessons (they keep the Wega column beside the video), on quizzes or on the Wega page.
 
 ## Wega's live answers
 
@@ -42,7 +52,7 @@ The repo is connected to Vercel: every push to a branch gets a preview link, and
 ## Where things are
 
 - `src/app`: routes. Every Academy URL is prerendered with `generateStaticParams`.
-- `src/components`: one folder per area (academy, lesson, quiz, badges, strategies, wega for the button and side panel, wega-page for the Wega page, shell).
+- `src/components`: one folder per area (academy, lesson, quiz, badges, strategies, wega for the chat bar, tours and side panel, wega-page for the Wega page, shell).
 - `src/lib`: course data, quiz bank, sample portfolio, progress store, Wega's scripted brain (`wega-brain.tsx`, `wega-strategies.tsx`, `wega-page.ts`). Progress and Wega chats are kept in the browser (localStorage); there is no backend besides `/api/wega`.
 - `src/styles`: global CSS. `00-design-system.css` is a copy of the platform design system tokens; don't edit it here.
 - `public/w3u-badges.js` and `public/renders`: the original badgeweb3 engine and badge renders.
