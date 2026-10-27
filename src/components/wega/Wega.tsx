@@ -100,7 +100,6 @@ export function WegaText({ m }: { m: Msg }) {
 }
 
 export function Message({ m }: { m: Msg }) {
-  if (m.kind === 'div') return <div className="wg-div">{m.text}</div>;
   if (m.role === 'user')
     return (
       <div className="wg-m u" data-m={m.id}>

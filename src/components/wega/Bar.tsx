@@ -1,7 +1,7 @@
 'use client';
 import { useEffect, useRef, useState } from 'react';
 import { usePathname } from 'next/navigation';
-import { wega, wgAsk, wgHub, wgLastX, wgOpen, wgRun, wgStop, type Msg } from '@/lib/wega';
+import { wega, wgAsk, wgHub, wgLastX, wgOpen, wgRun, type Msg } from '@/lib/wega';
 import { chipsFor, ctxLabel } from '@/lib/wega-brain';
 import { tours, tourDismiss, tourEnd, tourFor, tourNext, tourSeen, tourStart, type Tour } from '@/lib/tours';
 import { toast } from '@/lib/toast';
@@ -12,7 +12,7 @@ import { Thinking } from './Stream';
 
 /* Ask wega as a chat bar fixed at the bottom of every page (felipe, Oct 27, after Decade; Figma section
    "wega chat bar · test" 3333:52128). It replaces the "Ask wega" pill at the top right. A question opens the chat on
-   the right (the Wega panel) and the bar hides until the panel closes. Above the bar Wega says one thing at a time:
+   the right (the Wega panel) as a new chat, and the bar hides until the panel closes; it also hides behind a modal. Above the bar Wega says one thing at a time:
    the last chat (so a closed chat is never lost: still thinking, then "Answer ready") or the tour of the page.
    Not on lessons (they keep the Wega column beside the video), quizzes (no Wega there) or the Wega page (already a chat). */
 
@@ -139,7 +139,6 @@ function BarInput({ path, sug, setSug }: { path: string; sug: boolean; setSug: (
     setVal('');
     setSug(false);
     ref.current?.blur();
-    if (W.busy) wgStop();
     wgAsk(t);
   };
   const go = (f: () => void) => {
@@ -264,19 +263,19 @@ export function TourLayer() {
         ? { bottom: vh - hole.top + 12, left, width: w }
         : { bottom: 24, left, width: w };
   return (
-    <div className="tr" role="dialog" aria-label="Tour of this page">
-      <div className="tr-hole" style={hole} />
-      <div className="tr-step" style={pos} key={T.i}>
+    <div className="wt" role="dialog" aria-label="Tour of this page">
+      <div className="wt-hole" style={hole} />
+      <div className="wt-step" style={pos} key={T.i}>
         <Orb size={30} />
-        <div className="tr-bub">
-          <div className="tr-h">
+        <div className="wt-bub">
+          <div className="wt-h">
             <span>Wega</span>
             <span>
               {T.i + 1} of {n}
             </span>
           </div>
           <p>{step.text}</p>
-          <div className="tr-acts">
+          <div className="wt-acts">
             {!last && (
               <button className="btn ghost" onClick={tourEnd}>
                 End tour

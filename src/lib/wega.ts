@@ -1,7 +1,7 @@
 'use client';
 import { useEffect, type ReactNode } from 'react';
 import { createStore } from './store';
-import { answer, routeText, rulesPrompt, ctxLabel } from './wega-brain';
+import { answer, routeText, rulesPrompt } from './wega-brain';
 import { followFor, promptLabel } from './wega-page';
 import { thinkSteps } from './wega-think';
 import { lessonView } from './player';
@@ -21,7 +21,6 @@ export type Answer = { text: string; node?: ReactNode; follow?: Chip[]; note?: s
 export type Msg = {
   id: number;
   role?: 'user' | 'wega';
-  kind?: 'div';
   text?: string;
   node?: ReactNode;
   pending?: boolean;
@@ -49,7 +48,6 @@ export const wega = createStore({
   /** the small pop-up under "Ask wega" with the start of that answer */
   peek: false,
   page: { screen: 'map' } as WegaPage,
-  ctxKey: '',
   /** null = no live model configured (scripted answers only) */
   live: undefined as boolean | undefined,
   prac: null as null | { list: any[]; i: number },
@@ -68,6 +66,8 @@ export const wega = createStore({
 });
 let seq = 0;
 let ctl: AbortController | null = null;
+/** the question being answered: a stopped one that still finishes doesn't end the next one's thinking */
+let run = 0;
 
 export const pageKey = (p: WegaPage) => [p.screen, p.r, p.z, p.l, p.sid].join('|');
 
@@ -80,15 +80,7 @@ export function useWegaPage(p: WegaPage) {
   }, [k]);
 }
 export function setWegaPage(p: WegaPage) {
-  const W = wega.get();
-  const prev = W.ctxKey;
-  const label = ctxLabel(p).replace(/ · \d\d:\d\d$/, '');
-  const k = label + '|' + p.screen;
-  W.page = p;
-  if (k !== prev) {
-    W.ctxKey = k;
-    if (prev && W.open && W.msgs.length && W.msgs.at(-1)?.kind !== 'div') W.msgs.push({ id: ++seq, kind: 'div', text: label });
-  }
+  wega.get().page = p;
   wega.commit();
 }
 
@@ -161,7 +153,7 @@ export const wgToggle = () => (wega.get().open ? wgClose() : wgOpen());
 export function wgNew() {
   wgStop();
   const W = wega.get();
-  if (W.msgs.some((m) => !m.kind)) W.prev = W.msgs;
+  if (W.msgs.length) W.prev = W.msgs;
   W.msgs = [];
   W.prac = null;
   wega.commit();
@@ -209,38 +201,50 @@ export function wgPushUser(text: string) {
   push({ role: 'user', text });
 }
 
+/** A question asked from outside the chat (the chat bar, a button on the page) while the chat is closed starts a new chat,
+    never one inside the last (felipe, Oct 27). The last one stays behind the hub's "Back to your last chat". */
+function start() {
+  const W = wega.get();
+  if (W.open || W.inline) return;
+  if (W.msgs.length) wgNew();
+  wgOpen();
+}
+
 /** Run a scripted intent (prompt chip or a button somewhere on the page), or one of the Wega page's ready questions
     (an intent that is its href, from the hub's topics). */
 export function wgRun(intent: string, label?: string, extra?: unknown) {
-  if (!wega.get().open && !wega.get().inline) wgOpen();
+  start();
   if (wega.get().busy) wgStop();
   if (label) push({ role: 'user', text: label });
   const m = push({ role: 'wega', pending: true, think: thinkSteps(intent, wega.get().page.screen) });
   busy(true);
+  const my = ++run;
   /* long enough to see Wega think, as with a live model */
   setTimeout(() => {
     fill(m, intent.startsWith('/wega/') ? { href: intent, fresh: true, follow: followFor(intent).map((h): Chip => [promptLabel(h) || h, h]) } : { ...answer(intent, extra), fresh: true });
-    busy(false);
+    if (my === run) busy(false);
   }, 1800 + Math.random() * 700);
 }
 
 /** Free text: live through /api/wega when a model key is configured, otherwise the keyword router. */
 export async function wgAsk(text: string) {
-  if (!wega.get().open && !wega.get().inline) wgOpen();
+  start();
+  if (wega.get().busy) wgStop();
   push({ role: 'user', text });
   const m = push({ role: 'wega', pending: true, think: thinkSteps(text, wega.get().page.screen) });
   busy(true);
+  const my = ++run;
   const W = wega.get();
   if (W.live === false) {
     /* long enough to close the chat and see the "last chat" message above the chat bar still thinking */
     setTimeout(() => {
       fill(m, { ...routeText(text), fresh: true });
-      busy(false);
+      if (my === run) busy(false);
     }, 2600);
     return;
   }
   const hist = W.msgs
-    .filter((x) => !x.kind && !x.pending && x.id < m.id && (x.text || '').trim())
+    .filter((x) => !x.pending && x.id < m.id && (x.text || '').trim())
     .slice(-10)
     .map((x) => ({ role: x.role === 'user' ? 'user' : 'assistant', content: x.text as string }));
   while (hist.length && hist[0].role !== 'user') hist.shift();
@@ -276,7 +280,7 @@ export async function wgAsk(text: string) {
     else fill(m, { ...routeText(text), note: 'The live answer didn’t work. This is a sample answer.', fresh: true, streaming: false });
   } finally {
     if (ctl === c) ctl = null;
-    busy(false);
+    if (my === run) busy(false);
   }
 }
 

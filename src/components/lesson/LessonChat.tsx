@@ -80,7 +80,7 @@ export function LessonChat({ rid, zi, li, k }: { rid: string; zi: number; li: nu
   useEffect(() => {
     if (V.chat) wgSeen();
   }, [V.chat]);
-  const msgs = W.msgs.filter((m) => m.id > W.inlineFrom && !m.kind);
+  const msgs = W.msgs.filter((m) => m.id > W.inlineFrom);
   const lastQ = msgs.filter((m) => m.role === 'user').at(-1)?.id;
   /* a new question goes to the top of the chat so its answer reads from the start; when it was asked from elsewhere
      on the page (the quick check) while the chat was closed, the chat opens */

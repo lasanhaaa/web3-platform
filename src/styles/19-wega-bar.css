@@ -3,6 +3,9 @@
 .wb.away{opacity:0;visibility:hidden;transform:translate(-50%,28px);pointer-events:none;transition:opacity .2s,transform .3s var(--ease),visibility 0s .3s}
 .wb-fade{position:fixed;z-index:39;left:240px;right:0;bottom:0;height:200px;pointer-events:none;background:linear-gradient(180deg,rgba(4,8,17,0),rgba(4,8,17,.86) 55%,#040811);transition:opacity .25s}
 .wb-fade.away{opacity:0}
+/* a modal (a strategy) or the badge reward covers the page: the bar isn't part of it */
+body.st-lock .wb,body:has(.w3r:not([hidden])) .wb{opacity:0;visibility:hidden;pointer-events:none;transition:none}
+body.st-lock .wb-fade,body:has(.w3r:not([hidden])) .wb-fade{opacity:0;transition:none}
 body.wb-on #view{padding-bottom:180px}
 body.wb-on .toast{bottom:200px}
 
@@ -40,16 +43,16 @@ body.wb-on .toast{bottom:200px}
 .wb-sug svg{width:18px;height:18px;flex:none;color:var(--accent)}
 
 /* a running tour: the page darkens around the part Wega talks about; Wega's bubble sits beside it */
-.tr{position:fixed;inset:0;z-index:70;pointer-events:none}
-.tr-hole{position:fixed;border-radius:10px;box-shadow:0 0 0 1.5px #9ED3FF,0 0 0 6px rgba(158,211,255,.18),0 0 0 200vmax rgba(0,0,0,.7)}
-.tr-step{position:fixed;pointer-events:auto;display:flex;align-items:flex-start;gap:10px;animation:wbup .3s var(--ease) both}
-.tr-step>.wg-orb{flex:none;margin-top:2px}
-.tr-bub{flex:1;min-width:0;display:flex;flex-direction:column;gap:10px;padding:14px 16px;border-radius:4px 12px 12px 12px;background:#141A26;box-shadow:var(--fx-modal)}
-.tr-h{display:flex;justify-content:space-between;gap:12px;font:500 12px/1.4 var(--mono);text-transform:uppercase;color:var(--t3)}
-.tr-h span:first-child{color:var(--t2)}
-.tr-bub p{font-size:15px;line-height:1.5;color:rgba(255,255,255,.92)}
-.tr-acts{display:flex;align-items:center;gap:8px;margin-top:4px}
-.tr-acts .sp{flex:1}
+.wt{position:fixed;inset:0;z-index:70;pointer-events:none}
+.wt-hole{position:fixed;border-radius:10px;box-shadow:0 0 0 1.5px #9ED3FF,0 0 0 6px rgba(158,211,255,.18),0 0 0 200vmax rgba(0,0,0,.7)}
+.wt-step{position:fixed;pointer-events:auto;display:flex;align-items:flex-start;gap:10px;animation:wbup .3s var(--ease) both}
+.wt-step>.wg-orb{flex:none;margin-top:2px}
+.wt-bub{flex:1;min-width:0;display:flex;flex-direction:column;gap:10px;padding:14px 16px;border-radius:4px 12px 12px 12px;background:#141A26;box-shadow:var(--fx-modal)}
+.wt-h{display:flex;justify-content:space-between;gap:12px;font:500 12px/1.4 var(--mono);text-transform:uppercase;color:var(--t3)}
+.wt-h span:first-child{color:var(--t2)}
+.wt-bub p{font-size:15px;line-height:1.5;color:rgba(255,255,255,.92)}
+.wt-acts{display:flex;align-items:center;gap:8px;margin-top:4px}
+.wt-acts .sp{flex:1}
 
 @media (max-width:860px){
   .wb{left:50%;width:calc(100vw - 24px);bottom:calc(12px + env(safe-area-inset-bottom))}

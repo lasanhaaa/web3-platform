@@ -16,10 +16,11 @@ Open http://localhost:3000. The sidebar's "Prototype · State" picker switches b
 Ask wega is a chat bar fixed at the bottom of every page (Decade style; Figma section "wega chat bar · test" 3333:52128), instead of the old pill at the top right.
 
 - A question opens the chat on the right (the Wega panel, with the thinking line and the answer written word by word). The bar hides while the panel is open.
+- Every question asked from the bar, or from a button on a page while the chat is closed, starts a new chat. The one before stays behind "Back to your last chat" in Wega's hub. Questions typed in the open chat continue it.
 - Clicked while empty, the bar offers the questions about this page, the page's tour and Wega's hub.
 - Above the bar Wega says one thing at a time. First, the last chat: when the panel is closed it shows the question, the thinking line while Wega works, then "Answer ready" with the start of the answer. "Open chat" brings the chat back. Otherwise, it offers the page's tour once.
 - Tours are on the Academy home, the course page and Strategies. When a tour starts, the bar hides, the page darkens and Wega's bubble points at each part inside a blue ring. Texts are scripted (`src/lib/tours.ts`). The prototype state "New: nothing done" offers the tours again.
-- The bar is not shown on lessons (they keep the Wega column beside the video), on quizzes or on the Wega page.
+- The bar is not shown on lessons (they keep the Wega column beside the video), on quizzes or on the Wega page. It also hides while a strategy or the badge reward is open.
 
 ## Wega's live answers
 
