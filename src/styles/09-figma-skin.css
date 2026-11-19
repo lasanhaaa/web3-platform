@@ -1,0 +1,131 @@
+/* ---------- Figma skin (felipe, 2026-10-14) ----------
+   Same rules as the rest of the product: cards have no stroke, only the Cards_box inner shadow;
+   radius 8 for cards, buttons and inner groups, 6 for widgets, tags and icon tiles, 4 for idle items;
+   Geist Medium titles with -3% tracking, Regular 16 body, Geist Mono Medium 12 uppercase eyebrows; mono tags. */
+:root{
+  --text:#fff; --t2:rgba(255,255,255,.6); --t3:rgba(255,255,255,.43); --t4:rgba(255,255,255,.3); --body:rgba(255,255,255,.72);
+  --surface:rgba(255,255,255,.05); --surface-2:rgba(255,255,255,.08); --surface-3:rgba(255,255,255,.08); --fill:#11141D;
+  --fx-card:inset 1px 1px 0 rgba(255,255,255,.1),inset -1px -1px 0 rgba(0,0,0,.1);
+  --fx-modal:inset 1px 1px 0 rgba(255,255,255,.1),0 12px 80.8px -9px rgba(0,0,0,.53);
+  --edge:var(--fx-card);
+  --sel-blue:inset 0 0 0 1px rgba(158,211,255,.75),inset 1px 1px 0 rgba(255,255,255,.1),0 0 0 4px rgba(158,211,255,.2);
+  --sel-green:inset 0 0 0 1px rgba(158,255,162,.75),inset 1px 1px 0 rgba(255,255,255,.1),0 0 0 4px rgba(158,255,162,.16);
+  --sel-red:inset 0 0 0 1px rgba(255,97,97,.75),inset 1px 1px 0 rgba(255,255,255,.1),0 0 0 4px rgba(255,97,97,.16);
+  --bad:#FF6161; --track:#253347;
+  --r-xl:8px; --r-lg:8px; --r-md:8px; --r-sm:6px;
+}
+body{font-size:16px;line-height:1.5;letter-spacing:0}
+h1,h2,h3{font-weight:500;letter-spacing:-.03em;line-height:1.4}
+.mono{font-size:12px;letter-spacing:0;font-weight:500}
+.kpi .mono,.ftop .ttl .mono,.lives .mono,.sim .ctl .mono,.fb .mono,.status div span,.status p{font-size:12px;letter-spacing:0}
+.app{background:radial-gradient(60% 40% at 70% 0%,rgba(158,211,255,.07),transparent 70%),var(--bg)}
+.side{border-right:1px solid rgba(255,255,255,.1)}
+
+/* sidebar items */
+.nav{gap:2px}
+.nav :is(button,a){height:37px;padding:8px;gap:8px;border-radius:4px;font-size:14px;line-height:1.5;color:rgba(255,255,255,.4)}
+.nav :is(button,a) svg{width:20px;height:20px;opacity:1}
+.nav :is(button,a):hover{border-radius:6px;color:#fff;background:linear-gradient(283deg,rgba(255,255,255,.13),transparent 43%),rgba(255,255,255,.1);box-shadow:inset 1px 1px 0 rgba(255,255,255,.2)}
+.nav :is(button,a).on{border-radius:6px;color:#fff;background:linear-gradient(283deg,rgba(158,211,255,.13),transparent 43%),rgba(158,211,255,.1);box-shadow:inset 1px 1px 0 rgba(158,211,255,.2)}
+.nav .count{font-size:12px;color:inherit}
+.search{border-radius:6px;font-size:14px}
+.demo{border-radius:8px;box-shadow:var(--fx-card);background:rgba(158,211,255,.05)}
+.demo select{border:0;border-radius:6px;box-shadow:var(--fx-card);background:rgba(255,255,255,.08)}
+
+/* cards */
+.card{background:var(--surface);border:0;border-radius:8px;box-shadow:var(--fx-card)}
+.ac-card:hover,.rcard:hover,.bt:hover{background:rgba(255,255,255,.07)}
+.cont .pic,.ac-card .pic,.rcard .pic,.r-head .pic{--fade:var(--fill)}
+.cont .pic::after{background:linear-gradient(90deg,var(--fade) 0%,rgba(17,20,29,0) 40%)}
+.ac-card .pic::after{background:linear-gradient(90deg,rgba(17,20,29,0) 55%,var(--fade) 100%)}
+.r-head .pic::after{background:linear-gradient(90deg,var(--fade) 0%,rgba(17,20,29,0) 45%)}
+.pic::after{background:linear-gradient(180deg,rgba(17,20,29,0) 50%,var(--fade,var(--fill)) 100%)}
+.tab{border:0;border-radius:8px;background:rgba(255,255,255,.03);box-shadow:var(--fx-card)}
+.tab.on{background:rgba(255,255,255,.08);box-shadow:var(--sel-blue)}
+.lock-banner{border:0;border-radius:8px;background:rgba(255,255,255,.03);box-shadow:var(--fx-card)}
+.li{border-radius:6px}
+.li.on{background:rgba(255,255,255,.08);box-shadow:var(--fx-card)}
+.bgrid button{border-radius:6px}
+.toast{border-radius:8px;background:#151A26;box-shadow:var(--fx-modal)}
+
+/* type scale (Figma "Home widgets" styles) */
+.lt{font-size:32px;line-height:1.4;letter-spacing:-.03em}
+.lt-sub{font-size:16px;color:var(--t2)}
+.cont h2,.ac-body h3,.z-head h2,.l-info h1,.endcard h3{font-size:24px;line-height:1.4}
+.rcard h3{font-size:24px;line-height:1.4}
+.sec-h h2{font-size:18px;line-height:1.5}
+.r-head h1,.q-intro h1,.stage h1{font-size:32px;line-height:1.4}
+.q-head h1{font-size:28px;line-height:1.4}
+.kpi b{font-size:32px;line-height:1.5;font-weight:500;letter-spacing:-.03em}
+.q-facts b{font-size:24px}
+.row .tx b{font-size:16px}
+.row .tx small,.rcard .meta,.lockline,.next-txt,.tab small,.li .t small{font-size:14px;letter-spacing:-.03em;color:var(--t3)}
+.rcard p,.l-info p,.stage .lead,.z-head p{font-size:16px;color:var(--t2)}
+.tab b,.li .t b{font-size:14px}
+.bcard h3,.l-list h3{font-size:16px;font-weight:500;letter-spacing:-.03em;color:#fff}
+
+/* buttons (Figma 284:11345) */
+.btn{height:40px;padding:9px 14px;border-radius:8px;font-weight:600;font-size:16px;line-height:21.4px;letter-spacing:-.03em;box-shadow:var(--fx-card)}
+.btn svg{width:16px;height:16px}
+.btn.primary{background:#fff;color:#000}
+.btn.primary:hover{background:#E9F4FF}
+.btn.ghost{background:rgba(255,255,255,.05);color:var(--t2)}
+.btn.ghost:hover{background:rgba(255,255,255,.08);color:#fff}
+.btn.lg{height:48px;padding:13px 16px;font-size:16px;border-radius:8px}
+.btn.text{box-shadow:none;height:auto;padding:0;font-weight:500;letter-spacing:-.01em}
+.btn.wega{height:40px;border-radius:37px;padding:0 16px 0 6px;background:linear-gradient(180deg,rgba(158,211,255,.16),rgba(23,131,255,.08));box-shadow:inset 0 0 0 1px #9ED3FF,0 0 24px rgba(23,131,255,.25);color:#fff;font-weight:500}
+
+/* tags (Figma 318:24419, 287:16178) */
+.chip{height:29px;padding:4px 6px;gap:6px;border-radius:6px;font:500 14px/1.5 var(--mono);text-transform:uppercase;letter-spacing:0;background:rgba(255,255,255,.05);color:var(--t2);box-shadow:var(--fx-card)}
+.chip svg{width:12px;height:12px}
+.chip.good{background:rgba(158,255,162,.1);color:var(--good)}
+.chip.acc{background:rgba(158,211,255,.1);color:var(--accent)}
+.chip.bad{background:rgba(255,97,97,.1);color:var(--bad)}
+.chip.new{background:#E84142;color:#fff;font:500 16px/1.5 var(--font);text-transform:none;box-shadow:none;height:28px;padding:2px 6px}
+
+/* progress (Figma Academy segments: no radius, blue at .32 with a 2px bottom line) */
+.pbar,.seg .pbar{height:6px;border-radius:0;background:rgba(255,255,255,.1)}
+.pbar>span,.seg .pbar>span{border-radius:0;background:linear-gradient(180deg,rgba(158,211,255,.32) 0 calc(100% - 2px),#9ED3FF calc(100% - 2px))}
+.q-prog span{background:var(--accent)}
+.qsteps i{border-radius:0}
+
+/* step badges and icon tiles */
+.ri{width:32px;height:32px;font-size:12px;background:rgba(255,255,255,.05);color:var(--t2);box-shadow:var(--fx-card)}
+.row.done .ri,.li.done .ri{background:rgba(158,255,162,.15);color:var(--good);box-shadow:none}
+.row.now .ri,.li.on .ri{background:rgba(158,211,255,.15);color:var(--accent);box-shadow:0 0 0 4px rgba(158,211,255,.08)}
+.row.lock .ri{background:rgba(255,255,255,.03);color:var(--t4);box-shadow:none}
+.row.quiz .ri{border-radius:6px}
+.li .ri{width:28px;height:28px}
+.ztile,.rcard .zl .ztile,.tab .ztile{border-radius:6px;box-shadow:var(--fx-card)}
+.ztile.locked{box-shadow:var(--fx-card)}
+.sq{border-radius:6px}
+.opt .l,.ccard .cl .l,.oi .n,.oi .mv button{border-radius:6px;box-shadow:var(--fx-card)}
+
+/* quiz (Figma quiz frames: selected = blue ring + glow, right = green, wrong = red) */
+.opt,.ccard,.oi,.rv,.sim .plot,.sim .ctl,.fstep{border:0;border-radius:8px;background:var(--surface);box-shadow:var(--fx-card)}
+.opt:hover:not(:disabled){background:rgba(255,255,255,.08)}
+.opt.sel,.ccard.sel,.oi.over,.fstep.slot.filled{background:rgba(255,255,255,.08);box-shadow:var(--sel-blue)}
+.opt.right,.ccard.right,.oi.right,.fstep.slot.right{background:rgba(158,255,162,.06);box-shadow:var(--sel-green)}
+.opt.wrong,.ccard.wrong,.oi.wrong,.fstep.slot.wrong{background:rgba(255,97,97,.06);box-shadow:var(--sel-red)}
+.opt.hint,.ccard.hint{box-shadow:inset 0 0 0 1px rgba(158,255,162,.35),var(--fx-card)}
+.fstep.slot{border:1.5px dashed rgba(255,255,255,.16);background:transparent;box-shadow:none}
+.fstep.slot.filled,.fstep.slot.right,.fstep.slot.wrong{border:0}
+.ccard svg{border-radius:6px}
+.status{border:0;border-radius:8px;background:rgba(255,255,255,.03);box-shadow:var(--fx-card)}
+.lives i{border-radius:0}
+.q-foot.no{border-top-color:rgba(255,97,97,.45);background:linear-gradient(0deg,rgba(255,97,97,.08),rgba(255,97,97,.03)),rgba(4,8,17,.92)}
+
+/* badges page frame (badges themselves stay badgeweb3) */
+.bc h1{font-size:24px;font-weight:500;line-height:1.4;letter-spacing:-.03em;color:#fff}
+.bc .group-head h2,.bc .path-head h2{font-weight:500;letter-spacing:-.03em}
+.bc .path{border:0;border-radius:8px;background:rgba(255,255,255,.03);box-shadow:var(--fx-card)}
+.bc .tile{border-radius:8px}
+.bc .view-switch{border:0;background:none;padding:0;gap:4px;border-radius:0}
+.bc .view-switch a{height:40px;padding:8px 14px;border:0;border-radius:4px;color:var(--t2);font-size:16px;font-weight:400;box-shadow:none;background:none}
+.bc .view-switch a[aria-current='page']{border-radius:48px;color:#fff;font-weight:600;letter-spacing:-.03em;background:rgba(255,255,255,.08);box-shadow:var(--fx-card)}
+.bc .bar,.bc .bar > span,.bc .steps i{border-radius:0}
+@media (max-width:860px){
+  .cont .pic::after,.r-head .pic::after,.ac-card .pic::after{background:linear-gradient(180deg,rgba(17,20,29,0) 40%,var(--fade) 100%)}
+  .lt{font-size:28px}
+}
+

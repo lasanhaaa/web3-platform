@@ -1,0 +1,45 @@
+/* ---------- atoms ---------- */
+.card{background:var(--surface);border:1px solid var(--hair);border-radius:var(--r-lg)}
+.btn{display:inline-flex;align-items:center;gap:8px;justify-content:center;height:40px;padding:0 18px;border-radius:10px;font-weight:500;font-size:14px;white-space:nowrap;transition:background .2s,opacity .2s,transform .2s var(--ease)}
+.btn svg{width:14px;height:14px}
+.btn:active:not(:disabled){transform:scale(.98)}
+.btn.primary{background:#fff;color:#040811}
+.btn.primary:hover{background:#E9F4FF}
+.btn.ghost{background:rgba(255,255,255,.07);color:var(--text);box-shadow:var(--edge)}
+.btn.ghost:hover{background:rgba(255,255,255,.11)}
+.btn.text{height:auto;padding:0;color:var(--accent);font-weight:500}
+.btn.text:hover{text-decoration:underline}
+.btn.good{background:var(--good);color:#06210a}
+.btn.bad{background:var(--bad);color:#fff}
+.btn:disabled{opacity:.35;cursor:not-allowed}
+.btn.lg{height:48px;padding:0 24px;font-size:15px;border-radius:12px}
+.back{display:inline-flex;align-items:center;gap:8px;color:var(--t2);font-size:14px}
+.back:hover{color:var(--text)}
+.back i{width:22px;height:22px;border-radius:50%;display:grid;place-items:center;background:rgba(255,255,255,.07);box-shadow:var(--edge)}
+.back svg{width:11px;height:11px}
+.chip{display:inline-flex;align-items:center;gap:6px;height:26px;padding:0 10px;border-radius:999px;font-size:12.5px;background:rgba(255,255,255,.06);color:var(--t2);white-space:nowrap}
+.chip svg{width:12px;height:12px}
+.chip.good{background:rgba(158,255,162,.1);color:var(--good)}
+.chip.acc{background:rgba(158,211,255,.1);color:var(--accent)}
+.pbar{height:4px;border-radius:4px;background:rgba(255,255,255,.08);overflow:hidden}
+.pbar>span{display:block;height:100%;border-radius:4px;background:linear-gradient(90deg,#5E8FC4,var(--accent));transition:width .6s var(--ease)}
+.sq{width:22px;height:22px;flex:none;border-radius:6px;display:grid;place-items:center;background:rgba(255,255,255,.06);box-shadow:var(--edge);color:var(--t3)}
+.sq svg{width:11px;height:11px}
+.sq.done{background:#2A3A52;color:#fff}
+.sq.open{background:rgba(158,255,162,.14);color:var(--good)}
+
+/* segmented progress (Figma academy card) */
+.seg{display:flex;align-items:center;gap:8px}
+.seg .pbar{flex:1;height:3px}
+.seg .pbar>span{background:linear-gradient(90deg,#4B6D96,#BFD9F2)}
+
+/* zone tile ("01" box) */
+.ztile{--s:44px;width:var(--s);height:var(--s);flex:none;border-radius:calc(var(--s)*.24);display:grid;place-items:center;font-family:var(--mono);font-size:calc(var(--s)*.32);color:var(--text);
+  background:linear-gradient(-45deg,rgba(255,255,255,.14) 10%,rgba(255,255,255,.03) 70%),rgba(255,255,255,.03);box-shadow:inset 1px 1px 0 0 rgba(255,255,255,.18),inset 0 0 0 1px rgba(255,255,255,.08)}
+.ztile.locked{color:var(--t3);background:rgba(255,255,255,.03);box-shadow:inset 0 0 0 1px rgba(255,255,255,.06)}
+.ztile svg{width:40%;height:40%}
+
+.pic{position:relative;overflow:hidden;background:#070B15}
+.pic img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 60%}
+.pic::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(4,8,17,0) 50%,var(--fade,#0A0F1B) 100%)}
+
