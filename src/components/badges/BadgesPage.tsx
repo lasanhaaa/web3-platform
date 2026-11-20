@@ -1,9 +1,9 @@
 'use client';
-/* Badges and certificates (Figma 2402:51204): the three certificates first (felipe, Oct 16), then every badge in one grid.
+/* Badges and certificates (Figma 2402:51204): the certificates first (felipe, Oct 16; Mentoring added Nov 20), then every badge in one grid.
    Each tile says plainly where it stands: completed, how far along, or what opens it.
    Earned items open in the 3D viewer; the others take you to the zone that earns them. */
 import type { CSSProperties } from 'react';
-import { CAT, still } from '@/lib/badges';
+import { CAT, CERTS, still } from '@/lib/badges';
 import { S, useProgress, routeOpen, zoneOpen, isDone } from '@/lib/progress';
 import { openViewer } from '@/lib/reward';
 import { useGo } from '@/lib/nav';
@@ -16,6 +16,7 @@ type Status = { state: 'earned' | 'progress' | 'locked'; label: string; pct?: nu
 /* eslint-disable @next/next/no-img-element */
 function status(it: Item, c: Cat): Status {
   const r = c.r;
+  if (it.fixed) return { state: 'earned', label: 'Issued' };
   if (!it.coin && !it.card) {
     const z = r.zones[it.index],
       total = z.lessons.length,
@@ -68,7 +69,7 @@ export function BadgesPage() {
   if (!hydrated) return <div className="page bx" />;
   const open = (id: string) => openViewer(id, (r, z) => go({ screen: 'route', r, z }));
   const badges: [Item, Cat][] = CAT.flatMap((c: Cat) => c.items.filter((x: Item) => !x.card).map((x: Item) => [x, c]));
-  const certs: [Item, Cat][] = CAT.flatMap((c: Cat) => c.extra.filter((x: Item) => x.card).map((x: Item) => [x, c]));
+  const certs = CERTS as [Item, Cat][];
   const nb = badges.filter(([x, c]) => status(x, c).state === 'earned').length,
     nc = certs.filter(([x, c]) => status(x, c).state === 'earned').length;
   return (

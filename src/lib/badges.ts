@@ -19,13 +19,22 @@ export const CAT = ROUTES.map((r) => {
   const extra = r.id === 'academy' ? [] : [{ id: p + '-coin', rid: r.id, coin: true, glow: '255 190 85' }, { id: p + '-card', rid: r.id, card: true, glow: hex2rgb(c) }];
   return { r, id: r.id, color: c, name: r.name, levels, extra, items: [...levels, ...extra] };
 });
+/** Mentoring (felipe, 2026-11-20): a fourth certificate, purple like the Mentoring card. It has no Academy route,
+    levels or coin in the prototype yet, so it stays out of CAT (every path view expects levels) and shows as issued,
+    so its colours can be seen and it opens in the 3D viewer. */
+const MC = '#c25ad6';
+const mentoringCard = { id: 'mentoring-card', rid: 'mentoring', card: true, fixed: true, glow: hex2rgb(MC) };
+export const MENTORING = { r: { id: 'mentoring', name: 'Mentoring', zones: [] }, id: 'mentoring', color: MC, name: 'Mentoring', levels: [], extra: [mentoringCard], items: [mentoringCard] };
+/** every certificate card with its path, in page order */
+export const CERTS = [...CAT, MENTORING].flatMap((c) => c.extra.filter((x) => x.card).map((x) => [x, c]));
 export const catItem = (id) => {
-  for (const c of CAT) for (const it of c.items) if (it.id === id) return [it, c];
+  for (const c of [...CAT, MENTORING]) for (const it of c.items) if (it.id === id) return [it, c];
   return [null, null];
 };
 export const nameOf = (it, c) => (it.card ? c.name : it.coin ? 'Completion coin' : it.title);
 export const stepOf = (it) => (it.coin ? 'Completion' : it.intro ? 'Intro' : `Level ${it.level}`);
 export function bState(it) {
+  if (it.fixed) return { state: 'earned', done: 0, total: 0, hint: 'Issued' };
   const r = R(it.rid);
   if (!it.coin && !it.card) {
     const z = r.zones[it.index],
