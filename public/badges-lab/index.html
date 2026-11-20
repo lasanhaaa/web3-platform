@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#03060d" />
+    <title>Badge Earned</title>
+    <script>document.documentElement.classList.add('js');</script>
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath d='M16 2l12.5 6.8v14.4L16 30 3.5 23.2V8.8z' fill='%23a99cff'/%3E%3C/svg%3E" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap"
+    />
+    <script type="module" crossorigin src="./assets/main-BE0LBsoD.js"></script>
+    <link rel="modulepreload" crossorigin href="./assets/badges-DpOP_urh.js">
+    <link rel="modulepreload" crossorigin href="./assets/model-KlMUOKbj.js">
+    <link rel="modulepreload" crossorigin href="./assets/style-B9zLhRTu.js">
+    <link rel="modulepreload" crossorigin href="./assets/fx-BeBc-5iB.js">
+    <link rel="stylesheet" crossorigin href="./assets/style-CyYbU8Kt.css">
+  </head>
+  <body>
+    <div class="bg" aria-hidden="true"></div>
+    <!-- Theme-coloured wash that floods in when a badge is earned. -->
+    <div class="bg-tint" aria-hidden="true"></div>
+
+    <!-- Prototype controls: pick a route and stage, replay, open the gallery. Filled by main.js. -->
+    <nav class="toolbar" aria-label="Preview another badge"></nav>
+
+    <main class="screen">
+      <section class="reward" aria-labelledby="badge-title">
+        <div class="badge-slot">
+          <div class="halo" aria-hidden="true"></div>
+          <div class="rays" aria-hidden="true"></div>
+          <canvas class="badge-canvas" aria-hidden="true"></canvas>
+          <button class="badge-hit" type="button"></button>
+        </div>
+
+        <p class="eyebrow">
+          <span class="sr-only eyebrow-sr"></span>
+          <span class="eyebrow-text" aria-hidden="true"></span>
+        </p>
+        <h1 id="badge-title" class="title"></h1>
+        <p class="desc"></p>
+
+        <button class="btn-next" type="button">Next</button>
+      </section>
+    </main>
+
+    <p class="hint" aria-hidden="true">
+      <svg viewBox="0 0 16 16" width="14" height="14">
+        <rect x="4.5" y="1.5" width="7" height="13" rx="3.5" fill="none" stroke="currentColor" stroke-width="1.2" />
+        <path d="M8 4v2.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" />
+      </svg>
+      <span class="hint-text">Drag to spin · Click to flip</span>
+    </p>
+
+  </body>
+</html>
