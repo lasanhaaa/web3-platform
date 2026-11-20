@@ -6,7 +6,7 @@
 
 .bx-grid,.bx-certs{list-style:none;margin:0;padding:0}
 .bx-grid{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:40px 21px;margin-top:96px}
-.bx-certs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:40px 32px}
+.bx-certs{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:40px 32px}
 
 .bx-btn{display:flex;flex-direction:column;align-items:center;gap:24px;width:100%;text-align:center;border-radius:12px}
 .bx-btn:focus-visible{outline:2px solid var(--accent);outline-offset:4px}
@@ -36,6 +36,8 @@
 .bx-cert .bx-btn:hover .bx-art{background:none}
 
 @media (max-width:1519px){.bx-grid{grid-template-columns:repeat(4,minmax(0,1fr))}}
+/* four certificates since Mentoring (2026-11-20): one row of four, or two by two, never three and one */
+@media (max-width:1279px){.bx-certs{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media (max-width:1039px){.bx-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.bx-certs{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media (max-width:700px){
   .page.bx{padding-top:32px}
